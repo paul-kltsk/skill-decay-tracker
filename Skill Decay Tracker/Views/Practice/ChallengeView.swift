@@ -65,7 +65,7 @@ private struct ErrorSessionView: View {
         VStack(spacing: SDTSpacing.xl) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(.sdtHealthWilting)
+                .foregroundStyle(Color.sdtHealthWilting)
             Text(message)
                 .sdtFont(.bodyMedium, color: .sdtSecondary)
                 .multilineTextAlignment(.center)

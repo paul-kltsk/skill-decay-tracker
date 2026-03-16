@@ -45,7 +45,7 @@ struct HomeView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             if let skill = viewModel.skillPendingDelete {
-                Text(""\(skill.name)" and all its history will be permanently deleted.")
+                Text("\"\(skill.name)\" and all its history will be permanently deleted.")
             }
         }
         .task {

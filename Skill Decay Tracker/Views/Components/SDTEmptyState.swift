@@ -22,7 +22,7 @@ struct SDTEmptyState: View {
         VStack(spacing: SDTSpacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: 56, weight: .light))
-                .foregroundStyle(.sdtSecondary)
+                .foregroundStyle(Color.sdtSecondary)
 
             VStack(spacing: SDTSpacing.sm) {
                 Text(title)

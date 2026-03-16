@@ -52,7 +52,7 @@ struct ChallengeFeedbackView: View {
 
                 Image(systemName: result.isCorrect ? "checkmark" : "xmark")
                     .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(result.isCorrect ? .sdtHealthThriving : .sdtHealthCritical)
+                    .foregroundStyle(result.isCorrect ? Color.sdtHealthThriving : Color.sdtHealthCritical)
                     .scaleEffect(appeared ? 1 : 0.3)
                     .animation(SDTAnimation.scoreChange, value: appeared)
             }

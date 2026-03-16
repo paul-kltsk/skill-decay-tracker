@@ -78,7 +78,7 @@ struct SkillSuggestionsView: View {
 
     var body: some View {
         if suggestions.isEmpty {
-            Text("No suggestions match "\(query)"")
+            Text("No suggestions match \"\(query)\"")
                 .sdtFont(.caption, color: .sdtSecondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, SDTSpacing.xs)

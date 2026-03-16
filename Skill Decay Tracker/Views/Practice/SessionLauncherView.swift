@@ -124,7 +124,7 @@ struct SessionLauncherView: View {
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(disabled ? .sdtSecondary.opacity(0.4) : .sdtSecondary)
+                    .foregroundStyle(disabled ? Color.sdtSecondary.opacity(0.4) : Color.sdtSecondary)
             }
             .padding(SDTSpacing.lg)
             .background(Color.sdtSurface)

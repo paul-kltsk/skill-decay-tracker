@@ -346,7 +346,7 @@ private func stepHeader(icon: String, title: String, subtitle: String) -> some V
     VStack(alignment: .leading, spacing: SDTSpacing.sm) {
         Image(systemName: icon)
             .font(.system(size: 32, weight: .medium))
-            .foregroundStyle(.sdtPrimary)
+            .foregroundStyle(Color.sdtPrimary)
 
         Text(title)
             .sdtFont(.titleMedium)
