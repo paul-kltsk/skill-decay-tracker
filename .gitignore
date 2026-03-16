@@ -1,0 +1,16 @@
+# Xcode
+*.xcuserdata/
+*.xcworkspace/
+DerivedData/
+build/
+
+# Swift Package Manager
+.build/
+Packages/
+
+# OS
+.DS_Store
+
+# Claude Code local cache (не коммить API ключи!)
+# .claude/ — можно коммитить settings.json, но не credentials
+.claude/worktrees/
