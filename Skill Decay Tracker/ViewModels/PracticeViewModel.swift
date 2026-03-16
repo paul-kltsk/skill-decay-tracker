@@ -1,1 +1,364 @@
 import SwiftUI
+import SwiftData
+
+// MARK: - Session Mode
+
+/// The three practice modes available from ``SessionLauncherView``.
+enum SessionMode: Sendable {
+    /// All overdue skills — up to 2 challenges each, sorted by urgency.
+    case dailyReview
+    /// The single most-critical skill — up to 5 challenges.
+    case quickPractice
+    /// One user-selected skill — all available challenges.
+    case deepDive(skillID: UUID)
+}
+
+// MARK: - Practice Phase
+
+/// State machine phases for the practice session.
+enum PracticePhase: Equatable {
+    case idle
+    case loading
+    case inChallenge
+    case evaluating
+    case showingFeedback
+    case sessionComplete
+    case error(String)
+}
+
+// MARK: - Session Summary
+
+/// Immutable summary produced at the end of a session.
+struct SessionSummary: Sendable {
+    let totalChallenges: Int
+    let correctCount: Int
+    let xpEarned: Int
+    let skillNames: [String]
+    let durationSeconds: Int
+
+    var accuracy: Double {
+        guard totalChallenges > 0 else { return 0 }
+        return Double(correctCount) / Double(totalChallenges)
+    }
+}
+
+// MARK: - Practice ViewModel
+
+/// Drives the full practice session lifecycle.
+///
+/// **State machine:** `idle → loading → inChallenge ⇄ evaluating → showingFeedback → (loop or sessionComplete)`
+///
+/// Consumers observe `phase` to decide which UI to show.
+/// ``ChallengeView`` owns the ViewModel as `@State` and passes it down as `@Bindable`.
+@Observable
+@MainActor
+final class PracticeViewModel {
+
+    // MARK: - Public State
+
+    var phase: PracticePhase = .idle
+    /// Set to `true` when a session starts; drives `.fullScreenCover` in launcher.
+    var isSessionActive = false
+
+    /// Challenges queued for this session (shuffled).
+    private(set) var challenges: [Challenge] = []
+    /// Index of the currently displayed challenge.
+    private(set) var currentIndex = 0
+
+    /// The text answer typed by the user (open-ended / code types).
+    var userAnswer = ""
+    /// The option tapped by the user (multiple-choice / true-false types).
+    var selectedOption: String? = nil
+
+    /// The evaluation result for the challenge just answered.
+    private(set) var evaluationResult: EvaluationResult? = nil
+
+    /// Seconds remaining on the current challenge's countdown.
+    private(set) var timeRemaining = 0
+
+    /// Summary available once `phase == .sessionComplete`.
+    private(set) var summary: SessionSummary? = nil
+
+    // MARK: - Private State
+
+    private var sessionResults: [ChallengeResult] = []
+    private var sessionXP = 0
+    private var sessionStartTime = Date.now
+    private var answerStartTime  = Date.now
+    private var reviewedSkillNames: Set<String> = []
+    private var timerTask: Task<Void, Never>? = nil
+
+    // MARK: - Computed
+
+    var currentChallenge: Challenge? {
+        guard currentIndex < challenges.count else { return nil }
+        return challenges[currentIndex]
+    }
+
+    /// Session completion progress 0…1 (advances after each answer).
+    var sessionProgress: Double {
+        guard !challenges.isEmpty else { return 0 }
+        return Double(currentIndex) / Double(challenges.count)
+    }
+
+    /// Timer fill 0…1 (1 = full time, 0 = expired).
+    var timerProgress: Double {
+        guard let c = currentChallenge, c.timeLimitSeconds > 0 else { return 1 }
+        return Double(timeRemaining) / Double(c.timeLimitSeconds)
+    }
+
+    // MARK: - Start Session
+
+    /// Builds the challenge queue for `mode` and transitions to `.inChallenge`.
+    func startSession(mode: SessionMode, skills: [Skill], context: ModelContext) async {
+        phase            = .loading
+        isSessionActive  = true
+        sessionStartTime = Date.now
+        sessionResults   = []
+        sessionXP        = 0
+        reviewedSkillNames = []
+
+        var queue: [Challenge] = []
+
+        switch mode {
+
+        case .dailyReview:
+            let overdue = skills
+                .filter { $0.nextReviewDate <= Date.now }
+                .sorted { $0.healthScore < $1.healthScore }
+            for skill in overdue {
+                let pending = skill.pendingChallenges
+                if pending.isEmpty {
+                    let new = await fetchOrGenerate(skill: skill, count: 3, context: context)
+                    queue.append(contentsOf: new.prefix(2))
+                } else {
+                    queue.append(contentsOf: pending.prefix(2))
+                }
+            }
+
+        case .quickPractice:
+            guard let skill = skills.min(by: { $0.healthScore < $1.healthScore }) else {
+                phase = .error("No skills to practice. Add some skills first.")
+                return
+            }
+            var pending = skill.pendingChallenges
+            if pending.count < 5 {
+                let more = await fetchOrGenerate(
+                    skill: skill, count: 5 - pending.count, context: context)
+                pending.append(contentsOf: more)
+            }
+            queue = Array(pending.prefix(5))
+
+        case .deepDive(let skillID):
+            guard let skill = skills.first(where: { $0.id == skillID }) else {
+                phase = .error("Skill not found.")
+                return
+            }
+            var pending = skill.pendingChallenges
+            if pending.isEmpty {
+                pending = await fetchOrGenerate(skill: skill, count: 5, context: context)
+            }
+            queue = pending
+        }
+
+        try? context.save()
+        challenges = queue.shuffled()
+        currentIndex = 0
+
+        if challenges.isEmpty {
+            phase = .error("No challenges found. Try again or add more skills.")
+        } else {
+            beginChallenge()
+        }
+    }
+
+    // MARK: - Challenge Flow
+
+    private func beginChallenge() {
+        guard currentIndex < challenges.count else {
+            finishSession()
+            return
+        }
+        userAnswer    = ""
+        selectedOption = nil
+        evaluationResult = nil
+        answerStartTime  = Date.now
+        phase = .inChallenge
+        startCountdown()
+
+        if let skill = challenges[currentIndex].skill {
+            reviewedSkillNames.insert(skill.name)
+        }
+    }
+
+    /// Selects a tappable option (multiple-choice / true-false).
+    func selectOption(_ option: String) {
+        selectedOption = option
+        userAnswer     = option
+    }
+
+    /// Submits the current answer, evaluates via AI, and updates the skill.
+    func submitAnswer(context: ModelContext) async {
+        guard let challenge = currentChallenge else { return }
+        let answer = userAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !answer.isEmpty || selectedOption != nil else { return }
+
+        phase = .evaluating
+        timerTask?.cancel()
+        let elapsed = Date.now.timeIntervalSince(answerStartTime)
+
+        do {
+            let eval = try await AIService.shared.evaluateAnswer(
+                challenge: challenge,
+                userAnswer: answer,
+                responseTime: elapsed
+            )
+            await recordResult(eval: eval, answer: answer,
+                                elapsed: elapsed, challenge: challenge, context: context)
+        } catch {
+            // Evaluation failed — mark wrong, show fallback feedback
+            let fallback = EvaluationResult(
+                isCorrect: false,
+                feedback: "Could not evaluate. Correct answer: \(challenge.correctAnswer). \(challenge.explanation)",
+                inferredConfidence: .low
+            )
+            await recordResult(eval: fallback, answer: answer,
+                                elapsed: elapsed, challenge: challenge, context: context)
+        }
+    }
+
+    /// Skips the current challenge (counts as incorrect for decay purposes).
+    func skipChallenge(context: ModelContext) {
+        timerTask?.cancel()
+        // Don't record — just move on without updating decay
+        currentIndex += 1
+        beginChallenge()
+    }
+
+    /// Advances to the next challenge after the feedback screen.
+    func nextChallenge() {
+        currentIndex += 1
+        beginChallenge()
+    }
+
+    // MARK: - Timer
+
+    private func startCountdown() {
+        guard let c = currentChallenge, c.timeLimitSeconds > 0 else {
+            timeRemaining = 0
+            return
+        }
+        timeRemaining = c.timeLimitSeconds
+        timerTask?.cancel()
+        timerTask = Task { @MainActor in
+            while timeRemaining > 0 && !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
+                timeRemaining -= 1
+                if timeRemaining == 0 {
+                    handleTimeExpired()
+                }
+            }
+        }
+    }
+
+    private func handleTimeExpired() {
+        guard phase == .inChallenge, let challenge = currentChallenge else { return }
+        let fallback = EvaluationResult(
+            isCorrect: false,
+            feedback: "Time's up! Correct answer: \(challenge.correctAnswer). \(challenge.explanation)",
+            inferredConfidence: .low
+        )
+        evaluationResult = fallback
+        phase = .showingFeedback
+    }
+
+    // MARK: - Result Recording
+
+    private func recordResult(
+        eval: EvaluationResult,
+        answer: String,
+        elapsed: TimeInterval,
+        challenge: Challenge,
+        context: ModelContext
+    ) async {
+        let result = ChallengeResult(
+            isCorrect: eval.isCorrect,
+            responseTime: elapsed,
+            confidenceRating: eval.inferredConfidence,
+            userAnswer: answer,
+            sessionPosition: currentIndex
+        )
+        context.insert(result)
+        result.challenge = challenge
+        challenge.results.append(result)
+        challenge.isUsed = true
+
+        if let skill = challenge.skill {
+            DecayEngine.apply(result: result, to: skill)
+            let xp = DecayEngine.xpReward(
+                isCorrect: eval.isCorrect,
+                difficulty: challenge.difficulty,
+                confidence: eval.inferredConfidence
+            )
+            sessionXP += xp
+            await applyXP(xp, context: context)
+        }
+
+        sessionResults.append(result)
+        evaluationResult = eval
+        phase = .showingFeedback
+        try? context.save()
+    }
+
+    // MARK: - Session End
+
+    private func finishSession() {
+        timerTask?.cancel()
+        let correct = sessionResults.filter { $0.isCorrect }.count
+        summary = SessionSummary(
+            totalChallenges: sessionResults.count,
+            correctCount: correct,
+            xpEarned: sessionXP,
+            skillNames: Array(reviewedSkillNames),
+            durationSeconds: Int(Date.now.timeIntervalSince(sessionStartTime))
+        )
+        phase = .sessionComplete
+    }
+
+    /// Resets all state and dismisses the session cover.
+    func endSession() {
+        timerTask?.cancel()
+        isSessionActive = false
+        phase           = .idle
+        challenges      = []
+        currentIndex    = 0
+        summary         = nil
+        sessionResults  = []
+        sessionXP       = 0
+    }
+
+    // MARK: - Helpers
+
+    /// Generates new challenges for `skill` via AIService and inserts them into the context.
+    private func fetchOrGenerate(skill: Skill, count: Int, context: ModelContext) async -> [Challenge] {
+        guard let new = try? await AIService.shared.generateChallenges(for: skill, count: count) else {
+            return []
+        }
+        for c in new {
+            skill.challenges.append(c)
+            context.insert(c)
+        }
+        return new
+    }
+
+    private func applyXP(_ xp: Int, context: ModelContext) async {
+        guard xp > 0 else { return }
+        let descriptor = FetchDescriptor<UserProfile>()
+        guard let profile = (try? context.fetch(descriptor))?.first else { return }
+        profile.xp += xp
+        while profile.xp >= profile.xpToNextLevel {
+            profile.level += 1
+        }
+    }
+}
