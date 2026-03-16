@@ -2,72 +2,84 @@ import SwiftUI
 
 // MARK: - Typography System
 
-/// Font constants for the Skill Decay Tracker design system.
+/// Design-system typography tokens.
 ///
-/// | Role         | Typeface        | Usage                         |
-/// |--------------|-----------------|-------------------------------|
-/// | `.rounded`   | SF Pro Rounded  | Titles, numerics, health score |
-/// | `.default`   | SF Pro          | Body text, labels              |
-/// | `.monospaced`| SF Mono         | Code snippets, identifiers     |
+/// Use with the `sdtFont(_:color:)` View extension:
+/// ```swift
+/// Text("Score").sdtFont(.healthScore, color: .sdtHealthHealthy)
+/// Text("Section").sdtFont(.titleMedium)
+/// ```
+///
+/// | Case            | Typeface        | Size | Weight   |
+/// |-----------------|-----------------|------|----------|
+/// | `.healthScore`  | SF Pro Rounded  |  48  | Heavy    |
+/// | `.numericLarge` | SF Pro Rounded  |  36  | Heavy    |
+/// | `.numericMedium`| SF Pro Rounded  |  24  | Bold     |
+/// | `.titleLarge`   | SF Pro Rounded  |  34  | Heavy    |
+/// | `.titleMedium`  | SF Pro Rounded  |  28  | Bold     |
+/// | `.titleSmall`   | SF Pro Rounded  |  22  | Bold     |
+/// | `.bodyLarge`    | SF Pro          |  17  | Regular  |
+/// | `.bodySemibold` | SF Pro          |  17  | Semibold |
+/// | `.bodyMedium`   | SF Pro          |  15  | Regular  |
+/// | `.caption`      | SF Pro          |  13  | Regular  |
+/// | `.captionSemibold`| SF Pro        |  13  | Semibold |
+/// | `.codeMedium`   | SF Mono         |  15  | Medium   |
+/// | `.codeSmall`    | SF Mono         |  13  | Medium   |
 enum SDTTypography {
 
-    // MARK: - Rounded — SF Pro Rounded (Titles & Numerics)
+    // MARK: Rounded — SF Pro Rounded (Titles & Numerics)
 
     /// 48 pt Heavy Rounded — health score display.
-    static let healthScore: Font   = .system(size: 48, weight: .heavy,   design: .rounded)
-
+    case healthScore
     /// 36 pt Heavy Rounded — XP totals, streak counts.
-    static let numericLarge: Font  = .system(size: 36, weight: .heavy,   design: .rounded)
-
-    /// 24 pt Bold Rounded — section numerics, card callouts.
-    static let numericMedium: Font = .system(size: 24, weight: .bold,    design: .rounded)
-
+    case numericLarge
+    /// 24 pt Bold Rounded — card callouts, section numerics.
+    case numericMedium
     /// 34 pt Heavy Rounded — screen titles.
-    static let titleLarge: Font    = .system(size: 34, weight: .heavy,   design: .rounded)
-
+    case titleLarge
     /// 28 pt Bold Rounded — section headers.
-    static let titleMedium: Font   = .system(size: 28, weight: .bold,    design: .rounded)
-
+    case titleMedium
     /// 22 pt Bold Rounded — card titles, sheet headings.
-    static let titleSmall: Font    = .system(size: 22, weight: .bold,    design: .rounded)
+    case titleSmall
 
-    // MARK: - Default — SF Pro (Body & UI)
+    // MARK: Default — SF Pro (Body & UI)
 
     /// 17 pt Regular — primary body copy.
-    static let bodyLarge: Font     = .system(size: 17, weight: .regular)
-
+    case bodyLarge
     /// 17 pt Semibold — emphasized body labels.
-    static let bodySemibold: Font  = .system(size: 17, weight: .semibold)
-
+    case bodySemibold
     /// 15 pt Regular — secondary body, list rows.
-    static let bodyMedium: Font    = .system(size: 15, weight: .regular)
-
+    case bodyMedium
     /// 13 pt Regular — captions, metadata.
-    static let caption: Font       = .system(size: 13, weight: .regular)
-
+    case caption
     /// 13 pt Semibold — emphasized captions, chip labels.
-    static let captionSemibold: Font = .system(size: 13, weight: .semibold)
+    case captionSemibold
 
-    // MARK: - Monospaced — SF Mono (Code Content)
+    // MARK: Monospaced — SF Mono (Code Content)
 
     /// 15 pt Medium Mono — inline code, challenge code blocks.
-    static let codeMedium: Font    = .system(size: 15, weight: .medium,  design: .monospaced)
-
+    case codeMedium
     /// 13 pt Medium Mono — small code snippets, identifiers.
-    static let codeSmall: Font     = .system(size: 13, weight: .medium,  design: .monospaced)
-}
+    case codeSmall
 
-// MARK: - View Extension
+    // MARK: - Font Resolution
 
-extension View {
-    /// Applies a design-system font and foreground style in one call.
-    ///
-    /// ```swift
-    /// Text("Score").sdtFont(.healthScore, color: .sdtPrimary)
-    /// ```
-    func sdtFont(_ font: Font, color: Color = .sdtPrimary) -> some View {
-        self
-            .font(font)
-            .foregroundStyle(color)
+    /// The `Font` value for this typography token.
+    var font: Font {
+        switch self {
+        case .healthScore:    .system(size: 48, weight: .heavy,   design: .rounded)
+        case .numericLarge:   .system(size: 36, weight: .heavy,   design: .rounded)
+        case .numericMedium:  .system(size: 24, weight: .bold,    design: .rounded)
+        case .titleLarge:     .system(size: 34, weight: .heavy,   design: .rounded)
+        case .titleMedium:    .system(size: 28, weight: .bold,    design: .rounded)
+        case .titleSmall:     .system(size: 22, weight: .bold,    design: .rounded)
+        case .bodyLarge:      .system(size: 17, weight: .regular)
+        case .bodySemibold:   .system(size: 17, weight: .semibold)
+        case .bodyMedium:     .system(size: 15, weight: .regular)
+        case .caption:        .system(size: 13, weight: .regular)
+        case .captionSemibold:.system(size: 13, weight: .semibold)
+        case .codeMedium:     .system(size: 15, weight: .medium,  design: .monospaced)
+        case .codeSmall:      .system(size: 13, weight: .medium,  design: .monospaced)
+        }
     }
 }

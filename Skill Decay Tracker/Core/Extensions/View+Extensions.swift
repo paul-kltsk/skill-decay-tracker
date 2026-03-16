@@ -6,17 +6,16 @@ extension View {
 
     // MARK: Typography
 
-    /// Applies an SDT typography style with an optional foreground color.
+    /// Applies a design-system typography token and foreground color in one call.
     ///
-    /// Usage:
     /// ```swift
-    /// Text("Health").sdtFont(.titleLarge)
-    /// Text("78%").sdtFont(.healthScore, color: .sdtHealthHealthy)
+    /// Text("Score").sdtFont(.healthScore, color: .sdtHealthHealthy)
+    /// Text("Section").sdtFont(.titleMedium)
     /// ```
-    func sdtFont(_ style: SDTTypography, color: Color? = nil) -> some View {
+    func sdtFont(_ style: SDTTypography, color: Color = .sdtPrimary) -> some View {
         self
             .font(style.font)
-            .foregroundStyle(color ?? .sdtPrimary)
+            .foregroundStyle(color)
     }
 
     // MARK: Card Surface

@@ -1,9 +1,9 @@
 import SwiftUI
 
-// MARK: - Internal Hex Helpers
+// MARK: - Hex Helpers
 
 private extension UIColor {
-    /// Creates a UIColor from a 24-bit hex integer (e.g. 0x059669).
+    /// Creates a `UIColor` from a 24-bit hex integer (e.g. `0x059669`).
     convenience init(hex: UInt32) {
         let r = CGFloat((hex >> 16) & 0xFF) / 255
         let g = CGFloat((hex >> 8)  & 0xFF) / 255
@@ -12,8 +12,10 @@ private extension UIColor {
     }
 }
 
-private extension Color {
-    /// Creates a static Color from a 24-bit hex integer.
+extension Color {
+    /// Creates a `Color` from a 24-bit RGB hex literal, e.g. `Color(hex: 0x6366F1)`.
+    ///
+    /// Alpha is always 1.0.  Used throughout the design system for fixed-palette colors.
     init(hex: UInt32) {
         let r = Double((hex >> 16) & 0xFF) / 255
         let g = Double((hex >> 8)  & 0xFF) / 255
