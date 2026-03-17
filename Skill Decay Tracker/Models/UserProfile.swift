@@ -57,15 +57,17 @@ struct UserPreferences: Codable, Sendable, Equatable {
     }
 
     // Custom decoder — tolerates missing keys from older stored data.
+    // Uses `decodeIfPresent` instead of `try? decode` to avoid triggering
+    // Xcode exception breakpoints on `DecodingError.keyNotFound`.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        dailyGoalMinutes      = (try? c.decode(Int.self,                    forKey: .dailyGoalMinutes))      ?? 15
-        notificationsEnabled  = (try? c.decode(Bool.self,                   forKey: .notificationsEnabled))  ?? true
-        preferredPracticeTime =  try? c.decode(PracticeTimePreference.self, forKey: .preferredPracticeTime)
-        difficultyPreference  = (try? c.decode(Int.self,                    forKey: .difficultyPreference))  ?? 3
-        theme                 = (try? c.decode(AppTheme.self,               forKey: .theme))                 ?? .system
-        hapticsEnabled        = (try? c.decode(Bool.self,                   forKey: .hapticsEnabled))        ?? true
-        aiProvider            = (try? c.decode(AIProvider.self,             forKey: .aiProvider))            ?? .claude
+        dailyGoalMinutes      = (try c.decodeIfPresent(Int.self,                    forKey: .dailyGoalMinutes))      ?? 15
+        notificationsEnabled  = (try c.decodeIfPresent(Bool.self,                   forKey: .notificationsEnabled))  ?? true
+        preferredPracticeTime =  try c.decodeIfPresent(PracticeTimePreference.self, forKey: .preferredPracticeTime)
+        difficultyPreference  = (try c.decodeIfPresent(Int.self,                    forKey: .difficultyPreference))  ?? 3
+        theme                 = (try c.decodeIfPresent(AppTheme.self,               forKey: .theme))                 ?? .system
+        hapticsEnabled        = (try c.decodeIfPresent(Bool.self,                   forKey: .hapticsEnabled))        ?? true
+        aiProvider            = (try c.decodeIfPresent(AIProvider.self,             forKey: .aiProvider))            ?? .claude
     }
 }
 
