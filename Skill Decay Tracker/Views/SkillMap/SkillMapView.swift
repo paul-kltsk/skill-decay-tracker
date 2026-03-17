@@ -25,7 +25,7 @@ struct SkillMapView: View {
         }
         .background(Color.sdtBackground)
         .navigationTitle("Skill Map")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -80,7 +80,6 @@ struct SkillMapView: View {
                     skills: viewModel.filtered(skills),
                     viewModel: viewModel
                 )
-                .ignoresSafeArea(edges: .top)
             }
         }
     }
