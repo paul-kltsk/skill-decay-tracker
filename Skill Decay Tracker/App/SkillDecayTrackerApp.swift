@@ -74,6 +74,8 @@ private struct RootTabView: View {
     @Binding var selectedTab: AppTab
     @Query private var profiles: [UserProfile]
 
+    @AppStorage("onboarding.completed") private var onboardingCompleted = false
+
     private var colorScheme: ColorScheme? {
         profiles.first?.preferences.theme.colorScheme
     }
@@ -97,5 +99,10 @@ private struct RootTabView: View {
             }
         }
         .preferredColorScheme(colorScheme)
+        .fullScreenCover(isPresented: .constant(!onboardingCompleted)) {
+            OnboardingContainerView {
+                onboardingCompleted = true
+            }
+        }
     }
 }
