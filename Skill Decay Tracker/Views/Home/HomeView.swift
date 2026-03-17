@@ -7,8 +7,14 @@ struct HomeView: View {
     // MARK: - Dependencies
 
     @Query(sort: \Skill.healthScore) private var skills: [Skill]
+    @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var viewModel = HomeViewModel()
+
+    /// Mirrors `NotificationSettingsView`'s threshold key so both screens
+    /// read and write the same value without coupling to UserPreferences.
+    @AppStorage("criticalAlertThreshold") private var criticalThreshold: Double = 0.30
 
     // MARK: - Body
 
@@ -52,6 +58,38 @@ struct HomeView: View {
         }
         .task {
             viewModel.refreshHealth(for: skills)
+            await syncNotifications()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            viewModel.refreshHealth(for: skills)
+            Task { await syncNotifications() }
+        }
+    }
+
+    // MARK: - Notification Sync
+
+    /// Updates the badge, syncs the daily reminder, and schedules/cancels
+    /// per-skill decay alerts based on the current health scores.
+    private func syncNotifications() async {
+        let prefs   = profiles.first?.preferences
+        let enabled = prefs?.notificationsEnabled ?? false
+        let hour    = prefs?.preferredPracticeTime?.hour   ?? 9
+        let minute  = prefs?.preferredPracticeTime?.minute ?? 0
+
+        await NotificationService.shared.syncDailyReminder(
+            enabled: enabled, hour: hour, minute: minute)
+
+        let overdue = skills.filter { $0.nextReviewDate <= Date.now }.count
+        await NotificationService.shared.setBadgeCount(overdue)
+
+        for skill in skills {
+            if skill.healthScore <= criticalThreshold {
+                await NotificationService.shared.scheduleCriticalAlert(
+                    skillID: skill.id, skillName: skill.name)
+            } else {
+                await NotificationService.shared.cancelCriticalAlert(for: skill.id)
+            }
         }
     }
 

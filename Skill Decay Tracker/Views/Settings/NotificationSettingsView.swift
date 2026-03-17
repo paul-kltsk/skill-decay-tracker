@@ -34,9 +34,18 @@ struct NotificationSettingsView: View {
             Section {
                 Toggle("Daily Practice Reminder", isOn: Binding(
                     get: { profile.preferences.notificationsEnabled },
-                    set: { v in
-                        profile.preferences.notificationsEnabled = v
+                    set: { enabled in
+                        profile.preferences.notificationsEnabled = enabled
                         try? modelContext.save()
+                        Task {
+                            let hour   = profile.preferences.preferredPracticeTime?.hour   ?? 9
+                            let minute = profile.preferences.preferredPracticeTime?.minute ?? 0
+                            await NotificationService.shared.syncDailyReminder(
+                                enabled: enabled, hour: hour, minute: minute)
+                            if !enabled {
+                                await NotificationService.shared.cancelAllCriticalAlerts()
+                            }
+                        }
                     }
                 ))
 
@@ -46,6 +55,14 @@ struct NotificationSettingsView: View {
                         selection:   reminderTimeBinding,
                         displayedComponents: .hourAndMinute
                     )
+                    .onChange(of: profile.preferences.preferredPracticeTime) { _, time in
+                        let hour   = time?.hour   ?? 9
+                        let minute = time?.minute ?? 0
+                        Task {
+                            await NotificationService.shared.scheduleDailyReminder(
+                                hour: hour, minute: minute)
+                        }
+                    }
                 }
             } header: {
                 Text("Reminders")

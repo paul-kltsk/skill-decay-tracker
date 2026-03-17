@@ -32,7 +32,8 @@ final class AddSkillViewModel {
     // MARK: - Sub-Skill Analysis
 
     /// AI-generated sub-skill suggestions (populated after name debounce).
-    private(set) var subSkillSuggestions: [SkillSuggestion] = []
+    /// Internal (not private) so unit tests can inject values without hitting the network.
+    var subSkillSuggestions: [SkillSuggestion] = []
     /// IDs of suggestions the user has selected to split into.
     var selectedSubSkillIDs: Set<UUID> = []
     /// True while the AI breadth-analysis call is in flight.
