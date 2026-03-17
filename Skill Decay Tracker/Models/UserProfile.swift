@@ -43,6 +43,8 @@ struct UserPreferences: Codable, Sendable, Equatable {
     var theme: AppTheme
     /// Whether haptic feedback is enabled.
     var hapticsEnabled: Bool
+    /// The AI provider used for challenge generation and evaluation.
+    var aiProvider: AIProvider
 
     init() {
         dailyGoalMinutes      = 15
@@ -51,6 +53,19 @@ struct UserPreferences: Codable, Sendable, Equatable {
         difficultyPreference  = 3
         theme                 = .system
         hapticsEnabled        = true
+        aiProvider            = .claude
+    }
+
+    // Custom decoder — tolerates missing keys from older stored data.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        dailyGoalMinutes      = (try? c.decode(Int.self,                    forKey: .dailyGoalMinutes))      ?? 15
+        notificationsEnabled  = (try? c.decode(Bool.self,                   forKey: .notificationsEnabled))  ?? true
+        preferredPracticeTime =  try? c.decode(PracticeTimePreference.self, forKey: .preferredPracticeTime)
+        difficultyPreference  = (try? c.decode(Int.self,                    forKey: .difficultyPreference))  ?? 3
+        theme                 = (try? c.decode(AppTheme.self,               forKey: .theme))                 ?? .system
+        hapticsEnabled        = (try? c.decode(Bool.self,                   forKey: .hapticsEnabled))        ?? true
+        aiProvider            = (try? c.decode(AIProvider.self,             forKey: .aiProvider))            ?? .claude
     }
 }
 

@@ -1,61 +1,20 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - API Key Status
-
-enum APIKeyStatus: Equatable {
-    case saved
-    case missing
-    case invalid
-    case saving
-}
-
 // MARK: - SettingsViewModel
 
 /// Manages volatile Settings state that doesn't live in `UserProfile`:
-/// API key (Keychain), JSON export, and delete-all-data confirmation.
+/// JSON export and delete-all-data confirmation.
+///
+/// API key management has been moved to ``AIModelsViewModel`` / ``AIModelsView``.
 @Observable
 @MainActor
 final class SettingsViewModel {
-
-    // MARK: - API Key
-
-    var apiKeyText:   String      = ""
-    var apiKeyStatus: APIKeyStatus = .missing
-    var showAPIKeyField: Bool     = false
 
     // MARK: - Data
 
     var showDeleteConfirm = false
     var exportString: String? = nil
-
-    // MARK: - Init
-
-    init() {
-        apiKeyStatus = ClaudeAPIClient.hasAPIKey() ? .saved : .missing
-    }
-
-    // MARK: - API Key Actions
-
-    func saveAPIKey() {
-        let trimmed = apiKeyText.trimmingCharacters(in: .whitespaces)
-        guard trimmed.hasPrefix("sk-ant-") else {
-            apiKeyStatus = .invalid
-            return
-        }
-        apiKeyStatus = .saving
-        let success = ClaudeAPIClient.storeAPIKey(trimmed)
-        apiKeyStatus = success ? .saved : .invalid
-        if success {
-            apiKeyText    = ""
-            showAPIKeyField = false
-        }
-    }
-
-    func removeAPIKey() {
-        ClaudeAPIClient.deleteAPIKey()
-        apiKeyStatus = .missing
-    }
 
     // MARK: - Export
 

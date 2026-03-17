@@ -56,12 +56,15 @@ private enum ClaudeModel {
     static let evaluation = "claude-haiku-4-5-20251001"
 }
 
+// Note: OpenAI and Gemini model IDs are stored in AIProvider (generationModelID / evalModelID).
+
 // MARK: - AI Service
 
 /// High-level actor for AI-driven challenge generation and answer evaluation.
 ///
-/// Uses ``ClaudeAPIClient`` for HTTP calls and falls back to offline templates
-/// when the API is unreachable or the key is missing.
+/// Routes requests to the active provider (Claude, OpenAI, or Gemini) based on
+/// `AIProvider.persisted`. Falls back to offline templates when the API is
+/// unreachable or the key is missing.
 ///
 /// **Typical usage:**
 /// ```swift
@@ -74,14 +77,38 @@ actor AIService {
 
     static let shared = AIService()
 
-    // MARK: Dependencies
-
-    private let client: ClaudeAPIClient
-
     // MARK: Init
 
-    init(client: ClaudeAPIClient = .shared) {
-        self.client = client
+    init() {}
+
+    // MARK: - Provider Dispatch
+
+    /// Sends `prompt` to whichever provider is currently selected in Settings.
+    ///
+    /// - Parameters:
+    ///   - isGeneration: `true` → use the provider's higher-quality generation model;
+    ///                   `false` → use the faster evaluation model.
+    ///   - maxTokens: Token budget for the response.
+    ///   - prompt: The full user-turn prompt.
+    private func sendPrompt(isGeneration: Bool, maxTokens: Int, prompt: String) async throws -> String {
+        let provider = AIProvider.persisted
+        switch provider {
+        case .claude:
+            let model = isGeneration ? ClaudeModel.generation : ClaudeModel.evaluation
+            return try await ClaudeAPIClient.shared.send(model: model,
+                                                         maxTokens: maxTokens,
+                                                         prompt: prompt)
+        case .openai:
+            let model = isGeneration ? provider.generationModelID : provider.evalModelID
+            return try await OpenAIClient.shared.send(model: model,
+                                                      maxTokens: maxTokens,
+                                                      prompt: prompt)
+        case .gemini:
+            let model = isGeneration ? provider.generationModelID : provider.evalModelID
+            return try await GeminiClient.shared.send(model: model,
+                                                      maxTokens: maxTokens,
+                                                      prompt: prompt)
+        }
     }
 
     // MARK: - Challenge Generation
@@ -102,9 +129,7 @@ actor AIService {
             count: count
         )
         do {
-            let raw  = try await client.send(model: ClaudeModel.generation,
-                                              maxTokens: 1024,
-                                              prompt: prompt)
+            let raw  = try await sendPrompt(isGeneration: true, maxTokens: 1024, prompt: prompt)
             let dtos = try parseChallengeDTOs(from: raw)
             return dtos.map { mapToChallenge($0) }
         } catch let error as APIError where error.allowsFallback {
@@ -146,11 +171,9 @@ actor AIService {
                                     inferredConfidence: confidence)
         }
 
-        // Subjective types — ask Claude Haiku
+        // Subjective types — ask AI provider
         let prompt = evaluationPrompt(challenge: challenge, userAnswer: userAnswer)
-        let raw    = try await client.send(model: ClaudeModel.evaluation,
-                                            maxTokens: 256,
-                                            prompt: prompt)
+        let raw    = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
         let dto    = try parseEvaluationDTO(from: raw)
         let confidence = parseConfidence(dto.confidenceHint,
                                           responseTime: responseTime,

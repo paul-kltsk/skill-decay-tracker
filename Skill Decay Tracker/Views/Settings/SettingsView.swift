@@ -4,8 +4,8 @@ import SwiftData
 /// Tab 5 — Settings.
 ///
 /// Sections:
-/// 1. Profile  — display name, XP/level, Pro badge
-/// 2. AI Setup — Claude API key entry / removal
+/// 1. Profile  — display name, XP/level
+/// 2. AI Model — NavigationLink to ``AIModelsView`` (provider + key management)
 /// 3. Notifications → NavigationLink
 /// 4. Practice      → NavigationLink
 /// 5. Appearance    → NavigationLink
@@ -27,9 +27,7 @@ struct SettingsView: View {
         List {
             if let profile {
                 profileSection(profile)
-            }
-            aiSection
-            if let profile {
+                aiModelSection(profile)
                 navigationLinks(profile)
             }
             dataSection
@@ -130,78 +128,27 @@ struct SettingsView: View {
         editName = false
     }
 
-    // MARK: - AI Setup Section
+    // MARK: - AI Model Section
 
-    private var aiSection: some View {
+    @ViewBuilder
+    private func aiModelSection(_ profile: UserProfile) -> some View {
         Section {
-            switch viewModel.apiKeyStatus {
-            case .saved:
-                HStack {
-                    Label("API Key Active", systemImage: "checkmark.shield.fill")
-                        .foregroundStyle(Color.sdtHealthThriving)
+            NavigationLink {
+                AIModelsView(profile: profile)
+            } label: {
+                HStack(spacing: SDTSpacing.md) {
+                    Label("AI Model", systemImage: "cpu")
                     Spacer()
-                    Button("Remove", role: .destructive) {
-                        viewModel.removeAPIKey()
-                    }
-                    .font(.system(size: 14))
-                }
-
-            case .missing, .invalid:
-                if viewModel.showAPIKeyField {
-                    VStack(alignment: .leading, spacing: SDTSpacing.sm) {
-                        HStack {
-                            Image(systemName: "key.fill")
-                                .foregroundStyle(Color.sdtSecondary)
-                            SecureField("sk-ant-api03-...", text: $viewModel.apiKeyText)
-                                .font(.system(size: 14, design: .monospaced))
-                                .autocorrectionDisabled()
-                                .textInputAutocapitalization(.never)
-                        }
-                        if viewModel.apiKeyStatus == .invalid {
-                            Label("Key must start with sk-ant-", systemImage: "exclamationmark.circle.fill")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.sdtHealthCritical)
-                        }
-                        HStack {
-                            Button("Save Key") { viewModel.saveAPIKey() }
-                                .buttonStyle(.borderedProminent)
-                                .controlSize(.small)
-                                .tint(.sdtCategoryProgramming)
-                            Button("Cancel") {
-                                viewModel.showAPIKeyField = false
-                                viewModel.apiKeyText      = ""
-                                viewModel.apiKeyStatus    = .missing
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                        }
-                    }
-                    .padding(.vertical, SDTSpacing.xs)
-                } else {
-                    Button {
-                        viewModel.showAPIKeyField = true
-                    } label: {
-                        Label("Add Claude API Key", systemImage: "key.badge.plus")
-                    }
-                }
-
-            case .saving:
-                HStack {
-                    Label("Saving…", systemImage: "key.fill")
+                    // Show the active provider name as trailing hint
+                    Text(profile.preferences.aiProvider.displayName)
+                        .font(.system(size: 14))
                         .foregroundStyle(Color.sdtSecondary)
-                    Spacer()
-                    ProgressView()
                 }
-            }
-
-            Link(destination: URL(string: "https://console.anthropic.com/settings/keys")!) {
-                Label("Get API Key from Anthropic", systemImage: "arrow.up.right.square")
-                    .font(.system(size: 14))
             }
         } header: {
             Text("AI Setup")
         } footer: {
-            Text("Your key is stored in the device Keychain and never leaves your device.")
+            Text("Choose your AI provider and enter an API key. Keys are stored in the device Keychain.")
         }
     }
 
