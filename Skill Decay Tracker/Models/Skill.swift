@@ -86,8 +86,18 @@ final class Skill {
         return Double(correctCount) / Double(totalPracticeCount)
     }
 
-    /// The subset of challenges that have not yet been presented to the user.
+    /// Challenges available to show in a practice session.
+    ///
+    /// Includes two categories, sorted so review-due challenges appear first:
+    /// 1. **Review-due** — previously answered incorrectly / with low confidence,
+    ///    whose `nextReviewDate` has passed. Shown first as priority repetitions.
+    /// 2. **Fresh** — never been shown (`isUsed == false`).
+    ///
+    /// Mastered challenges (`isUsed && nextReviewDate == nil`) are excluded.
     var pendingChallenges: [Challenge] {
-        challenges.filter { !$0.isUsed }
+        let now = Date.now
+        let reviewDue = challenges.filter { $0.isUsed && ($0.nextReviewDate ?? .distantFuture) <= now }
+        let fresh     = challenges.filter { !$0.isUsed }
+        return reviewDue + fresh   // review-due first → tackled weaknesses before new material
     }
 }

@@ -294,6 +294,20 @@ final class PracticeViewModel {
         challenge.results.append(result)
         challenge.isUsed = true
 
+        // Schedule spaced-repetition review for weak answers.
+        //
+        // Wrong answer          → review in 1 day
+        // Correct but not sure  → review in 2 days (fragile memory)
+        // Correct + confident   → mastered, no review (nextReviewDate = nil)
+        let cal = Calendar.current
+        if !eval.isCorrect {
+            challenge.nextReviewDate = cal.date(byAdding: .day, value: 1, to: Date.now)
+        } else if eval.inferredConfidence == .low {
+            challenge.nextReviewDate = cal.date(byAdding: .day, value: 2, to: Date.now)
+        } else {
+            challenge.nextReviewDate = nil   // mastered
+        }
+
         if let skill = challenge.skill {
             DecayEngine.apply(result: result, to: skill)
             let xp = DecayEngine.xpReward(

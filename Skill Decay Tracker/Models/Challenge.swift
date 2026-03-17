@@ -72,6 +72,17 @@ final class Challenge {
     /// Time limit in seconds. `nil` means no limit (open-ended).
     var timeLimitSeconds: Int
 
+    /// Spaced-repetition review date for this specific challenge.
+    ///
+    /// - `nil` — challenge has been mastered (correct + confident) or never attempted.
+    /// - Past date — challenge is due for review (was answered incorrectly or with low confidence).
+    ///
+    /// Set by `PracticeViewModel.recordResult` after each answer:
+    /// - Wrong → +1 day
+    /// - Correct but low confidence → +2 days
+    /// - Correct + medium/high confidence → `nil` (mastered, no re-review)
+    var nextReviewDate: Date?
+
     // MARK: Relationships
 
     /// The skill this challenge belongs to (many-to-one, inverse of `Skill.challenges`).
@@ -103,6 +114,7 @@ final class Challenge {
         self.difficulty       = difficulty
         self.isUsed           = false
         self.timeLimitSeconds = timeLimitSeconds
+        self.nextReviewDate   = nil
         self.results          = []
     }
 
@@ -111,6 +123,12 @@ final class Challenge {
     /// Whether the user has ever answered this challenge correctly.
     var wasEverAnsweredCorrectly: Bool {
         results.contains { $0.isCorrect }
+    }
+
+    /// `true` when this challenge is scheduled for spaced-repetition review right now.
+    var isDueForReview: Bool {
+        guard let due = nextReviewDate else { return false }
+        return due <= Date.now
     }
 
     /// Average response time across all recorded results.
