@@ -26,6 +26,27 @@ enum PracticePhase: Equatable {
     case error(String)
 }
 
+// MARK: - Difficulty Adjustment Suggestion
+
+/// A suggestion to raise or lower the difficulty of a specific skill,
+/// generated automatically when the user's session performance is consistently
+/// too easy (≥90% accuracy) or too hard (≤35% accuracy).
+struct DifficultyAdjustment: Sendable, Identifiable {
+    enum Direction: Sendable {
+        case increase   // user is acing it — make it harder
+        case decrease   // user is struggling — make it easier
+    }
+
+    let id = UUID()
+    let skillID: UUID
+    let skillName: String
+    let direction: Direction
+    /// Accuracy achieved in this session for this specific skill (0…1).
+    let sessionAccuracy: Double
+    /// Number of challenges answered for this skill in the session.
+    let challengeCount: Int
+}
+
 // MARK: - Session Summary
 
 /// Immutable summary produced at the end of a session.
@@ -35,6 +56,8 @@ struct SessionSummary: Sendable {
     let xpEarned: Int
     let skillNames: [String]
     let durationSeconds: Int
+    /// Difficulty-adjustment suggestions — one per skill where performance was notably one-sided.
+    let adjustments: [DifficultyAdjustment]
 
     var accuracy: Double {
         guard totalChallenges > 0 else { return 0 }
@@ -87,6 +110,10 @@ final class PracticeViewModel {
     private var answerStartTime  = Date.now
     private var reviewedSkillNames: Set<String> = []
     private var timerTask: Task<Void, Never>? = nil
+
+    /// Per-skill accuracy tracker for this session.
+    /// Key = skill UUID, value = (skillName, correctCount, totalCount).
+    private var sessionSkillStats: [UUID: (name: String, correct: Int, total: Int)] = [:]
 
     // MARK: - Computed
 
@@ -309,6 +336,13 @@ final class PracticeViewModel {
         }
 
         if let skill = challenge.skill {
+            // Track per-skill session accuracy for difficulty-adjustment suggestions.
+            let sid = skill.id
+            var stats = sessionSkillStats[sid] ?? (name: skill.name, correct: 0, total: 0)
+            stats.total  += 1
+            if eval.isCorrect { stats.correct += 1 }
+            sessionSkillStats[sid] = stats
+
             DecayEngine.apply(result: result, to: skill)
             let xp = DecayEngine.xpReward(
                 isCorrect: eval.isCorrect,
@@ -330,12 +364,33 @@ final class PracticeViewModel {
     private func finishSession() {
         timerTask?.cancel()
         let correct = sessionResults.filter { $0.isCorrect }.count
+
+        // Build difficulty-adjustment suggestions.
+        // Thresholds: ≥3 challenges per skill in this session to avoid noise.
+        // Increase: accuracy ≥ 90% → questions are too easy.
+        // Decrease: accuracy ≤ 35% → questions are too hard.
+        let adjustments: [DifficultyAdjustment] = sessionSkillStats.compactMap { id, stats in
+            guard stats.total >= 3 else { return nil }
+            let acc = Double(stats.correct) / Double(stats.total)
+            if acc >= 0.90 {
+                return DifficultyAdjustment(skillID: id, skillName: stats.name,
+                                            direction: .increase, sessionAccuracy: acc,
+                                            challengeCount: stats.total)
+            } else if acc <= 0.35 {
+                return DifficultyAdjustment(skillID: id, skillName: stats.name,
+                                            direction: .decrease, sessionAccuracy: acc,
+                                            challengeCount: stats.total)
+            }
+            return nil
+        }
+
         summary = SessionSummary(
             totalChallenges: sessionResults.count,
             correctCount: correct,
             xpEarned: sessionXP,
             skillNames: Array(reviewedSkillNames),
-            durationSeconds: Int(Date.now.timeIntervalSince(sessionStartTime))
+            durationSeconds: Int(Date.now.timeIntervalSince(sessionStartTime)),
+            adjustments: adjustments.sorted { $0.skillName < $1.skillName }
         )
         phase = .sessionComplete
     }
@@ -343,13 +398,30 @@ final class PracticeViewModel {
     /// Resets all state and dismisses the session cover.
     func endSession() {
         timerTask?.cancel()
-        isSessionActive = false
-        phase           = .idle
-        challenges      = []
-        currentIndex    = 0
-        summary         = nil
-        sessionResults  = []
-        sessionXP       = 0
+        isSessionActive   = false
+        phase             = .idle
+        challenges        = []
+        currentIndex      = 0
+        summary           = nil
+        sessionResults    = []
+        sessionXP         = 0
+        sessionSkillStats = [:]
+    }
+
+    // MARK: - Difficulty Adjustment
+
+    /// Applies the user-accepted difficulty change to the matching skill.
+    ///
+    /// Looks up the skill from the session's challenge list by ID so we don't
+    /// need to pass a separate `[Skill]` array from the view.
+    func applyAdjustment(_ adjustment: DifficultyAdjustment, context: ModelContext) {
+        guard let skill = challenges.first(where: { $0.skill?.id == adjustment.skillID })?.skill
+        else { return }
+        switch adjustment.direction {
+        case .increase: DecayEngine.applyDifficultyIncrease(to: skill)
+        case .decrease: DecayEngine.applyDifficultyDecrease(to: skill)
+        }
+        try? context.save()
     }
 
     // MARK: - Helpers

@@ -54,6 +54,12 @@ final class Skill {
     /// The group this skill belongs to, or `nil` if ungrouped.
     var group: SkillGroup?
 
+    /// Explicit difficulty override set when the user accepts a difficulty-adjustment suggestion.
+    ///
+    /// - `nil` — no override; `suggestedDifficulty` (accuracy-based) is used for AI prompts.
+    /// - `1…5` — overrides the auto-computed value until the user resets or a new suggestion is accepted.
+    var overrideDifficulty: Int?
+
     // MARK: Init
 
     init(
@@ -73,8 +79,9 @@ final class Skill {
         self.streakDays       = 0
         self.totalPracticeCount = 0
         self.correctCount     = 0
-        self.challenges       = []
-        self.group            = nil
+        self.challenges         = []
+        self.group              = nil
+        self.overrideDifficulty = nil
     }
 
     // MARK: Computed Helpers
@@ -82,6 +89,28 @@ final class Skill {
     /// Calendar days since the user last practiced this skill.
     var daysSinceLastPractice: Double {
         Date.now.timeIntervalSince(lastPracticed) / 86_400
+    }
+
+    /// Accuracy-based difficulty hint for AI prompts (1–4).
+    ///
+    /// Auto-computed from lifetime accuracy — no manual tuning needed.
+    /// Overridden by `overrideDifficulty` when the user accepts a difficulty suggestion.
+    var suggestedDifficulty: Int {
+        guard let accuracy = accuracyRate else { return 3 }
+        switch accuracy {
+        case 0.9...: return 4
+        case 0.7...: return 3
+        case 0.5...: return 2
+        default:     return 1
+        }
+    }
+
+    /// Difficulty level used in AI prompts.
+    ///
+    /// Returns the explicit override if the user has accepted a difficulty suggestion,
+    /// otherwise falls back to the accuracy-based `suggestedDifficulty`.
+    var effectiveDifficulty: Int {
+        overrideDifficulty ?? suggestedDifficulty
     }
 
     /// Accuracy rate in the range 0…1, or `nil` if never practiced.

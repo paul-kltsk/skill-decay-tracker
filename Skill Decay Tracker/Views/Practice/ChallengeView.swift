@@ -25,9 +25,13 @@ struct ChallengeView: View {
             }
         case .sessionComplete:
             if let summary = viewModel.summary {
-                SessionCompleteView(summary: summary) {
-                    viewModel.endSession()
-                }
+                SessionCompleteView(
+                    summary: summary,
+                    onApplyAdjustment: { adjustment in
+                        viewModel.applyAdjustment(adjustment, context: modelContext)
+                    },
+                    onDone: { viewModel.endSession() }
+                )
             }
         case .error(let message):
             ErrorSessionView(message: message) {

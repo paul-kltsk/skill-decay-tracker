@@ -125,7 +125,7 @@ actor AIService {
         let prompt = generationPrompt(
             skillName: skill.name,
             category:  skill.category.rawValue,
-            difficulty: skill.suggestedDifficulty,
+            difficulty: skill.effectiveDifficulty,
             count: count
         )
         do {
@@ -327,16 +327,6 @@ actor AIService {
 // MARK: - Skill Helper (private to this file)
 
 private extension Skill {
-    /// Suggested difficulty for new challenges, based on past accuracy.
-    var suggestedDifficulty: Int {
-        guard let accuracy = accuracyRate else { return 3 }
-        switch accuracy {
-        case 0.9...: return 4
-        case 0.7...: return 3
-        case 0.5...: return 2
-        default:     return 1
-        }
-    }
 }
 
 // MARK: - Fallback Templates

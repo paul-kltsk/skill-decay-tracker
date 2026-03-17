@@ -6,9 +6,12 @@ import SwiftUI
 struct SessionCompleteView: View {
 
     let summary: SessionSummary
+    var onApplyAdjustment: ((DifficultyAdjustment) -> Void)? = nil
     let onDone: () -> Void
 
     @State private var appeared = false
+    /// IDs of adjustments the user has already acted on (accepted or dismissed).
+    @State private var resolvedAdjustments: Set<UUID> = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -16,6 +19,7 @@ struct SessionCompleteView: View {
                 VStack(spacing: SDTSpacing.xl) {
                     header
                     statsGrid
+                    difficultyAdjustmentsSection
                     skillsReviewed
                 }
                 .padding(.horizontal, SDTSpacing.lg)
@@ -113,6 +117,32 @@ struct SessionCompleteView: View {
         .sdtCard()
     }
 
+    // MARK: - Difficulty Adjustment Cards
+
+    @ViewBuilder
+    private var difficultyAdjustmentsSection: some View {
+        let pending = summary.adjustments.filter { !resolvedAdjustments.contains($0.id) }
+        if !pending.isEmpty {
+            VStack(alignment: .leading, spacing: SDTSpacing.md) {
+                Text("Difficulty Suggestions")
+                    .sdtFont(.captionSemibold, color: .sdtSecondary)
+
+                ForEach(pending) { adjustment in
+                    DifficultyAdjustmentCard(adjustment: adjustment) {
+                        // Accept — apply change and mark resolved
+                        onApplyAdjustment?(adjustment)
+                        withAnimation { _ = resolvedAdjustments.insert(adjustment.id) }
+                    } onDismiss: {
+                        withAnimation { _ = resolvedAdjustments.insert(adjustment.id) }
+                    }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+            }
+            .opacity(appeared ? 1 : 0)
+            .animation(SDTAnimation.scoreChange.delay(0.35), value: appeared)
+        }
+    }
+
     // MARK: - Skills Reviewed
 
     @ViewBuilder
@@ -157,6 +187,106 @@ struct SessionCompleteView: View {
 
     private var accuracyText: String {
         "\(Int((summary.accuracy * 100).rounded()))%"
+    }
+}
+
+// MARK: - DifficultyAdjustmentCard
+
+private struct DifficultyAdjustmentCard: View {
+
+    let adjustment: DifficultyAdjustment
+    let onAccept: () -> Void
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.md) {
+            // Header row
+            HStack(spacing: SDTSpacing.sm) {
+                Text(adjustment.direction == .increase ? "🎯" : "💡")
+                    .font(.system(size: 22))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(adjustment.skillName)
+                        .sdtFont(.bodySemibold)
+                    Text(subtitleText)
+                        .sdtFont(.caption, color: .sdtSecondary)
+                }
+
+                Spacer()
+
+                // Accuracy badge
+                Text(accuracyText)
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(accuracyColor)
+                    .padding(.horizontal, SDTSpacing.sm)
+                    .padding(.vertical, 4)
+                    .background(accuracyColor.opacity(0.12))
+                    .clipShape(Capsule())
+            }
+
+            Text(bodyText)
+                .sdtFont(.bodyMedium, color: .sdtSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            // Action buttons
+            HStack(spacing: SDTSpacing.sm) {
+                Button(acceptLabel, action: onAccept)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, SDTSpacing.lg)
+                    .padding(.vertical, SDTSpacing.sm)
+                    .background(adjustment.direction == .increase
+                                ? Color.sdtCategoryProgramming
+                                : Color.sdtHealthWilting)
+                    .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
+
+                Button("Keep current", action: onDismiss)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.sdtSecondary)
+                    .padding(.horizontal, SDTSpacing.md)
+                    .padding(.vertical, SDTSpacing.sm)
+                    .background(Color.sdtBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
+            }
+        }
+        .padding(SDTSpacing.lg)
+        .background(Color.sdtSurface)
+        .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                .strokeBorder(
+                    (adjustment.direction == .increase
+                     ? Color.sdtCategoryProgramming
+                     : Color.sdtHealthWilting).opacity(0.3),
+                    lineWidth: 1
+                )
+        )
+    }
+
+    // MARK: - Computed text
+
+    private var subtitleText: String {
+        adjustment.direction == .increase
+            ? "Nailed it — \(adjustment.challengeCount) questions"
+            : "Struggled — \(adjustment.challengeCount) questions"
+    }
+
+    private var bodyText: String {
+        adjustment.direction == .increase
+            ? "You answered \(accuracyText) correctly. Ready for harder questions and a tighter review schedule?"
+            : "You answered \(accuracyText) correctly. Easier questions and more frequent short reviews can build confidence."
+    }
+
+    private var acceptLabel: String {
+        adjustment.direction == .increase ? "Increase difficulty" : "Decrease difficulty"
+    }
+
+    private var accuracyText: String {
+        "\(Int((adjustment.sessionAccuracy * 100).rounded()))%"
+    }
+
+    private var accuracyColor: Color {
+        adjustment.direction == .increase ? Color.sdtHealthThriving : Color.sdtHealthCritical
     }
 }
 
@@ -209,7 +339,15 @@ private struct FlowLayout: Layout {
             correctCount: 5,
             xpEarned: 120,
             skillNames: ["Swift", "SwiftUI", "Git"],
-            durationSeconds: 390
-        )
-    ) {}
+            durationSeconds: 390,
+            adjustments: [
+                DifficultyAdjustment(skillID: UUID(), skillName: "SwiftUI",
+                                     direction: .increase, sessionAccuracy: 0.95, challengeCount: 4),
+                DifficultyAdjustment(skillID: UUID(), skillName: "Git",
+                                     direction: .decrease, sessionAccuracy: 0.25, challengeCount: 3),
+            ]
+        ),
+        onApplyAdjustment: { _ in },
+        onDone: {}
+    )
 }

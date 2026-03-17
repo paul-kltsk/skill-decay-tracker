@@ -151,6 +151,32 @@ enum DecayEngine {
         skill.nextReviewDate = now.addingTimeInterval(days * 86_400)
     }
 
+    // MARK: - Difficulty Adjustment
+
+    /// Increases the effective difficulty of a skill after the user accepts a "too easy" suggestion.
+    ///
+    /// Effects:
+    /// - `overrideDifficulty` rises by 1 (capped at 5) → AI generates harder questions.
+    /// - `decayRate` rises 40% (capped at `maxDecayRate`) → practice is needed more often.
+    @MainActor
+    static func applyDifficultyIncrease(to skill: Skill) {
+        let current = skill.overrideDifficulty ?? skill.suggestedDifficulty
+        skill.overrideDifficulty = min(5, current + 1)
+        skill.decayRate = min(maxDecayRate, skill.decayRate * 1.4)
+    }
+
+    /// Decreases the effective difficulty of a skill after the user accepts a "too hard" suggestion.
+    ///
+    /// Effects:
+    /// - `overrideDifficulty` drops by 1 (floored at 1) → AI generates easier questions.
+    /// - `decayRate` drops 30% (floored at `minDecayRate`) → less frequent reviews.
+    @MainActor
+    static func applyDifficultyDecrease(to skill: Skill) {
+        let current = skill.overrideDifficulty ?? skill.suggestedDifficulty
+        skill.overrideDifficulty = max(1, current - 1)
+        skill.decayRate = max(minDecayRate, skill.decayRate * 0.7)
+    }
+
     /// Recalculates `healthScore` using elapsed time since last practice.
     ///
     /// Call this on app launch / foreground transition to keep health current
