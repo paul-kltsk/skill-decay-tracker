@@ -3,18 +3,16 @@ import SwiftData
 
 /// ViewModel for the 4-step ``AddSkillView`` sheet.
 ///
-/// **Step flow:**
-/// 1. Name — free-text entry with live validation
-/// 2. Category — grid selection
-/// 3. Initial difficulty — slider that sets starting `decayRate`
-/// 4. Confirm — review and save
+/// **Step flow (normal):** Name → Category → Difficulty → Confirm
+/// **Step flow (splitting):** Name → Difficulty → Confirm  (category step skipped;
+///   AI assigns per-sub-skill categories)
 @Observable
 @MainActor
 final class AddSkillViewModel {
 
     // MARK: - Step State
 
-    /// The currently visible step (0-indexed, 0…3).
+    /// The currently visible step (0-indexed).
     var currentStep: Int = 0
 
     // MARK: - Step 1: Name
@@ -22,10 +20,72 @@ final class AddSkillViewModel {
     var skillName: String = ""
     var nameError: String? = nil
 
-    /// Trims whitespace and checks for emptiness.
     var isNameValid: Bool {
         !skillName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+
+    // MARK: - Step 1b: Context
+
+    /// Free-text goal or context the user provides — injected verbatim into AI prompts.
+    var skillContext: String = ""
+
+    // MARK: - Sub-Skill Analysis
+
+    /// AI-generated sub-skill suggestions (populated after name debounce).
+    private(set) var subSkillSuggestions: [SkillSuggestion] = []
+    /// IDs of suggestions the user has selected to split into.
+    var selectedSubSkillIDs: Set<UUID> = []
+    /// True while the AI breadth-analysis call is in flight.
+    private(set) var isAnalyzingSubSkills = false
+
+    private var analysisTask: Task<Void, Never>? = nil
+
+    /// Cancels any pending analysis and schedules a new one after 800 ms.
+    /// Call this whenever `skillName` changes.
+    func scheduleAnalysis() {
+        analysisTask?.cancel()
+        let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard name.count >= 3 else {
+            subSkillSuggestions = []
+            selectedSubSkillIDs = []
+            isAnalyzingSubSkills = false
+            return
+        }
+        analysisTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: .milliseconds(800))
+            } catch {
+                return  // cancelled
+            }
+            isAnalyzingSubSkills = true
+            let suggestions = await AIService.shared.analyzeSkillBreadth(
+                name: name, category: selectedCategory)
+            guard !Task.isCancelled else {
+                isAnalyzingSubSkills = false
+                return
+            }
+            subSkillSuggestions = suggestions
+            selectedSubSkillIDs = []
+            isAnalyzingSubSkills = false
+        }
+    }
+
+    /// Toggles selection of a sub-skill suggestion chip.
+    func toggleSubSkill(_ suggestion: SkillSuggestion) {
+        if selectedSubSkillIDs.contains(suggestion.id) {
+            selectedSubSkillIDs.remove(suggestion.id)
+        } else {
+            selectedSubSkillIDs.insert(suggestion.id)
+        }
+    }
+
+    /// The suggestions the user has opted in to.
+    var selectedSubSkills: [SkillSuggestion] {
+        subSkillSuggestions.filter { selectedSubSkillIDs.contains($0.id) }
+    }
+
+    /// True when the user has selected at least one sub-skill to split into.
+    var isSplitting: Bool { !selectedSubSkills.isEmpty }
 
     // MARK: - Step 2: Category
 
@@ -34,18 +94,10 @@ final class AddSkillViewModel {
     // MARK: - Step 3: Difficulty
 
     /// Perceived learning difficulty: 1 (easy) → 5 (hard).
-    ///
-    /// Maps to `decayRate`:
-    /// | Level | Rate  | Meaning                        |
-    /// |-------|-------|--------------------------------|
-    /// | 1     | 0.05  | Easy — decays slowly           |
-    /// | 3     | 0.10  | Medium — default rate          |
-    /// | 5     | 0.18  | Hard — needs frequent practice |
     var initialDifficulty: Double = 3
 
     var difficultyDecayRate: Double {
-        // Linear interpolation: D1→0.05, D3→0.10, D5→0.18
-        let t = (initialDifficulty - 1) / 4   // 0…1
+        let t = (initialDifficulty - 1) / 4
         return 0.05 + t * 0.13
     }
 
@@ -71,7 +123,6 @@ final class AddSkillViewModel {
 
     // MARK: - Navigation
 
-    /// Whether the current step's required fields are satisfied.
     var canAdvance: Bool {
         switch currentStep {
         case 0: return isNameValid
@@ -85,36 +136,57 @@ final class AddSkillViewModel {
             return
         }
         nameError = nil
-        guard currentStep < 3 else { return }
-        currentStep += 1
+        let next = nextStep(after: currentStep)
+        guard next <= 3 else { return }
+        currentStep = next
     }
 
     func back() {
         guard currentStep > 0 else { return }
-        currentStep -= 1
+        currentStep = prevStep(before: currentStep)
+    }
+
+    /// When splitting, category step (1) is skipped.
+    private func nextStep(after step: Int) -> Int {
+        if step == 0 && isSplitting { return 2 }
+        return step + 1
+    }
+
+    private func prevStep(before step: Int) -> Int {
+        if step == 2 && isSplitting { return 0 }
+        return step - 1
     }
 
     // MARK: - Save
 
-    /// Creates and persists a new ``Skill`` from the wizard's state.
+    /// Creates one skill per selected sub-skill, or the original skill when not splitting.
     ///
-    /// - Returns: The inserted `Skill` so the caller can trigger AI pre-fetch.
+    /// - Returns: All inserted `Skill` objects so callers can trigger AI pre-fetch.
     @discardableResult
-    func save(context: ModelContext) -> Skill {
-        let trimmedName = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let skill = Skill(
-            name: trimmedName,
-            category: selectedCategory,
-            decayRate: difficultyDecayRate
-        )
-        context.insert(skill)
-        try? context.save()
-        return skill
+    func saveAll(context: ModelContext) -> [Skill] {
+        let contextText = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rate = difficultyDecayRate
+        if isSplitting {
+            let skills = selectedSubSkills.map { sub in
+                Skill(name: sub.name, category: sub.category,
+                      context: contextText, decayRate: rate)
+            }
+            skills.forEach { context.insert($0) }
+            try? context.save()
+            return skills
+        } else {
+            let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
+            let skill = Skill(name: name, category: selectedCategory,
+                              context: contextText, decayRate: rate)
+            context.insert(skill)
+            try? context.save()
+            return [skill]
+        }
     }
 
     // MARK: - Quick-fill from Suggestion
 
-    /// Fills the name and category from a tapped suggestion.
+    /// Fills the name and category from a tapped curated suggestion.
     func apply(suggestion: SkillSuggestion) {
         skillName        = suggestion.name
         selectedCategory = suggestion.category

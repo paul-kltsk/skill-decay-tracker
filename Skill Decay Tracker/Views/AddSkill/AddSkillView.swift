@@ -4,11 +4,13 @@ import SwiftData
 /// A 4-step modal wizard for adding a new skill to the portfolio.
 ///
 /// Steps: **Name → Category → Difficulty → Confirm**
+/// When the user selects AI-suggested sub-skills the Category step is skipped;
+/// each sub-skill receives the AI-assigned category.
 ///
 /// ```swift
 /// .sheet(isPresented: $show) {
-///     AddSkillView { newSkill in
-///         prefetchChallenges(for: newSkill)
+///     AddSkillView { newSkills in
+///         newSkills.forEach { prefetchChallenges(for: $0) }
 ///     }
 /// }
 /// ```
@@ -20,8 +22,8 @@ struct AddSkillView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = AddSkillViewModel()
 
-    /// Called with the saved skill after the user taps "Add Skill".
-    var onSkillCreated: ((Skill) -> Void)? = nil
+    /// Called with every newly created skill after the user taps "Add Skill".
+    var onSkillCreated: (([Skill]) -> Void)? = nil
 
     // MARK: - Body
 
@@ -88,8 +90,8 @@ struct AddSkillView: View {
                 if viewModel.currentStep < 3 {
                     viewModel.advance()
                 } else {
-                    let skill = viewModel.save(context: modelContext)
-                    onSkillCreated?(skill)
+                    let skills = viewModel.saveAll(context: modelContext)
+                    onSkillCreated?(skills)
                     dismiss()
                 }
             }
@@ -103,7 +105,7 @@ struct AddSkillView: View {
 
 private struct NameStepView: View {
     @Bindable var viewModel: AddSkillViewModel
-    @FocusState private var focused: Bool
+    @FocusState private var nameFocused: Bool
 
     var body: some View {
         ScrollView {
@@ -114,15 +116,19 @@ private struct NameStepView: View {
                     subtitle: "Give your skill a clear, specific name."
                 )
 
+                // Name field
                 VStack(alignment: .leading, spacing: SDTSpacing.sm) {
                     TextField("e.g. SwiftUI, Japanese, Docker…", text: $viewModel.skillName)
                         .sdtFont(.bodyLarge)
                         .padding(SDTSpacing.md)
                         .background(Color.sdtSurface)
                         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
-                        .focused($focused)
-                        .submitLabel(.continue)
-                        .onSubmit { viewModel.advance() }
+                        .focused($nameFocused)
+                        .submitLabel(.next)
+                        .onChange(of: viewModel.skillName) { _, _ in
+                            viewModel.scheduleAnalysis()
+                        }
+                        .onSubmit { nameFocused = false }
 
                     if let error = viewModel.nameError {
                         Text(error)
@@ -130,6 +136,23 @@ private struct NameStepView: View {
                     }
                 }
 
+                // Context field
+                VStack(alignment: .leading, spacing: SDTSpacing.sm) {
+                    Text("Goal or context")
+                        .sdtFont(.captionSemibold, color: .sdtSecondary)
+                    TextField("e.g. JLPT N3, Interview prep, Django project…",
+                              text: $viewModel.skillContext)
+                        .sdtFont(.bodyMedium)
+                        .padding(SDTSpacing.md)
+                        .background(Color.sdtSurface)
+                        .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
+                        .submitLabel(.done)
+                }
+
+                // Sub-skill suggestions
+                subSkillSection
+
+                // Curated suggestions
                 if !viewModel.skillName.isEmpty || true {
                     VStack(alignment: .leading, spacing: SDTSpacing.sm) {
                         Text("Suggestions")
@@ -137,7 +160,7 @@ private struct NameStepView: View {
 
                         SkillSuggestionsView(query: viewModel.skillName) { suggestion in
                             viewModel.apply(suggestion: suggestion)
-                            focused = false
+                            nameFocused = false
                         }
                         .padding(SDTSpacing.md)
                         .background(Color.sdtSurface)
@@ -148,7 +171,124 @@ private struct NameStepView: View {
             .padding(.horizontal, SDTSpacing.lg)
             .padding(.top, SDTSpacing.xl)
         }
-        .onAppear { focused = true }
+        .onAppear { nameFocused = true }
+    }
+
+    // MARK: Sub-Skill Section
+
+    @ViewBuilder
+    private var subSkillSection: some View {
+        if viewModel.isAnalyzingSubSkills {
+            HStack(spacing: SDTSpacing.sm) {
+                ProgressView()
+                    .scaleEffect(0.8)
+                Text("Analysing skill scope…")
+                    .sdtFont(.caption, color: .sdtSecondary)
+            }
+        } else if !viewModel.subSkillSuggestions.isEmpty {
+            VStack(alignment: .leading, spacing: SDTSpacing.md) {
+                HStack(spacing: SDTSpacing.xs) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.sdtCategoryProgramming)
+                    Text("Split into sub-skills")
+                        .sdtFont(.captionSemibold, color: .sdtSecondary)
+                }
+
+                Text("This topic covers multiple areas. Select the ones you want to track separately.")
+                    .sdtFont(.caption, color: .sdtSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                FlexRow(spacing: SDTSpacing.sm) {
+                    ForEach(viewModel.subSkillSuggestions) { suggestion in
+                        SubSkillChip(
+                            suggestion: suggestion,
+                            isSelected: viewModel.selectedSubSkillIDs.contains(suggestion.id)
+                        ) {
+                            withAnimation(SDTAnimation.scoreChange) {
+                                viewModel.toggleSubSkill(suggestion)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(SDTSpacing.md)
+            .background(Color.sdtCategoryProgramming.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+            .overlay {
+                RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                    .strokeBorder(Color.sdtCategoryProgramming.opacity(0.2), lineWidth: 1)
+            }
+            .transition(.opacity.combined(with: .move(edge: .top)))
+        }
+    }
+}
+
+// MARK: - Sub-Skill Chip
+
+private struct SubSkillChip: View {
+    let suggestion: SkillSuggestion
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 5) {
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 11, weight: .bold))
+                }
+                Text(suggestion.name)
+                    .sdtFont(.captionSemibold)
+            }
+            .foregroundStyle(isSelected ? .white : Color.sdtPrimary)
+            .padding(.horizontal, SDTSpacing.md)
+            .padding(.vertical, SDTSpacing.xs)
+            .background(isSelected
+                        ? suggestion.category.color
+                        : Color.sdtSurface)
+            .clipShape(Capsule())
+            .overlay {
+                if !isSelected {
+                    Capsule()
+                        .strokeBorder(suggestion.category.color.opacity(0.4), lineWidth: 1)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .sensoryFeedback(.impact(flexibility: .soft), trigger: isSelected)
+    }
+}
+
+// MARK: - Flex Row Layout
+
+/// A left-aligned wrapping layout for chips.
+private struct FlexRow: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? .infinity
+        var x: CGFloat = 0, y: CGFloat = 0, rowH: CGFloat = 0
+        for sub in subviews {
+            let sz = sub.sizeThatFits(.unspecified)
+            if x + sz.width > width && x > 0 { x = 0; y += rowH + spacing; rowH = 0 }
+            x += sz.width + spacing
+            rowH = max(rowH, sz.height)
+        }
+        return CGSize(width: width, height: y + rowH)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x = bounds.minX, y = bounds.minY, rowH: CGFloat = 0
+        for sub in subviews {
+            let sz = sub.sizeThatFits(.unspecified)
+            if x + sz.width > bounds.maxX && x > bounds.minX {
+                x = bounds.minX; y += rowH + spacing; rowH = 0
+            }
+            sub.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(sz))
+            x += sz.width + spacing
+            rowH = max(rowH, sz.height)
+        }
     }
 }
 
@@ -223,7 +363,6 @@ private struct DifficultyStepView: View {
                 )
 
                 VStack(spacing: SDTSpacing.xl) {
-                    // Visual difficulty indicator
                     HStack {
                         ForEach(1...5, id: \.self) { level in
                             Circle()
@@ -245,13 +384,9 @@ private struct DifficultyStepView: View {
                     }
                     .frame(maxWidth: .infinity)
 
-                    Slider(
-                        value: $viewModel.initialDifficulty,
-                        in: 1...5,
-                        step: 1
-                    )
-                    .tint(viewModel.selectedCategory.color)
-                    .sensoryFeedback(.selection, trigger: viewModel.initialDifficulty)
+                    Slider(value: $viewModel.initialDifficulty, in: 1...5, step: 1)
+                        .tint(viewModel.selectedCategory.color)
+                        .sensoryFeedback(.selection, trigger: viewModel.initialDifficulty)
 
                     HStack {
                         Text("Easy").sdtFont(.caption, color: .sdtSecondary)
@@ -282,41 +417,118 @@ private struct ConfirmStepView: View {
                     subtitle: "You can edit these settings later in Skill Detail."
                 )
 
-                VStack(spacing: SDTSpacing.md) {
-                    summaryRow(
-                        label: "Name",
-                        value: viewModel.skillName,
-                        icon: "pencil"
-                    )
-                    Divider()
-                    summaryRow(
-                        label: "Category",
-                        value: viewModel.selectedCategory.rawValue,
-                        icon: viewModel.selectedCategory.systemImage,
-                        tint: viewModel.selectedCategory.color
-                    )
-                    Divider()
-                    summaryRow(
-                        label: "Difficulty",
-                        value: viewModel.difficultyLabel,
-                        icon: "slider.horizontal.3"
-                    )
-                    Divider()
-                    summaryRow(
-                        label: "Review cadence",
-                        value: viewModel.difficultyDescription,
-                        icon: "calendar"
-                    )
+                if viewModel.isSplitting {
+                    splittingConfirm
+                } else {
+                    singleConfirm
                 }
-                .padding(SDTSpacing.lg)
-                .sdtCard()
-
-                Text("AI will generate 3 personalised challenges in the background.")
-                    .sdtFont(.caption, color: .sdtSecondary)
-                    .padding(.horizontal, SDTSpacing.xs)
             }
             .padding(.horizontal, SDTSpacing.lg)
             .padding(.top, SDTSpacing.xl)
+        }
+    }
+
+    // MARK: Single skill confirm
+
+    private var singleConfirm: some View {
+        VStack(spacing: 0) {
+            VStack(spacing: SDTSpacing.md) {
+                summaryRow(label: "Name",
+                           value: viewModel.skillName,
+                           icon: "pencil")
+                Divider()
+                summaryRow(label: "Category",
+                           value: viewModel.selectedCategory.rawValue,
+                           icon: viewModel.selectedCategory.systemImage,
+                           tint: viewModel.selectedCategory.color)
+                Divider()
+                summaryRow(label: "Difficulty",
+                           value: viewModel.difficultyLabel,
+                           icon: "slider.horizontal.3")
+                Divider()
+                summaryRow(label: "Review cadence",
+                           value: viewModel.difficultyDescription,
+                           icon: "calendar")
+
+                if !viewModel.skillContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Divider()
+                    summaryRow(label: "Context",
+                               value: viewModel.skillContext.trimmingCharacters(in: .whitespacesAndNewlines),
+                               icon: "text.quote")
+                }
+            }
+            .padding(SDTSpacing.lg)
+            .sdtCard()
+
+            Text("AI will generate 3 personalised challenges in the background.")
+                .sdtFont(.caption, color: .sdtSecondary)
+                .padding(.horizontal, SDTSpacing.xs)
+                .padding(.top, SDTSpacing.md)
+        }
+    }
+
+    // MARK: Sub-skill splitting confirm
+
+    private var splittingConfirm: some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.md) {
+            // Skills to create
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(viewModel.selectedSubSkills.enumerated()), id: \.element.id) { index, sub in
+                    HStack(spacing: SDTSpacing.md) {
+                        Image(systemName: sub.category.systemImage)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(sub.category.color)
+                            .frame(width: 24)
+
+                        Text(sub.name)
+                            .sdtFont(.bodySemibold)
+
+                        Spacer()
+
+                        Text(sub.category.rawValue)
+                            .sdtFont(.caption, color: .sdtSecondary)
+                    }
+                    .padding(SDTSpacing.md)
+
+                    if index < viewModel.selectedSubSkills.count - 1 {
+                        Divider().padding(.leading, 52)
+                    }
+                }
+            }
+            .sdtCard()
+
+            // Shared settings row
+            HStack(spacing: SDTSpacing.md) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Color.sdtSecondary)
+                    .frame(width: 24)
+                Text("All starting at")
+                    .sdtFont(.bodyMedium, color: .sdtSecondary)
+                Spacer()
+                Text(viewModel.difficultyLabel)
+                    .sdtFont(.bodySemibold)
+            }
+            .padding(SDTSpacing.md)
+            .sdtCard()
+
+            if !viewModel.skillContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                HStack(spacing: SDTSpacing.md) {
+                    Image(systemName: "text.quote")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Color.sdtSecondary)
+                        .frame(width: 24)
+                    Text(viewModel.skillContext.trimmingCharacters(in: .whitespacesAndNewlines))
+                        .sdtFont(.bodyMedium, color: .sdtSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(SDTSpacing.md)
+                .sdtCard()
+            }
+
+            Text("AI will generate personalised challenges for each skill in the background.")
+                .sdtFont(.caption, color: .sdtSecondary)
+                .padding(.horizontal, SDTSpacing.xs)
         }
     }
 

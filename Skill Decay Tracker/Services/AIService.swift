@@ -47,6 +47,19 @@ private struct EvaluationDTO: Decodable, Sendable {
     }
 }
 
+// MARK: - Breadth Analysis DTOs (AI response)
+
+/// One sub-skill suggestion returned by the breadth-analysis prompt.
+private struct SubSkillDTO: Decodable, Sendable {
+    let name: String
+    let category: String
+}
+
+/// Top-level wrapper for the breadth-analysis response.
+private struct SkillBreadthDTO: Decodable, Sendable {
+    let subSkills: [SubSkillDTO]
+}
+
 // MARK: - Model IDs
 
 private enum ClaudeModel {
@@ -80,6 +93,17 @@ actor AIService {
     // MARK: Init
 
     init() {}
+
+    // MARK: - Locale
+
+    /// The human-readable language name + BCP-47 code for the current device locale,
+    /// e.g. "Russian (ru)" or "Japanese (ja)".  Injected into every AI prompt so that
+    /// generated text (questions, feedback, explanations) matches the app's language.
+    private var promptLanguage: String {
+        let code = Locale.current.language.languageCode?.identifier ?? "en"
+        let name = Locale(identifier: "en").localizedString(forLanguageCode: code) ?? code
+        return "\(name) (\(code))"
+    }
 
     // MARK: - Provider Dispatch
 
@@ -126,6 +150,7 @@ actor AIService {
             skillName: skill.name,
             category:  skill.category.rawValue,
             difficulty: skill.effectiveDifficulty,
+            context:   skill.context,
             count: count
         )
         do {
@@ -190,12 +215,17 @@ actor AIService {
         skillName: String,
         category: String,
         difficulty: Int,
+        context: String,
         count: Int
     ) -> String {
-        """
+        let contextLine = context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? ""
+            : "\nUser context: \(context.trimmingCharacters(in: .whitespacesAndNewlines))"
+        return """
         You are an expert educator generating micro-challenges for a spaced-repetition learning app.
-        Generate exactly \(count) challenges for the skill: "\(skillName)" (category: \(category)).
+        Generate exactly \(count) challenges for the skill: "\(skillName)" (category: \(category)).\(contextLine)
         Target difficulty: \(difficulty)/5.
+        IMPORTANT: Write all questions, options, and explanations in \(promptLanguage). Do not use any other language.
 
         Rules:
         - Each challenge must take 1–3 minutes to answer.
@@ -221,8 +251,11 @@ actor AIService {
     }
 
     private func evaluationPrompt(challenge: Challenge, userAnswer: String) -> String {
-        """
-        Evaluate whether the user's answer is correct for this challenge.
+        let skillContext = challenge.skill?.context.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let contextLine = skillContext.isEmpty ? "" : "\nSkill context: \(skillContext)"
+        return """
+        Evaluate whether the user's answer is correct for this challenge.\(contextLine)
+        Write the feedback field in \(promptLanguage).
 
         Challenge type: \(challenge.type.rawValue)
         Question: \(challenge.question)
@@ -238,6 +271,42 @@ actor AIService {
 
         confidence_hint must be one of: "low", "medium", "high".
         Base it on how complete and precise the user's answer is.
+        """
+    }
+
+    // MARK: - Skill Breadth Analysis
+
+    /// Checks whether `name` is broad enough to split into sub-skills.
+    ///
+    /// Uses the faster evaluation model and returns up to 4 `SkillSuggestion` objects.
+    /// Returns an empty array when the topic is already specific or on any error.
+    func analyzeSkillBreadth(name: String, category: SkillCategory) async -> [SkillSuggestion] {
+        let prompt = breadthPrompt(name: name)
+        guard let raw  = try? await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt),
+              let data = extractJSON(from: raw).data(using: .utf8),
+              let dto  = try? JSONDecoder().decode(SkillBreadthDTO.self, from: data)
+        else { return [] }
+        return dto.subSkills.compactMap { sub in
+            let cat = SkillCategory(rawValue: sub.category) ?? category
+            return SkillSuggestion(name: sub.name, category: cat)
+        }
+    }
+
+    private func breadthPrompt(name: String) -> String {
+        """
+        You are a learning expert helping a user set up a spaced-repetition practice app.
+        The user wants to learn: "\(name)"
+
+        Decide if this topic is broad enough to meaningfully split into 3-4 focused sub-skills.
+        Only suggest sub-skills for genuinely broad topics (e.g. "Spanish" → grammar, vocabulary, conversation).
+        Do NOT suggest sub-skills for specific topics (e.g. "React Hooks", "Git Rebase", "Spanish Grammar", "SwiftUI Animations").
+        Write sub-skill names in \(promptLanguage).
+
+        Respond ONLY with valid JSON, no markdown:
+        {"subSkills": [{"name": "Spanish — Grammar", "category": "language"}]}
+
+        Valid categories: programming, language, tool, concept, custom
+        If the topic is already specific: {"subSkills": []}
         """
     }
 

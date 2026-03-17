@@ -31,8 +31,10 @@ struct HomeView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar { addButton }
         .sheet(isPresented: $viewModel.showAddSkill) {
-            AddSkillView { newSkill in
-                viewModel.prefetchChallenges(for: newSkill, context: modelContext)
+            AddSkillView { newSkills in
+                for skill in newSkills {
+                    viewModel.prefetchChallenges(for: skill, context: modelContext)
+                }
             }
         }
         .alert("Delete Skill", isPresented: Binding(

@@ -22,6 +22,14 @@ final class Skill {
     var category: SkillCategory
     var createdAt: Date
 
+    /// Optional free-text context the user provides when adding the skill.
+    ///
+    /// Injected verbatim into AI generation and evaluation prompts so that
+    /// questions are tailored to the user's specific goals or environment.
+    ///
+    /// Examples: "Django project", "JLPT N3 prep", "Interview preparation"
+    var context: String
+
     // MARK: Health & Decay
 
     /// Current health in the range 0…1. Written by `DecayEngine` after each calculation.
@@ -65,11 +73,13 @@ final class Skill {
     init(
         name: String,
         category: SkillCategory,
+        context: String = "",
         decayRate: Double = 0.1
     ) {
         self.id               = UUID()
         self.name             = name
         self.category         = category
+        self.context          = context
         self.createdAt        = Date.now
         self.healthScore      = 1.0
         self.peakScore        = 1.0
