@@ -72,6 +72,11 @@ struct SkillDecayTrackerApp: App {
 /// Top-level tab container — extracted to keep `App.body` concise.
 private struct RootTabView: View {
     @Binding var selectedTab: AppTab
+    @Query private var profiles: [UserProfile]
+
+    private var colorScheme: ColorScheme? {
+        profiles.first?.preferences.theme.colorScheme
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -91,5 +96,6 @@ private struct RootTabView: View {
                 NavigationStack { SettingsView() }
             }
         }
+        .preferredColorScheme(colorScheme)
     }
 }
