@@ -1,14 +1,19 @@
 import SwiftUI
+import SwiftData
 
-/// 2-column grid view of all skills, used as the alternate layout in ``SkillMapView``.
+/// 2-column grid view of all skills, grouped by ``SkillGroup``.
 ///
-/// Each card shows the health ring, category icon, skill name, health label,
-/// and streak badge. Tapping a card opens ``SkillDetailView`` via the shared
-/// ``SkillMapViewModel``.
+/// Layout:
+/// - Each group is rendered as a labelled section (emoji + name header).
+/// - Ungrouped skills appear at the bottom under "Other" (hidden when no groups exist).
+/// - Long-pressing any skill card shows a context menu to move it between groups.
 struct SkillGridView: View {
 
     let skills: [Skill]
     let viewModel: SkillMapViewModel
+
+    @Query(sort: \SkillGroup.name) private var groups: [SkillGroup]
+    @Environment(\.modelContext) private var modelContext
 
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
@@ -23,12 +28,96 @@ struct SkillGridView: View {
             )
             .padding(.top, SDTSpacing.xxl)
         } else {
-            LazyVGrid(columns: columns, spacing: SDTSpacing.md) {
-                ForEach(skills) { skill in
-                    GridCard(skill: skill, onTap: { viewModel.select(skill) })
+            LazyVStack(alignment: .leading, spacing: SDTSpacing.lg) {
+                // Grouped sections
+                ForEach(groups) { group in
+                    let groupSkills = skills.filter { $0.group?.id == group.id }
+                    if !groupSkills.isEmpty {
+                        groupSection(group: group, skills: groupSkills)
+                    }
+                }
+
+                // Ungrouped skills
+                let ungrouped = skills.filter { $0.group == nil }
+                if !ungrouped.isEmpty {
+                    ungroupedSection(skills: ungrouped)
                 }
             }
         }
+    }
+
+    // MARK: - Group Section
+
+    private func groupSection(group: SkillGroup, skills: [Skill]) -> some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.sm) {
+            // Section header
+            HStack(spacing: SDTSpacing.xs) {
+                Text(group.emoji)
+                    .font(.system(size: 18))
+                Text(group.name)
+                    .sdtFont(.bodySemibold)
+                Spacer()
+                Text("\(skills.count)")
+                    .sdtFont(.caption, color: .sdtSecondary)
+                    .padding(.horizontal, SDTSpacing.sm)
+                    .padding(.vertical, 3)
+                    .background(Color.sdtSurface)
+                    .clipShape(Capsule())
+            }
+            .padding(.horizontal, SDTSpacing.xs)
+
+            LazyVGrid(columns: columns, spacing: SDTSpacing.md) {
+                ForEach(skills) { skill in
+                    GridCard(
+                        skill: skill,
+                        allGroups: groups,
+                        onTap: { viewModel.select(skill) },
+                        onMove: { target in move(skill: skill, to: target) },
+                        onRemoveFromGroup: { removeFromGroup(skill: skill) }
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Ungrouped Section
+
+    private func ungroupedSection(skills: [Skill]) -> some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.sm) {
+            if !groups.isEmpty {
+                Text("Other")
+                    .sdtFont(.captionSemibold, color: .sdtSecondary)
+                    .padding(.horizontal, SDTSpacing.xs)
+            }
+
+            LazyVGrid(columns: columns, spacing: SDTSpacing.md) {
+                ForEach(skills) { skill in
+                    GridCard(
+                        skill: skill,
+                        allGroups: groups,
+                        onTap: { viewModel.select(skill) },
+                        onMove: { target in move(skill: skill, to: target) },
+                        onRemoveFromGroup: nil   // already ungrouped
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Group Mutations
+
+    private func move(skill: Skill, to group: SkillGroup) {
+        skill.group = group
+        if !group.skills.contains(where: { $0.id == skill.id }) {
+            group.skills.append(skill)
+        }
+        try? modelContext.save()
+    }
+
+    private func removeFromGroup(skill: Skill) {
+        skill.group?.skills.removeAll { $0.id == skill.id }
+        skill.group = nil
+        try? modelContext.save()
     }
 }
 
@@ -37,7 +126,10 @@ struct SkillGridView: View {
 private struct GridCard: View {
 
     let skill: Skill
+    let allGroups: [SkillGroup]
     let onTap: () -> Void
+    let onMove: (SkillGroup) -> Void
+    let onRemoveFromGroup: (() -> Void)?
 
     @State private var pressed = false
 
@@ -86,14 +178,43 @@ private struct GridCard: View {
         .buttonStyle(.plain)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    withAnimation(.easeInOut(duration: 0.1)) { pressed = true }
-                }
-                .onEnded { _ in
-                    withAnimation(.easeInOut(duration: 0.15)) { pressed = false }
-                }
+                .onChanged { _ in withAnimation(.easeInOut(duration: 0.1)) { pressed = true } }
+                .onEnded   { _ in withAnimation(.easeInOut(duration: 0.15)) { pressed = false } }
         )
         .sensoryFeedback(.impact(flexibility: .soft), trigger: pressed)
+        .contextMenu { contextMenuItems }
+    }
+
+    // MARK: - Context Menu
+
+    @ViewBuilder
+    private var contextMenuItems: some View {
+        // Move to group submenu
+        if !allGroups.isEmpty {
+            Menu {
+                ForEach(allGroups) { group in
+                    let alreadyIn = skill.group?.id == group.id
+                    Button {
+                        if !alreadyIn { onMove(group) }
+                    } label: {
+                        Label(
+                            "\(group.emoji) \(group.name)",
+                            systemImage: alreadyIn ? "checkmark" : "folder"
+                        )
+                    }
+                    .disabled(alreadyIn)
+                }
+            } label: {
+                Label("Move to Group", systemImage: "folder.badge.plus")
+            }
+        }
+
+        // Remove from current group
+        if let removeAction = onRemoveFromGroup {
+            Button(role: .destructive, action: removeAction) {
+                Label("Remove from Group", systemImage: "folder.badge.minus")
+            }
+        }
     }
 }
 
@@ -102,10 +223,9 @@ private struct GridCard: View {
 #Preview {
     let vm = SkillMapViewModel()
     let skills = [
-        Skill(name: "SwiftUI", category: .programming, decayRate: 0.05),
-        Skill(name: "Spanish", category: .language, decayRate: 0.12),
-        Skill(name: "Git", category: .tool, decayRate: 0.08),
-        Skill(name: "SOLID Principles", category: .concept, decayRate: 0.07),
+        Skill(name: "SwiftUI", category: .programming),
+        Skill(name: "Combine", category: .programming),
+        Skill(name: "Spanish", category: .language),
     ]
     ScrollView {
         SkillGridView(skills: skills, viewModel: vm)

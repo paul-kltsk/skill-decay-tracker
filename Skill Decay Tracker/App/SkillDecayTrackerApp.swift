@@ -37,6 +37,7 @@ struct SkillDecayTrackerApp: App {
                 Challenge.self,
                 ChallengeResult.self,
                 UserProfile.self,
+                SkillGroup.self,
             ])
             container = try ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema))
         } catch {

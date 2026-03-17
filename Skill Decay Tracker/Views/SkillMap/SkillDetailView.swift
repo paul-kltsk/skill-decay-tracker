@@ -19,6 +19,8 @@ struct SkillDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    @Query(sort: \SkillGroup.name) private var groups: [SkillGroup]
+
     @State private var appeared = false
     @State private var showDeleteConfirm = false
 
@@ -67,6 +69,51 @@ struct SkillDetailView: View {
         }
         ToolbarItem(placement: .navigationBarTrailing) {
             Menu {
+                // Move to group submenu
+                if !groups.isEmpty {
+                    Menu {
+                        ForEach(groups) { group in
+                            let alreadyIn = skill.group?.id == group.id
+                            Button {
+                                if alreadyIn {
+                                    skill.group?.skills.removeAll { $0.id == skill.id }
+                                    skill.group = nil
+                                } else {
+                                    skill.group?.skills.removeAll { $0.id == skill.id }
+                                    skill.group = group
+                                    if !group.skills.contains(where: { $0.id == skill.id }) {
+                                        group.skills.append(skill)
+                                    }
+                                }
+                                try? modelContext.save()
+                            } label: {
+                                Label(
+                                    "\(group.emoji) \(group.name)",
+                                    systemImage: alreadyIn ? "checkmark.circle.fill" : "folder"
+                                )
+                            }
+                        }
+
+                        if skill.group != nil {
+                            Divider()
+                            Button(role: .destructive) {
+                                skill.group?.skills.removeAll { $0.id == skill.id }
+                                skill.group = nil
+                                try? modelContext.save()
+                            } label: {
+                                Label("Remove from Group", systemImage: "folder.badge.minus")
+                            }
+                        }
+                    } label: {
+                        Label(
+                            skill.group.map { "\($0.emoji) \($0.name)" } ?? "Move to Group",
+                            systemImage: "folder"
+                        )
+                    }
+                }
+
+                Divider()
+
                 Button(role: .destructive) {
                     showDeleteConfirm = true
                 } label: {

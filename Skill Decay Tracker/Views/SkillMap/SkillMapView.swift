@@ -14,6 +14,7 @@ struct SkillMapView: View {
     @Query(sort: \Skill.healthScore) private var skills: [Skill]
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = SkillMapViewModel()
+    @State private var showManageGroups = false
 
     // MARK: - Body
 
@@ -28,12 +29,25 @@ struct SkillMapView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    viewModel.showAddSkill = true
-                } label: {
-                    Image(systemName: "plus")
+                HStack(spacing: SDTSpacing.sm) {
+                    // Manage Groups — visible only in Grid mode (where groups are shown)
+                    if viewModel.viewMode == .grid {
+                        Button {
+                            showManageGroups = true
+                        } label: {
+                            Image(systemName: "folder.badge.gear")
+                        }
+                    }
+                    Button {
+                        viewModel.showAddSkill = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
                 }
             }
+        }
+        .sheet(isPresented: $showManageGroups) {
+            ManageGroupsView()
         }
         .sheet(isPresented: $viewModel.showAddSkill) {
             AddSkillView()

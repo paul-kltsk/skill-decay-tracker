@@ -51,6 +51,9 @@ final class Skill {
     @Relationship(deleteRule: .cascade, inverse: \Challenge.skill)
     var challenges: [Challenge]
 
+    /// The group this skill belongs to, or `nil` if ungrouped.
+    var group: SkillGroup?
+
     // MARK: Init
 
     init(
@@ -71,6 +74,7 @@ final class Skill {
         self.totalPracticeCount = 0
         self.correctCount     = 0
         self.challenges       = []
+        self.group            = nil
     }
 
     // MARK: Computed Helpers
