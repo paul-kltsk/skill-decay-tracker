@@ -15,7 +15,7 @@ struct HowItWorksView: View {
             detail: "Piano, Python, Spanish, chess — anything you want to keep sharp. No limits."
         ),
         (
-            icon: "sparkles",
+            icon: "wand.and.sparkles",
             color: Color.sdtPrimary,
             title: "AI generates challenges",
             detail: "Every practice session gets fresh micro-challenges tailored to your skill level."
@@ -101,10 +101,11 @@ private struct FeatureRow: View {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(color.opacity(0.12))
                 Image(systemName: icon)
-                    .font(.system(size: 26, weight: .semibold))
+                    .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(color)
             }
             .frame(width: 48, height: 48)
+            .clipped()
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)

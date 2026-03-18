@@ -139,8 +139,8 @@ struct SettingsView: View {
                 HStack(spacing: SDTSpacing.md) {
                     Label("AI Model", systemImage: "cpu")
                     Spacer()
-                    // Show the active provider name as trailing hint
-                    Text(profile.preferences.aiProvider.displayName)
+                    // Show "Built-in · Claude" when no personal key is saved
+                    Text(aiModeLabel(for: profile))
                         .font(.system(size: 14))
                         .foregroundStyle(Color.sdtSecondary)
                 }
@@ -148,8 +148,18 @@ struct SettingsView: View {
         } header: {
             Text("AI Setup")
         } footer: {
-            Text("Choose your AI provider and enter an API key. Keys are stored in the device Keychain.")
+            Text("By default, Claude is used via a built-in connection — no API key needed. Add your own key for a direct connection.")
         }
+    }
+
+    // MARK: - AI Mode Label
+
+    private func aiModeLabel(for profile: UserProfile) -> String {
+        let provider = profile.preferences.aiProvider
+        guard ProviderKeychain.has(for: provider) else {
+            return "Built-in · Claude"
+        }
+        return "\(provider.displayName) · My Key"
     }
 
     // MARK: - Navigation Links
