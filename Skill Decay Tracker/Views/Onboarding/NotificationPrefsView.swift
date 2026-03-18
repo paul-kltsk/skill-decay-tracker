@@ -1,29 +1,33 @@
 import SwiftUI
 
-/// Onboarding page 3 — choose AI provider and enter API key.
+/// Onboarding page 3 — choose AI mode: built-in (proxy) or personal API key.
 ///
-/// The key step is optional — users can skip it and add a key later in Settings.
+/// Built-in is pre-selected: no key required, works for everyone including
+/// users in regions where AI services are blocked.
 struct AISetupOnboardingView: View {
 
     @Bindable var vm: OnboardingViewModel
     let onNext: () -> Void
 
-    @State private var showKeyField = false
+    @State private var showPersonalKey = false
     @State private var appeared = false
+
+    /// True when no personal key is saved — proxy/built-in mode is active.
+    private var isBuiltInActive: Bool { vm.apiKeyState != .saved }
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: SDTSpacing.xxxl)
 
-            // Header
+            // MARK: Header
             VStack(spacing: SDTSpacing.sm) {
                 Image(systemName: "cpu")
                     .font(.system(size: 40, weight: .semibold))
                     .foregroundStyle(Color.sdtPrimary)
                     .padding(.bottom, SDTSpacing.sm)
-                Text("Choose your AI")
+                Text("Powered by AI")
                     .sdtFont(.titleLarge)
-                Text("Pick the model that generates your challenges.\nAll three are excellent — choose what you have.")
+                Text("Smart challenges are generated just for you.\nNo setup required — start learning right away.")
                     .sdtFont(.bodyLarge, color: .sdtSecondary)
                     .multilineTextAlignment(.center)
             }
@@ -33,59 +37,74 @@ struct AISetupOnboardingView: View {
 
             Spacer().frame(height: SDTSpacing.xxl)
 
-            // Provider picker
+            // MARK: Cards
             VStack(spacing: SDTSpacing.md) {
-                ForEach(AIProvider.allCases, id: \.rawValue) { provider in
-                    OnboardingProviderRow(
-                        provider: provider,
-                        isSelected: vm.selectedProvider == provider
-                    ) {
-                        vm.selectedProvider = provider
+
+                // Built-in card (default)
+                BuiltInAICard(isSelected: isBuiltInActive) {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        showPersonalKey = false
+                        vm.selectedProvider = .claude
                         vm.clearAPIKey()
-                        showKeyField = false
                     }
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 16)
-                    .animation(
-                        .easeOut(duration: 0.4).delay(0.1 + Double(AIProvider.allCases.firstIndex(of: provider) ?? 0) * 0.08),
-                        value: appeared
-                    )
                 }
-            }
-            .padding(.horizontal, SDTSpacing.xl)
 
-            Spacer().frame(height: SDTSpacing.xl)
+                // Divider
+                HStack {
+                    Rectangle().fill(Color.sdtSecondary.opacity(0.25)).frame(height: 1)
+                    Text("or")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.sdtSecondary)
+                        .padding(.horizontal, SDTSpacing.sm)
+                    Rectangle().fill(Color.sdtSecondary.opacity(0.25)).frame(height: 1)
+                }
 
-            // API Key section
-            VStack(spacing: SDTSpacing.md) {
-                if showKeyField {
-                    keyEntryField
+                // Personal key toggle / expanded section
+                if showPersonalKey {
+                    PersonalKeySection(vm: vm) {
+                        withAnimation(.easeInOut(duration: 0.25)) { showPersonalKey = false }
+                    }
                 } else {
-                    addKeyButton
-                }
-
-                // Status badge when key is saved
-                if vm.apiKeyState == .saved {
-                    HStack(spacing: SDTSpacing.xs) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                        Text("Key saved securely in Keychain")
-                            .font(.system(size: 13))
-                            .foregroundStyle(.green)
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) { showPersonalKey = true }
+                    } label: {
+                        HStack(spacing: SDTSpacing.sm) {
+                            Image(systemName: "key.fill")
+                            Text("Use your own API key")
+                                .font(.system(size: 15, weight: .semibold))
+                        }
+                        .foregroundStyle(vm.apiKeyState == .saved ? .green : Color.sdtPrimary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, SDTSpacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
+                                .strokeBorder(
+                                    vm.apiKeyState == .saved ? Color.green.opacity(0.5) : Color.sdtPrimary.opacity(0.5),
+                                    lineWidth: 1.5
+                                )
+                        )
                     }
-                    .transition(.opacity.combined(with: .scale))
+                    .buttonStyle(.plain)
+                    .overlay(alignment: .trailing) {
+                        if vm.apiKeyState == .saved {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .padding(.trailing, SDTSpacing.md)
+                        }
+                    }
                 }
             }
             .padding(.horizontal, SDTSpacing.xl)
             .opacity(appeared ? 1 : 0)
-            .animation(.easeOut(duration: 0.4).delay(0.4), value: appeared)
+            .offset(y: appeared ? 0 : 16)
+            .animation(.easeOut(duration: 0.4).delay(0.15), value: appeared)
 
             Spacer()
 
-            // Bottom buttons
+            // MARK: Bottom buttons
             VStack(spacing: SDTSpacing.sm) {
                 Button(action: onNext) {
-                    Text(vm.apiKeyState == .saved ? "Continue" : "Continue")
+                    Text("Continue")
                         .sdtFont(.bodySemibold, color: .white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, SDTSpacing.lg)
@@ -105,134 +124,54 @@ struct AISetupOnboardingView: View {
             }
             .padding(.horizontal, SDTSpacing.xl)
             .opacity(appeared ? 1 : 0)
-            .animation(.easeOut(duration: 0.4).delay(0.5), value: appeared)
+            .animation(.easeOut(duration: 0.4).delay(0.4), value: appeared)
 
             Spacer().frame(height: SDTSpacing.xxxl)
         }
         .onAppear { appeared = true }
     }
-
-    // MARK: - Key Entry
-
-    private var addKeyButton: some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.25)) { showKeyField = true }
-        } label: {
-            HStack(spacing: SDTSpacing.sm) {
-                Image(systemName: "key.badge.plus")
-                Text("Add API Key")
-                    .font(.system(size: 15, weight: .semibold))
-            }
-            .foregroundStyle(Color.sdtPrimary)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, SDTSpacing.md)
-            .background(
-                RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
-                    .strokeBorder(Color.sdtPrimary.opacity(0.5), lineWidth: 1.5)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var keyEntryField: some View {
-        VStack(alignment: .leading, spacing: SDTSpacing.sm) {
-            // SecureField
-            HStack(spacing: SDTSpacing.sm) {
-                Image(systemName: "key.fill")
-                    .foregroundStyle(Color.sdtSecondary)
-                    .font(.system(size: 14))
-                SecureField(vm.selectedProvider.keyPrefix + "…", text: $vm.apiKeyText)
-                    .font(.system(size: 14, design: .monospaced))
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .submitLabel(.done)
-                    .onSubmit { vm.saveAPIKey() }
-            }
-            .padding(SDTSpacing.md)
-            .background(Color.sdtSurface)
-            .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
-
-            if vm.apiKeyState == .invalid {
-                Label("Invalid key — check the prefix (\(vm.selectedProvider.keyPrefix)…)",
-                      systemImage: "exclamationmark.circle.fill")
-                    .font(.system(size: 12))
-                    .foregroundStyle(Color.sdtHealthCritical)
-            }
-
-            // Buttons row
-            HStack(spacing: SDTSpacing.sm) {
-                Button {
-                    withAnimation { vm.saveAPIKey() }
-                } label: {
-                    Text("Save Key")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, SDTSpacing.lg)
-                        .padding(.vertical, SDTSpacing.sm)
-                        .background(
-                            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
-                                .fill(vm.apiKeyText.isEmpty ? Color.sdtSecondary : Color.sdtPrimary)
-                        )
-                }
-                .buttonStyle(.plain)
-                .disabled(vm.apiKeyText.isEmpty)
-
-                Link(destination: vm.selectedProvider.apiConsoleURL) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.up.right.square")
-                            .font(.system(size: 12))
-                        Text("Get API Key")
-                            .font(.system(size: 13, weight: .medium))
-                    }
-                    .foregroundStyle(Color.sdtPrimary)
-                }
-
-                Spacer()
-
-                Button {
-                    withAnimation { showKeyField = false; vm.clearAPIKey() }
-                } label: {
-                    Text("Cancel")
-                        .font(.system(size: 13))
-                        .foregroundStyle(Color.sdtSecondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .transition(.opacity.combined(with: .move(edge: .top)))
-    }
 }
 
-// MARK: - OnboardingProviderRow
+// MARK: - BuiltInAICard
 
-private struct OnboardingProviderRow: View {
-    let provider: AIProvider
+private struct BuiltInAICard: View {
     let isSelected: Bool
     let onSelect: () -> Void
 
     var body: some View {
         Button(action: onSelect) {
             HStack(spacing: SDTSpacing.md) {
-                Image(systemName: provider.systemImage)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(isSelected ? Color.sdtPrimary : Color.sdtSecondary)
-                    .frame(width: 40, height: 40)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(isSelected ? Color.sdtPrimary.opacity(0.12) : Color.sdtBackground)
-                    )
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(isSelected ? Color.sdtPrimary.opacity(0.12) : Color.sdtBackground)
+                    Image(systemName: "sparkle")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(isSelected ? Color.sdtPrimary : Color.sdtSecondary)
+                }
+                .frame(width: 40, height: 40)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: SDTSpacing.xs) {
-                        Text(provider.displayName)
+                        Text("Built-in AI")
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(Color.sdtPrimary)
-                        Text("by \(provider.companyName)")
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.sdtSecondary)
+                        Text("Free")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(Color.green)
+                            .clipShape(Capsule())
+                        Text("Recommended")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.sdtPrimary)
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 2)
+                            .background(Color.sdtPrimary.opacity(0.1))
+                            .clipShape(Capsule())
                     }
-                    Text(provider.modelLabel)
-                        .font(.system(size: 11, weight: .regular, design: .monospaced))
+                    Text("Claude · No API key needed")
+                        .font(.system(size: 12))
                         .foregroundStyle(Color.sdtSecondary)
                 }
 
@@ -256,5 +195,190 @@ private struct OnboardingProviderRow: View {
             )
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - PersonalKeySection
+
+private struct PersonalKeySection: View {
+    @Bindable var vm: OnboardingViewModel
+    let onClose: () -> Void
+
+    @State private var showKeyField = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.md) {
+
+            // Provider chips
+            HStack(spacing: SDTSpacing.sm) {
+                ForEach(AIProvider.allCases, id: \.rawValue) { provider in
+                    Button {
+                        vm.selectedProvider = provider
+                        vm.clearAPIKey()
+                        showKeyField = false
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: provider.systemImage)
+                                .font(.system(size: 12, weight: .semibold))
+                            Text(provider.displayName)
+                                .font(.system(size: 13, weight: .semibold))
+                        }
+                        .foregroundStyle(vm.selectedProvider == provider ? Color.sdtPrimary : Color.sdtSecondary)
+                        .padding(.horizontal, SDTSpacing.sm)
+                        .padding(.vertical, 7)
+                        .background(
+                            Capsule()
+                                .fill(vm.selectedProvider == provider ? Color.sdtPrimary.opacity(0.12) : Color.sdtBackground)
+                        )
+                        .overlay(
+                            Capsule()
+                                .strokeBorder(
+                                    vm.selectedProvider == provider ? Color.sdtPrimary.opacity(0.5) : Color.clear,
+                                    lineWidth: 1
+                                )
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+                Spacer()
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.sdtSecondary)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Privacy note
+            HStack(alignment: .top, spacing: SDTSpacing.xs) {
+                Image(systemName: "shield.fill")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.sdtPrimary)
+                    .padding(.top, 1)
+                Text("Your data goes directly to \(vm.selectedProvider.companyName) — not through our server. More private, more requests.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.sdtSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            // Key state
+            if vm.apiKeyState == .saved {
+                HStack(spacing: SDTSpacing.xs) {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                    Text("\(vm.selectedProvider.displayName) key saved securely")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(.green)
+                    Spacer()
+                    Button {
+                        vm.clearAPIKey()
+                        showKeyField = true
+                    } label: {
+                        Text("Change")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.sdtSecondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(SDTSpacing.sm)
+                .background(Color.green.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .transition(.opacity.combined(with: .scale))
+            } else if showKeyField {
+                keyEntryView
+            } else {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { showKeyField = true }
+                } label: {
+                    HStack(spacing: SDTSpacing.xs) {
+                        Image(systemName: "key.badge.plus")
+                        Text("Add \(vm.selectedProvider.displayName) API Key")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundStyle(Color.sdtPrimary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, SDTSpacing.sm)
+                    .background(
+                        RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
+                            .strokeBorder(Color.sdtPrimary.opacity(0.4), lineWidth: 1)
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(SDTSpacing.md)
+        .background(Color.sdtSurface)
+        .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                .strokeBorder(
+                    vm.apiKeyState == .saved ? Color.sdtPrimary.opacity(0.6) : Color.sdtSecondary.opacity(0.2),
+                    lineWidth: 1.5
+                )
+        )
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+
+    private var keyEntryView: some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.sm) {
+            HStack(spacing: SDTSpacing.sm) {
+                Image(systemName: "key.fill")
+                    .foregroundStyle(Color.sdtSecondary)
+                    .font(.system(size: 14))
+                SecureField(vm.selectedProvider.keyPrefix + "…", text: $vm.apiKeyText)
+                    .font(.system(size: 14, design: .monospaced))
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .submitLabel(.done)
+                    .onSubmit { vm.saveAPIKey() }
+            }
+            .padding(SDTSpacing.md)
+            .background(Color.sdtBackground)
+            .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
+
+            if vm.apiKeyState == .invalid {
+                Label("Invalid key — check the prefix (\(vm.selectedProvider.keyPrefix)…)",
+                      systemImage: "exclamationmark.circle.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.sdtHealthCritical)
+            }
+
+            HStack(spacing: SDTSpacing.sm) {
+                Button {
+                    withAnimation { vm.saveAPIKey() }
+                } label: {
+                    Text("Save Key")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, SDTSpacing.lg)
+                        .padding(.vertical, SDTSpacing.sm)
+                        .background(
+                            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
+                                .fill(vm.apiKeyText.isEmpty ? Color.sdtSecondary : Color.sdtPrimary)
+                        )
+                }
+                .buttonStyle(.plain)
+                .disabled(vm.apiKeyText.isEmpty)
+
+                Link(destination: vm.selectedProvider.apiConsoleURL) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "arrow.up.right.square").font(.system(size: 12))
+                        Text("Get API Key").font(.system(size: 13, weight: .medium))
+                    }
+                    .foregroundStyle(Color.sdtPrimary)
+                }
+
+                Spacer()
+
+                Button {
+                    withAnimation { showKeyField = false; vm.clearAPIKey() }
+                } label: {
+                    Text("Cancel")
+                        .font(.system(size: 13))
+                        .foregroundStyle(Color.sdtSecondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .transition(.opacity.combined(with: .move(edge: .top)))
     }
 }
