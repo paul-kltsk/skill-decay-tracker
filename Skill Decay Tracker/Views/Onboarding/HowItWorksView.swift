@@ -97,12 +97,14 @@ private struct FeatureRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: SDTSpacing.lg) {
-            Image(systemName: icon)
-                .font(.system(size: 26, weight: .semibold))
-                .foregroundStyle(color)
-                .frame(width: 48, height: 48)
-                .background(color.opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(color.opacity(0.12))
+                Image(systemName: icon)
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundStyle(color)
+            }
+            .frame(width: 48, height: 48)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
@@ -111,6 +113,7 @@ private struct FeatureRow: View {
                     .sdtFont(.bodyMedium, color: .sdtSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
