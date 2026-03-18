@@ -3,40 +3,21 @@ import SwiftUI
 // MARK: - AIModelsView
 
 /// Settings screen for choosing an AI provider and managing its API key.
-///
-/// Each provider card shows:
-/// - Provider name, company, model label
-/// - Current key status badge
-/// - Inline ``SecureField`` for entering / updating the key
-/// - "Get API Key" link to the provider's console (beginner-friendly)
 struct AIModelsView: View {
 
     @Bindable var profile: UserProfile
     @State private var vm = AIModelsViewModel()
 
+    /// Built-in mode: Claude is selected and no personal key is saved.
+    private var isBuiltInActive: Bool {
+        profile.preferences.aiProvider == .claude && vm.state(for: .claude) != .saved
+    }
+
     var body: some View {
         List {
             headerSection
-            ForEach(AIProvider.allCases, id: \.rawValue) { provider in
-                ProviderCard(
-                    provider: provider,
-                    isActive: profile.preferences.aiProvider == provider,
-                    state: vm.state(for: provider),
-                    onSelect: {
-                        profile.preferences.aiProvider = provider
-                        provider.persist()
-                    },
-                    onSave: { key in
-                        vm.save(key: key, for: provider)
-                    },
-                    onDelete: {
-                        vm.delete(for: provider)
-                    }
-                )
-                .listRowBackground(Color.sdtSurface)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-            }
+            builtInSection
+            personalKeySection
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
@@ -51,15 +32,147 @@ struct AIModelsView: View {
     private var headerSection: some View {
         Section {
             VStack(alignment: .leading, spacing: SDTSpacing.sm) {
-                Text("Choose your AI provider")
+                Text("AI for your challenges")
                     .sdtFont(.bodySemibold)
-                Text("The selected model generates practice challenges and evaluates your answers. You need an API key from the provider — it's free to get started.")
+                Text("By default, challenges use Claude via a built-in connection — no API key needed. Add your own key for direct access and more privacy.")
                     .sdtFont(.bodyMedium, color: .sdtSecondary)
             }
             .padding(.vertical, SDTSpacing.sm)
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
         }
+    }
+
+    // MARK: - Built-in Section
+
+    private var builtInSection: some View {
+        Section {
+            BuiltInSettingsCard(isActive: isBuiltInActive) {
+                profile.preferences.aiProvider = .claude
+                AIProvider.claude.persist()
+            }
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+        } header: {
+            Text("DEFAULT")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.sdtSecondary)
+        }
+    }
+
+    // MARK: - Personal Key Section
+
+    private var personalKeySection: some View {
+        Section {
+            ForEach(AIProvider.allCases, id: \.rawValue) { provider in
+                ProviderCard(
+                    provider: provider,
+                    isActive: profile.preferences.aiProvider == provider && !isBuiltInActive,
+                    state: vm.state(for: provider),
+                    onSelect: {
+                        profile.preferences.aiProvider = provider
+                        provider.persist()
+                    },
+                    onSave: { key in
+                        vm.save(key: key, for: provider)
+                        // Automatically switch to this provider when key is saved
+                        profile.preferences.aiProvider = provider
+                        provider.persist()
+                    },
+                    onDelete: {
+                        vm.delete(for: provider)
+                        // Fall back to built-in if the active provider loses its key
+                        if profile.preferences.aiProvider == provider {
+                            profile.preferences.aiProvider = .claude
+                            AIProvider.claude.persist()
+                        }
+                    }
+                )
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+            }
+        } header: {
+            Text("PERSONAL API KEY")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.sdtSecondary)
+        }
+    }
+}
+
+// MARK: - BuiltInSettingsCard
+
+private struct BuiltInSettingsCard: View {
+    let isActive: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.sm) {
+            HStack(spacing: SDTSpacing.md) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(isActive ? Color.sdtPrimary.opacity(0.12) : Color.sdtBackground)
+                    Image(systemName: "sparkle")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(isActive ? Color.sdtPrimary : Color.sdtSecondary)
+                }
+                .frame(width: 36, height: 36)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: SDTSpacing.xs) {
+                        Text("Built-in AI")
+                            .sdtFont(.captionSemibold)
+                        Text("Free")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green)
+                            .clipShape(Capsule())
+                    }
+                    Text("Claude · No API key required")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color.sdtSecondary)
+                }
+
+                Spacer()
+
+                if isActive {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.sdtPrimary)
+                        .font(.system(size: 20))
+                }
+            }
+
+            Text("Challenges are processed through a secure server. No API key needed.")
+                .sdtFont(.bodyMedium, color: .sdtSecondary)
+
+            if !isActive {
+                Button(action: onSelect) {
+                    Text("Use Built-in AI")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.sdtPrimary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, SDTSpacing.sm)
+                        .background(
+                            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
+                                .strokeBorder(Color.sdtPrimary.opacity(0.5), lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(SDTSpacing.lg)
+        .background(Color.sdtSurface)
+        .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                .strokeBorder(
+                    isActive ? Color.sdtPrimary.opacity(0.5) : Color.clear,
+                    lineWidth: 1.5
+                )
+        )
     }
 }
 
@@ -82,14 +195,14 @@ private struct ProviderCard: View {
         VStack(alignment: .leading, spacing: SDTSpacing.md) {
             // Header row: icon + name + active badge
             HStack(spacing: SDTSpacing.md) {
-                Image(systemName: provider.systemImage)
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(isActive ? Color.sdtPrimary : Color.sdtSecondary)
-                    .frame(width: 36, height: 36)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(isActive ? Color.sdtPrimary.opacity(0.12) : Color.sdtBackground)
-                    )
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(isActive ? Color.sdtPrimary.opacity(0.12) : Color.sdtBackground)
+                    Image(systemName: provider.systemImage)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(isActive ? Color.sdtPrimary : Color.sdtSecondary)
+                }
+                .frame(width: 36, height: 36)
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: SDTSpacing.xs) {
@@ -106,7 +219,6 @@ private struct ProviderCard: View {
 
                 Spacer()
 
-                // Active checkmark
                 if isActive {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(Color.sdtPrimary)
@@ -122,7 +234,6 @@ private struct ProviderCard: View {
             HStack(spacing: SDTSpacing.sm) {
                 KeyStatusBadge(state: state)
                 Spacer()
-                // Toggle key field
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         showKeyField.toggle()
@@ -145,7 +256,6 @@ private struct ProviderCard: View {
                         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
 
                     HStack(spacing: SDTSpacing.sm) {
-                        // Save button
                         Button {
                             onSave(keyText)
                             withAnimation { showKeyField = false }
@@ -163,7 +273,6 @@ private struct ProviderCard: View {
                         }
                         .disabled(keyText.isEmpty)
 
-                        // "Get API Key" link — beginner-friendly
                         Link(destination: provider.apiConsoleURL) {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.up.right.square")
@@ -176,11 +285,8 @@ private struct ProviderCard: View {
 
                         Spacer()
 
-                        // Delete key (only when one is saved)
                         if state == .saved {
-                            Button {
-                                showDeleteAlert = true
-                            } label: {
+                            Button { showDeleteAlert = true } label: {
                                 Image(systemName: "trash")
                                     .font(.system(size: 14))
                                     .foregroundStyle(Color.red.opacity(0.8))
@@ -191,8 +297,8 @@ private struct ProviderCard: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
 
-            // "Use this model" button (only when not active)
-            if !isActive {
+            // "Use this model" button (only when key is saved and not active)
+            if state == .saved && !isActive {
                 Button(action: onSelect) {
                     Text("Use \(provider.displayName)")
                         .font(.system(size: 14, weight: .semibold))
@@ -222,9 +328,7 @@ private struct ProviderCard: View {
             isPresented: $showDeleteAlert,
             titleVisibility: .visible
         ) {
-            Button("Remove Key", role: .destructive) {
-                onDelete()
-            }
+            Button("Remove Key", role: .destructive) { onDelete() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This will delete the \(provider.displayName) API key from the device keychain.")
@@ -301,11 +405,7 @@ final class AIModelsViewModel {
             keyStates[provider] = .invalid
             return
         }
-        if ProviderKeychain.store(trimmed, for: provider) {
-            keyStates[provider] = .saved
-        } else {
-            keyStates[provider] = .invalid
-        }
+        keyStates[provider] = ProviderKeychain.store(trimmed, for: provider) ? .saved : .invalid
     }
 
     func delete(for provider: AIProvider) {
