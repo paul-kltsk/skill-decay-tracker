@@ -50,7 +50,9 @@ struct SkillDecayTrackerApp: App {
     var body: some Scene {
         WindowGroup {
             RootTabView(selectedTab: $selectedTab)
+                .environment(SubscriptionService.shared)
                 .task { await seedProfileIfNeeded() }
+                .task { await SubscriptionService.shared.start() }
         }
         .modelContainer(container)
     }

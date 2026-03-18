@@ -10,7 +10,9 @@ struct HomeView: View {
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(SubscriptionService.self) private var sub
     @State private var viewModel = HomeViewModel()
+    @State private var showPaywall = false
 
     /// Mirrors `NotificationSettingsView`'s threshold key so both screens
     /// read and write the same value without coupling to UserPreferences.
@@ -42,6 +44,9 @@ struct HomeView: View {
                     viewModel.prefetchChallenges(for: skill, context: modelContext)
                 }
             }
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(trigger: .skillLimit)
         }
         .alert("Delete Skill", isPresented: Binding(
             get: { viewModel.skillPendingDelete != nil },
@@ -132,7 +137,11 @@ struct HomeView: View {
     private var addButton: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                viewModel.showAddSkill = true
+                if sub.canAddSkill(currentCount: skills.count) {
+                    viewModel.showAddSkill = true
+                } else {
+                    showPaywall = true
+                }
             } label: {
                 Image(systemName: "plus")
                     .fontWeight(.semibold)

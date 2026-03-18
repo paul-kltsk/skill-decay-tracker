@@ -13,8 +13,11 @@ struct SkillMapView: View {
 
     @Query(sort: \Skill.healthScore) private var skills: [Skill]
     @Environment(\.modelContext) private var modelContext
+    @Environment(SubscriptionService.self) private var sub
     @State private var viewModel = SkillMapViewModel()
     @State private var showManageGroups = false
+    @State private var showPaywall = false
+    @State private var paywallTrigger: ProFeature = .generic
 
     // MARK: - Body
 
@@ -33,13 +36,23 @@ struct SkillMapView: View {
                     // Manage Groups — visible only in Grid mode (where groups are shown)
                     if viewModel.viewMode == .grid {
                         Button {
-                            showManageGroups = true
+                            if sub.isPro {
+                                showManageGroups = true
+                            } else {
+                                paywallTrigger = .skillGroups
+                                showPaywall = true
+                            }
                         } label: {
                             Image(systemName: "folder.badge.gear")
                         }
                     }
                     Button {
-                        viewModel.showAddSkill = true
+                        if sub.canAddSkill(currentCount: skills.count) {
+                            viewModel.showAddSkill = true
+                        } else {
+                            paywallTrigger = .skillLimit
+                            showPaywall = true
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -48,6 +61,9 @@ struct SkillMapView: View {
         }
         .sheet(isPresented: $showManageGroups) {
             ManageGroupsView()
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(trigger: paywallTrigger)
         }
         .sheet(isPresented: $viewModel.showAddSkill) {
             AddSkillView()

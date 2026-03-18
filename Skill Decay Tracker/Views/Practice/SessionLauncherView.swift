@@ -6,8 +6,11 @@ struct SessionLauncherView: View {
 
     @Query(sort: \Skill.healthScore) private var skills: [Skill]
     @Environment(\.modelContext) private var modelContext
+    @Environment(SubscriptionService.self) private var sub
     @State private var viewModel = PracticeViewModel()
     @State private var showDeepDivePicker = false
+    @State private var showPaywall = false
+    @State private var paywallTrigger: ProFeature = .generic
 
     var body: some View {
         ScrollView {
@@ -31,9 +34,15 @@ struct SessionLauncherView: View {
                         subtitle: skills.isEmpty ? "Add skills to get started" : "5 challenges · \(skills.first.map { "\($0.name)" } ?? "")",
                         icon: "bolt.fill",
                         tint: .sdtCategoryTool,
-                        disabled: skills.isEmpty
+                        disabled: skills.isEmpty,
+                        requiresPro: !sub.isPro
                     ) {
-                        startSession(.quickPractice)
+                        if sub.isPro {
+                            startSession(.quickPractice)
+                        } else {
+                            paywallTrigger = .quickPractice
+                            showPaywall = true
+                        }
                     }
 
                     modeCard(
@@ -41,9 +50,15 @@ struct SessionLauncherView: View {
                         subtitle: "All pending challenges for one skill",
                         icon: "scope",
                         tint: .sdtCategoryConcept,
-                        disabled: skills.isEmpty
+                        disabled: skills.isEmpty,
+                        requiresPro: !sub.isPro
                     ) {
-                        showDeepDivePicker = true
+                        if sub.isPro {
+                            showDeepDivePicker = true
+                        } else {
+                            paywallTrigger = .deepDive
+                            showPaywall = true
+                        }
                     }
                 }
 
@@ -64,6 +79,9 @@ struct SessionLauncherView: View {
         }
         .sheet(isPresented: $showDeepDivePicker) {
             deepDivePicker
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(trigger: paywallTrigger)
         }
     }
 
@@ -100,6 +118,7 @@ struct SessionLauncherView: View {
         icon: String,
         tint: Color,
         disabled: Bool,
+        requiresPro: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -112,9 +131,14 @@ struct SessionLauncherView: View {
                     .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
 
                 VStack(alignment: .leading, spacing: SDTSpacing.xxs) {
-                    Text(title)
-                        .sdtFont(.bodySemibold,
-                                 color: disabled ? .sdtSecondary : .sdtPrimary)
+                    HStack(spacing: SDTSpacing.xs) {
+                        Text(title)
+                            .sdtFont(.bodySemibold,
+                                     color: disabled ? .sdtSecondary : .sdtPrimary)
+                        if requiresPro {
+                            ProBadgeLabel()
+                        }
+                    }
                     Text(subtitle)
                         .sdtFont(.caption, color: .sdtSecondary)
                         .lineLimit(1)
@@ -122,7 +146,7 @@ struct SessionLauncherView: View {
 
                 Spacer()
 
-                Image(systemName: "chevron.right")
+                Image(systemName: requiresPro ? "lock.fill" : "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(disabled ? Color.sdtSecondary.opacity(0.4) : Color.sdtSecondary)
             }
