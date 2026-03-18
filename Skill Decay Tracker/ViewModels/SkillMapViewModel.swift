@@ -48,7 +48,7 @@ final class SkillMapViewModel {
 
     // MARK: - UI State
 
-    var viewMode: MapViewMode = .constellation
+    var viewMode: MapViewMode = .grid
     var selectedCategory: SkillCategory? = nil
     var sortOrder: SkillSortOrder = .health
     var selectedSkill: Skill? = nil

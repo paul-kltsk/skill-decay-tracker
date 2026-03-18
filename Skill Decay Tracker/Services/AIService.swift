@@ -303,13 +303,30 @@ actor AIService {
     /// Returns an empty array when the topic is already specific or on any error.
     func analyzeSkillBreadth(name: String, category: SkillCategory) async -> [SkillSuggestion] {
         let prompt = breadthPrompt(name: name)
-        guard let raw  = try? await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt),
-              let data = extractJSON(from: raw).data(using: .utf8),
-              let dto  = try? JSONDecoder().decode(SkillBreadthDTO.self, from: data)
-        else { return [] }
-        return dto.subSkills.compactMap { sub in
-            let cat = SkillCategory(rawValue: sub.category) ?? category
-            return SkillSuggestion(name: sub.name, category: cat)
+        let raw: String
+        do {
+            raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
+            print("[AIService] breadth raw response: \(raw)")
+        } catch {
+            print("[AIService] breadth sendPrompt error: \(error)")
+            return []
+        }
+        let json = extractJSON(from: raw)
+        guard let data = json.data(using: .utf8) else {
+            print("[AIService] breadth: failed to encode JSON string")
+            return []
+        }
+        do {
+            let dto = try JSONDecoder().decode(SkillBreadthDTO.self, from: data)
+            let suggestions = dto.subSkills.compactMap { sub -> SkillSuggestion? in
+                let cat = SkillCategory(rawValue: sub.category) ?? category
+                return SkillSuggestion(name: sub.name, category: cat)
+            }
+            print("[AIService] breadth suggestions: \(suggestions.map(\.name))")
+            return suggestions
+        } catch {
+            print("[AIService] breadth JSON decode error: \(error)\nJSON was: \(json)")
+            return []
         }
     }
 
