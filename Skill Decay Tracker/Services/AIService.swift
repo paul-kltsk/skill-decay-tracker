@@ -109,6 +109,13 @@ actor AIService {
 
     /// Sends `prompt` to whichever provider is currently selected in Settings.
     ///
+    /// **Routing logic:**
+    /// 1. If the user has stored a personal API key for the selected provider
+    ///    → uses the direct client (zero latency overhead, user pays their own account).
+    /// 2. If no personal key is present
+    ///    → routes through the SDT proxy server (`sdtapi.mooo.com`), which uses
+    ///    the developer's API keys. Works in all regions without VPN.
+    ///
     /// - Parameters:
     ///   - isGeneration: `true` → use the provider's higher-quality generation model;
     ///                   `false` → use the faster evaluation model.
@@ -116,22 +123,36 @@ actor AIService {
     ///   - prompt: The full user-turn prompt.
     private func sendPrompt(isGeneration: Bool, maxTokens: Int, prompt: String) async throws -> String {
         let provider = AIProvider.persisted
-        switch provider {
-        case .claude:
-            let model = isGeneration ? ClaudeModel.generation : ClaudeModel.evaluation
-            return try await ClaudeAPIClient.shared.send(model: model,
-                                                         maxTokens: maxTokens,
-                                                         prompt: prompt)
-        case .openai:
-            let model = isGeneration ? provider.generationModelID : provider.evalModelID
-            return try await OpenAIClient.shared.send(model: model,
-                                                      maxTokens: maxTokens,
-                                                      prompt: prompt)
-        case .gemini:
-            let model = isGeneration ? provider.generationModelID : provider.evalModelID
-            return try await GeminiClient.shared.send(model: model,
-                                                      maxTokens: maxTokens,
-                                                      prompt: prompt)
+
+        // Resolve model IDs once — same whether going direct or through proxy.
+        let model: String
+        switch (provider, isGeneration) {
+        case (.claude, true):  model = ClaudeModel.generation
+        case (.claude, false): model = ClaudeModel.evaluation
+        default:               model = isGeneration ? provider.generationModelID : provider.evalModelID
+        }
+
+        // Route: personal key present → direct; missing → proxy.
+        if ProviderKeychain.has(for: provider) {
+            switch provider {
+            case .claude:
+                return try await ClaudeAPIClient.shared.send(model: model,
+                                                             maxTokens: maxTokens,
+                                                             prompt: prompt)
+            case .openai:
+                return try await OpenAIClient.shared.send(model: model,
+                                                          maxTokens: maxTokens,
+                                                          prompt: prompt)
+            case .gemini:
+                return try await GeminiClient.shared.send(model: model,
+                                                          maxTokens: maxTokens,
+                                                          prompt: prompt)
+            }
+        } else {
+            return try await ProxyAPIClient.shared.send(provider: provider,
+                                                        model: model,
+                                                        maxTokens: maxTokens,
+                                                        prompt: prompt)
         }
     }
 
