@@ -29,7 +29,7 @@ actor ProxyAPIClient {
     /// ⚠️ Generate your own value with:
     ///   `openssl rand -hex 32`
     /// Then paste the same string here AND in the server `.env` file.
-    private let appSecret = "REPLACE_WITH_YOUR_32_CHAR_SECRET"
+    private let appSecret = "689c56112204cb20c351881782fcd001901822eccfd4d5ae9010de51922d5628"
 
     // MARK: - Stable Device ID
 
