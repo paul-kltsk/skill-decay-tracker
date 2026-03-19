@@ -143,9 +143,6 @@ private struct NameStepView: View {
                         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
                         .focused($nameFocused)
                         .submitLabel(.next)
-                        .onChange(of: viewModel.skillName) { _, _ in
-                            viewModel.scheduleAnalysis()
-                        }
                         .onSubmit { nameFocused = false }
 
                     if let error = viewModel.nameError {

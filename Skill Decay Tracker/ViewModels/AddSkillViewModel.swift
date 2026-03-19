@@ -41,23 +41,24 @@ final class AddSkillViewModel {
 
     private var analysisTask: Task<Void, Never>? = nil
 
-    /// Cancels any pending analysis and schedules a new one after 800 ms.
-    /// Call this whenever `skillName` changes.
-    func scheduleAnalysis() {
-        analysisTask?.cancel()
+    /// Runs AI breadth analysis once — called when the user taps Continue from the name step.
+    /// Skipped entirely when the user has already filled in context/goal, since that
+    /// already scopes the skill precisely enough.
+    func runAnalysisIfNeeded() {
+        // If the user provided context, they've already scoped the skill — no need to analyse.
+        guard skillContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            subSkillSuggestions = []
+            selectedSubSkillIDs = []
+            return
+        }
         let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard name.count >= 3 else {
             subSkillSuggestions = []
             selectedSubSkillIDs = []
-            isAnalyzingSubSkills = false
             return
         }
+        analysisTask?.cancel()
         analysisTask = Task { @MainActor in
-            do {
-                try await Task.sleep(for: .milliseconds(800))
-            } catch {
-                return  // cancelled
-            }
             isAnalyzingSubSkills = true
             let suggestions = await AIService.shared.analyzeSkillBreadth(
                 name: name, category: selectedCategory)
@@ -115,10 +116,10 @@ final class AddSkillViewModel {
     var difficultyDescription: String {
         switch Int(initialDifficulty.rounded()) {
         case 1: return "Needs review every ~14 days"
-        case 2: return "Needs review every ~9 days"
-        case 3: return "Needs review every ~7 days"
-        case 4: return "Needs review every ~5 days"
-        default: return "Needs review every ~3 days"
+        case 2: return "Needs review every ~7 days"
+        case 3: return "Needs review every ~5 days"
+        case 4: return "Needs review every ~3 days"
+        default: return "Needs review every ~1 day"
         }
     }
 
@@ -137,6 +138,10 @@ final class AddSkillViewModel {
             return
         }
         nameError = nil
+        // Trigger AI breadth analysis when leaving the name step (once, on button tap).
+        if currentStep == 0 {
+            runAnalysisIfNeeded()
+        }
         let next = nextStep(after: currentStep)
         guard next <= 3 else { return }
         currentStep = next

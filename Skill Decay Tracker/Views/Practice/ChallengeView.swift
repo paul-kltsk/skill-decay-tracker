@@ -34,9 +34,11 @@ struct ChallengeView: View {
                 )
             }
         case .error(let message):
-            ErrorSessionView(message: message) {
-                viewModel.endSession()
-            }
+            ErrorSessionView(
+                message: message,
+                onRetry: { Task { await viewModel.retrySession(context: modelContext) } },
+                onDismiss: { viewModel.endSession() }
+            )
         case .idle:
             EmptyView()
         }
@@ -51,9 +53,15 @@ private struct LoadingSessionView: View {
             ProgressView()
                 .scaleEffect(1.5)
                 .tint(.sdtCategoryProgramming)
-            Text("Building your session…")
-                .sdtFont(.bodyMedium, color: .sdtSecondary)
+            VStack(spacing: SDTSpacing.xs) {
+                Text("Preparing your practice session…")
+                    .sdtFont(.bodySemibold)
+                Text("AI is generating questions tailored to your skill")
+                    .sdtFont(.caption, color: .sdtSecondary)
+                    .multilineTextAlignment(.center)
+            }
         }
+        .padding(SDTSpacing.xxxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.sdtBackground)
     }
@@ -63,6 +71,7 @@ private struct LoadingSessionView: View {
 
 private struct ErrorSessionView: View {
     let message: String
+    let onRetry: (() -> Void)?
     let onDismiss: () -> Void
 
     var body: some View {
@@ -70,11 +79,25 @@ private struct ErrorSessionView: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(Color.sdtHealthWilting)
-            Text(message)
-                .sdtFont(.bodyMedium, color: .sdtSecondary)
-                .multilineTextAlignment(.center)
-            Button("Got it", action: onDismiss)
-                .buttonStyle(SessionButtonStyle(tint: .sdtCategoryProgramming))
+            VStack(spacing: SDTSpacing.sm) {
+                Text("Something went wrong")
+                    .sdtFont(.titleSmall)
+                Text(message)
+                    .sdtFont(.bodyMedium, color: .sdtSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            VStack(spacing: SDTSpacing.sm) {
+                if let onRetry {
+                    Button {
+                        onRetry()
+                    } label: {
+                        Label("Try Again", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(SessionButtonStyle(tint: .sdtCategoryProgramming))
+                }
+                Button("Dismiss", action: onDismiss)
+                    .buttonStyle(SessionButtonStyle(tint: .sdtSecondary))
+            }
         }
         .padding(SDTSpacing.xxxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -119,6 +119,8 @@ final class PracticeViewModel {
     private var reviewedSkillNames: Set<String> = []
     private var timerTask: Task<Void, Never>? = nil
     private var currentMode: SessionMode = .dailyReview
+    /// Skills used in the last session — stored so the session can be retried on error.
+    private var lastSessionSkills: [Skill] = []
 
     /// Per-skill accuracy tracker for this session.
     /// Key = skill UUID, value = (skillName, correctCount, totalCount).
@@ -145,11 +147,17 @@ final class PracticeViewModel {
 
     // MARK: - Start Session
 
+    /// Retries the last session with the same mode and skills (used from error screen).
+    func retrySession(context: ModelContext) async {
+        await startSession(mode: currentMode, skills: lastSessionSkills, context: context)
+    }
+
     /// Builds the challenge queue for `mode` and transitions to `.inChallenge`.
     func startSession(mode: SessionMode, skills: [Skill], context: ModelContext) async {
-        currentMode      = mode
-        phase            = .loading
-        isSessionActive  = true
+        currentMode        = mode
+        lastSessionSkills  = skills
+        phase              = .loading
+        isSessionActive    = true
         sessionStartTime = Date.now
         sessionResults   = []
         sessionXP        = 0

@@ -37,10 +37,7 @@ struct SDTChallengeCard: View {
 
             Spacer()
 
-            difficultyDots
-
-            Text("\(questionIndex + 1) / \(totalQuestions)")
-                .sdtFont(.captionSemibold, color: .sdtSecondary)
+            sessionProgressDots
         }
     }
 
@@ -55,14 +52,17 @@ struct SDTChallengeCard: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var difficultyDots: some View {
-        HStack(spacing: 3) {
-            ForEach(1...5, id: \.self) { level in
+    /// Progress dots showing which question in the session the user is on.
+    /// Each dot represents one question; filled dots = completed or current.
+    private var sessionProgressDots: some View {
+        HStack(spacing: 4) {
+            ForEach(0..<totalQuestions, id: \.self) { index in
                 Circle()
-                    .fill(level <= challenge.difficulty
+                    .fill(index <= questionIndex
                           ? typeColor
                           : Color.sdtSecondary.opacity(0.2))
-                    .frame(width: 6, height: 6)
+                    .frame(width: 7, height: 7)
+                    .animation(SDTAnimation.scoreChange, value: questionIndex)
             }
         }
     }

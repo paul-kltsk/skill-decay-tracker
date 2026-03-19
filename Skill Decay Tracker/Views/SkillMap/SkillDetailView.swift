@@ -216,7 +216,7 @@ struct SkillDetailView: View {
             }
 
             if ctx.isEmpty {
-                Text("No focus set. Add context to get more targeted questions — e.g. \"Combine Framework\" for a Swift skill.")
+                Text("No focus yet. Add a goal to get more targeted questions — e.g. \"IELTS B2 exam\", \"jazz improvisation\", \"organic chemistry\".")
                     .sdtFont(.bodyMedium, color: .sdtSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .sdtCard()
@@ -414,7 +414,7 @@ private struct EditSkillSheet: View {
 
                 Section {
                     TextField(
-                        "e.g. \"Combine Framework\", \"DELF B2 exam\", \"cocktail bartending\"",
+                        "e.g. \"IELTS B2 exam\", \"jazz improvisation\", \"organic chemistry\"",
                         text: $context,
                         axis: .vertical
                     )
