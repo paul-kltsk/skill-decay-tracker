@@ -31,44 +31,42 @@ final class AddSkillViewModel {
 
     // MARK: - Sub-Skill Analysis
 
-    /// AI-generated sub-skill suggestions (populated after name debounce).
+    /// AI-generated sub-skill suggestions — populated when AI says the topic is too broad.
     /// Internal (not private) so unit tests can inject values without hitting the network.
     var subSkillSuggestions: [SkillSuggestion] = []
     /// IDs of suggestions the user has selected to split into.
     var selectedSubSkillIDs: Set<UUID> = []
-    /// True while the AI breadth-analysis call is in flight.
-    private(set) var isAnalyzingSubSkills = false
+    /// True while the "Check & Continue" AI request is in flight.
+    private(set) var isCheckingAndAdvancing = false
 
-    private var analysisTask: Task<Void, Never>? = nil
-
-    /// Runs AI breadth analysis once — called when the user taps Continue from the name step.
-    /// Skipped entirely when the user has already filled in context/goal, since that
-    /// already scopes the skill precisely enough.
-    func runAnalysisIfNeeded() {
-        // If the user provided context, they've already scoped the skill — no need to analyse.
-        guard skillContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            subSkillSuggestions = []
-            selectedSubSkillIDs = []
+    /// Called when the user taps "Check & Continue" on step 0.
+    ///
+    /// - If the skill name is specific enough → advances to next step automatically.
+    /// - If the topic is broad → stays on step 0 and shows split suggestions.
+    func checkThenAdvance() async {
+        guard isNameValid else {
+            nameError = "Please enter a skill name."
             return
         }
+        nameError = nil
         let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard name.count >= 3 else {
-            subSkillSuggestions = []
-            selectedSubSkillIDs = []
-            return
-        }
-        analysisTask?.cancel()
-        analysisTask = Task { @MainActor in
-            isAnalyzingSubSkills = true
-            let suggestions = await AIService.shared.analyzeSkillBreadth(
-                name: name, category: selectedCategory)
-            guard !Task.isCancelled else {
-                isAnalyzingSubSkills = false
-                return
-            }
+        let ctx  = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        isCheckingAndAdvancing = true
+        subSkillSuggestions    = []
+        selectedSubSkillIDs    = []
+
+        let suggestions = await AIService.shared.analyzeSkillBreadth(
+            name: name, context: ctx, category: selectedCategory)
+
+        isCheckingAndAdvancing = false
+
+        if suggestions.isEmpty {
+            // Specific enough — advance straight to the next step.
+            currentStep = nextStep(after: 0)
+        } else {
+            // Broad topic — show split options; user taps Continue when ready.
             subSkillSuggestions = suggestions
-            selectedSubSkillIDs = []
-            isAnalyzingSubSkills = false
         }
     }
 
@@ -132,16 +130,11 @@ final class AddSkillViewModel {
         }
     }
 
+    /// Advances the step without running AI checks.
+    /// Use ``checkThenAdvance()`` for step 0; this is for steps 1–3.
     func advance() {
-        guard canAdvance else {
-            if currentStep == 0 { nameError = "Please enter a skill name." }
-            return
-        }
+        guard canAdvance else { return }
         nameError = nil
-        // Trigger AI breadth analysis when leaving the name step (once, on button tap).
-        if currentStep == 0 {
-            runAnalysisIfNeeded()
-        }
         let next = nextStep(after: currentStep)
         guard next <= 3 else { return }
         currentStep = next

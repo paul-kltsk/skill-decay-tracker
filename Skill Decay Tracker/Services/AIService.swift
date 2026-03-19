@@ -301,8 +301,8 @@ actor AIService {
     ///
     /// Uses the faster evaluation model and returns up to 4 `SkillSuggestion` objects.
     /// Returns an empty array when the topic is already specific or on any error.
-    func analyzeSkillBreadth(name: String, category: SkillCategory) async -> [SkillSuggestion] {
-        let prompt = breadthPrompt(name: name)
+    func analyzeSkillBreadth(name: String, context: String = "", category: SkillCategory) async -> [SkillSuggestion] {
+        let prompt = breadthPrompt(name: name, context: context)
         let raw: String
         do {
             raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
@@ -322,14 +322,18 @@ actor AIService {
         }
     }
 
-    private func breadthPrompt(name: String) -> String {
-        """
+    private func breadthPrompt(name: String, context: String = "") -> String {
+        let contextLine = context.isEmpty
+            ? ""
+            : "\n        The user's stated goal or context: \"\(context)\""
+        return """
         You are a learning expert helping a user set up a spaced-repetition practice app.
-        The user wants to learn: "\(name)"
+        The user wants to learn: "\(name)"\(contextLine)
 
         Decide if this topic is broad enough to meaningfully split into 3-4 focused sub-skills.
         Only suggest sub-skills for genuinely broad topics (e.g. "Spanish" → grammar, vocabulary, conversation).
-        Do NOT suggest sub-skills for specific topics (e.g. "React Hooks", "Git Rebase", "Spanish Grammar", "SwiftUI Animations").
+        Do NOT suggest sub-skills for specific topics (e.g. "React Hooks", "Git Rebase", "Spanish Grammar").
+        If the user provided a goal/context, treat the topic as already specific enough — return empty subSkills.
         Write sub-skill names in \(promptLanguage).
 
         Respond ONLY with valid JSON, no markdown:

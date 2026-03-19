@@ -86,6 +86,7 @@ struct AddSkillView: View {
     @ViewBuilder
     private var navigationButtons: some View {
         if viewModel.currentStep == 3 {
+            // Confirm step — two actions
             VStack(spacing: SDTSpacing.sm) {
                 Button {
                     let skills = viewModel.saveAll(context: modelContext)
@@ -104,16 +105,41 @@ struct AddSkillView: View {
                 }
                 .buttonStyle(BackButtonStyle())
             }
-        } else {
-            HStack(spacing: SDTSpacing.md) {
-                if viewModel.currentStep > 0 {
-                    Button("Back") { viewModel.back() }
-                        .buttonStyle(BackButtonStyle())
+
+        } else if viewModel.currentStep == 0 {
+            // Name step — Check & Continue (AI validation before advancing)
+            Button {
+                if !viewModel.subSkillSuggestions.isEmpty {
+                    // Already checked; advance with original or selected sub-skills.
+                    viewModel.advance()
+                } else {
+                    Task { await viewModel.checkThenAdvance() }
                 }
+            } label: {
+                if viewModel.isCheckingAndAdvancing {
+                    HStack(spacing: SDTSpacing.sm) {
+                        ProgressView()
+                            .scaleEffect(0.85)
+                            .tint(.white)
+                        Text("Checking…")
+                    }
+                } else if !viewModel.subSkillSuggestions.isEmpty {
+                    Text("Continue")
+                } else {
+                    Label("Check & Continue", systemImage: "sparkles")
+                }
+            }
+            .buttonStyle(PrimaryButtonStyle(tint: viewModel.selectedCategory.color))
+            .disabled(!viewModel.isNameValid || viewModel.isCheckingAndAdvancing)
+
+        } else {
+            // Steps 1–2 — plain Back / Continue
+            HStack(spacing: SDTSpacing.md) {
+                Button("Back") { viewModel.back() }
+                    .buttonStyle(BackButtonStyle())
 
                 Button("Continue") { viewModel.advance() }
                     .buttonStyle(PrimaryButtonStyle(tint: viewModel.selectedCategory.color))
-                    .disabled(!viewModel.canAdvance && viewModel.currentStep == 0)
             }
         }
     }
@@ -164,24 +190,8 @@ private struct NameStepView: View {
                         .submitLabel(.done)
                 }
 
-                // Sub-skill suggestions
+                // Sub-skill suggestions (shown after AI check finds a broad topic)
                 subSkillSection
-
-                // Curated suggestions
-                if !viewModel.skillName.isEmpty || true {
-                    VStack(alignment: .leading, spacing: SDTSpacing.sm) {
-                        Text("Suggestions")
-                            .sdtFont(.captionSemibold, color: .sdtSecondary)
-
-                        SkillSuggestionsView(query: viewModel.skillName) { suggestion in
-                            viewModel.apply(suggestion: suggestion)
-                            nameFocused = false
-                        }
-                        .padding(SDTSpacing.md)
-                        .background(Color.sdtSurface)
-                        .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
-                    }
-                }
             }
             .padding(.horizontal, SDTSpacing.lg)
             .padding(.top, SDTSpacing.xl)
@@ -193,14 +203,7 @@ private struct NameStepView: View {
 
     @ViewBuilder
     private var subSkillSection: some View {
-        if viewModel.isAnalyzingSubSkills {
-            HStack(spacing: SDTSpacing.sm) {
-                ProgressView()
-                    .scaleEffect(0.8)
-                Text("Analysing skill scope…")
-                    .sdtFont(.caption, color: .sdtSecondary)
-            }
-        } else if !viewModel.subSkillSuggestions.isEmpty {
+        if !viewModel.subSkillSuggestions.isEmpty {
             VStack(alignment: .leading, spacing: SDTSpacing.md) {
                 HStack(spacing: SDTSpacing.xs) {
                     Image(systemName: "sparkles")
@@ -210,7 +213,7 @@ private struct NameStepView: View {
                         .sdtFont(.captionSemibold, color: .sdtSecondary)
                 }
 
-                Text("This topic covers multiple areas. Select the ones you want to track separately.")
+                Text("This topic covers multiple areas. Select the sub-skills you want to track, or tap Continue to add as one skill.")
                     .sdtFont(.caption, color: .sdtSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
