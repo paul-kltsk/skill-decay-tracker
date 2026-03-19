@@ -11,6 +11,14 @@ enum SessionMode: Sendable {
     case quickPractice
     /// One user-selected skill — all available challenges.
     case deepDive(skillID: UUID)
+
+    var analyticsName: String {
+        switch self {
+        case .dailyReview:   "daily_review"
+        case .quickPractice: "quick_practice"
+        case .deepDive:      "deep_dive"
+        }
+    }
 }
 
 // MARK: - Practice Phase
@@ -110,6 +118,7 @@ final class PracticeViewModel {
     private var answerStartTime  = Date.now
     private var reviewedSkillNames: Set<String> = []
     private var timerTask: Task<Void, Never>? = nil
+    private var currentMode: SessionMode = .dailyReview
 
     /// Per-skill accuracy tracker for this session.
     /// Key = skill UUID, value = (skillName, correctCount, totalCount).
@@ -138,6 +147,7 @@ final class PracticeViewModel {
 
     /// Builds the challenge queue for `mode` and transitions to `.inChallenge`.
     func startSession(mode: SessionMode, skills: [Skill], context: ModelContext) async {
+        currentMode      = mode
         phase            = .loading
         isSessionActive  = true
         sessionStartTime = Date.now
@@ -195,6 +205,7 @@ final class PracticeViewModel {
         if challenges.isEmpty {
             phase = .error("No challenges found. Try again or add more skills.")
         } else {
+            AnalyticsService.sessionStarted(mode: mode.analyticsName, challengeCount: challenges.count)
             beginChallenge()
         }
     }
@@ -257,6 +268,7 @@ final class PracticeViewModel {
     /// Skips the current challenge (counts as incorrect for decay purposes).
     func skipChallenge(context: ModelContext) {
         timerTask?.cancel()
+        AnalyticsService.challengeSkipped(mode: currentMode.analyticsName)
         // Don't record — just move on without updating decay
         currentIndex += 1
         beginChallenge()
@@ -384,12 +396,22 @@ final class PracticeViewModel {
             return nil
         }
 
+        let duration = Int(Date.now.timeIntervalSince(sessionStartTime))
+        let accuracyPct = sessionResults.isEmpty ? 0 : Int(Double(correct) / Double(sessionResults.count) * 100)
+        AnalyticsService.sessionCompleted(
+            mode: currentMode.analyticsName,
+            accuracyPct: accuracyPct,
+            durationSeconds: duration,
+            xpEarned: sessionXP,
+            skillCount: reviewedSkillNames.count
+        )
+
         summary = SessionSummary(
             totalChallenges: sessionResults.count,
             correctCount: correct,
             xpEarned: sessionXP,
             skillNames: Array(reviewedSkillNames),
-            durationSeconds: Int(Date.now.timeIntervalSince(sessionStartTime)),
+            durationSeconds: duration,
             adjustments: adjustments.sorted { $0.skillName < $1.skillName }
         )
         phase = .sessionComplete
@@ -398,6 +420,14 @@ final class PracticeViewModel {
     /// Resets all state and dismisses the session cover.
     func endSession() {
         timerTask?.cancel()
+        // Track abandonment: session was active, not yet complete, and at least one challenge was seen
+        if isSessionActive && phase != .sessionComplete && !sessionResults.isEmpty {
+            AnalyticsService.sessionAbandoned(
+                mode: currentMode.analyticsName,
+                completedChallenges: sessionResults.count,
+                totalChallenges: challenges.count
+            )
+        }
         isSessionActive   = false
         phase             = .idle
         challenges        = []
@@ -418,8 +448,12 @@ final class PracticeViewModel {
         guard let skill = challenges.first(where: { $0.skill?.id == adjustment.skillID })?.skill
         else { return }
         switch adjustment.direction {
-        case .increase: DecayEngine.applyDifficultyIncrease(to: skill)
-        case .decrease: DecayEngine.applyDifficultyDecrease(to: skill)
+        case .increase:
+            DecayEngine.applyDifficultyIncrease(to: skill)
+            AnalyticsService.difficultyAdjusted(direction: "increase")
+        case .decrease:
+            DecayEngine.applyDifficultyDecrease(to: skill)
+            AnalyticsService.difficultyAdjusted(direction: "decrease")
         }
         try? context.save()
     }

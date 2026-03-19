@@ -91,7 +91,15 @@ final class OnboardingViewModel {
 
         try? context.save()
 
-        // 4. Mark onboarding complete so it never shows again
+        // 4. Analytics
+        let aiMode = apiKeyState == .saved ? "personal_key" : "builtin"
+        AnalyticsService.onboardingCompleted(
+            aiMode: aiMode,
+            provider: selectedProvider.rawValue,
+            hasFirstSkill: !firstSkillName.trimmingCharacters(in: .whitespaces).isEmpty
+        )
+
+        // 5. Mark onboarding complete so it never shows again
         UserDefaults.standard.set(true, forKey: "onboarding.completed")
 
         // 5. Request notification authorization and schedule the daily reminder

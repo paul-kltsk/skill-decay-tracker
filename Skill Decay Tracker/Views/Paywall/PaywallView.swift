@@ -56,6 +56,7 @@ struct PaywallView: View {
                 selectedProduct = sub.annualProduct ?? sub.products.first
             }
             withAnimation(.easeOut(duration: 0.5)) { appeared = true }
+            AnalyticsService.paywallShown(trigger: trigger.analyticsName)
         }
         .alert("Purchase Error", isPresented: .constant(sub.purchaseError != nil)) {
             Button("OK") {}
@@ -329,6 +330,17 @@ enum ProFeature {
     case skillGroups
     case analytics
     case generic
+
+    var analyticsName: String {
+        switch self {
+        case .skillLimit:    "skill_limit"
+        case .quickPractice: "quick_practice"
+        case .deepDive:      "deep_dive"
+        case .skillGroups:   "skill_groups"
+        case .analytics:     "analytics"
+        case .generic:       "generic"
+        }
+    }
 
     var subtitle: String {
         switch self {

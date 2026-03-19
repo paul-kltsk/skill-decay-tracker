@@ -167,6 +167,7 @@ final class AddSkillViewModel {
     func saveAll(context: ModelContext) -> [Skill] {
         let contextText = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
         let rate = difficultyDecayRate
+        let difficulty = Int(initialDifficulty.rounded())
         if isSplitting {
             let skills = selectedSubSkills.map { sub in
                 Skill(name: sub.name, category: sub.category,
@@ -174,6 +175,12 @@ final class AddSkillViewModel {
             }
             skills.forEach { context.insert($0) }
             try? context.save()
+            AnalyticsService.skillAdded(
+                category: selectedSubSkills.first?.category.rawValue ?? selectedCategory.rawValue,
+                isSplit: true,
+                subskillCount: skills.count,
+                difficulty: difficulty
+            )
             return skills
         } else {
             let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -181,6 +188,12 @@ final class AddSkillViewModel {
                               context: contextText, decayRate: rate)
             context.insert(skill)
             try? context.save()
+            AnalyticsService.skillAdded(
+                category: selectedCategory.rawValue,
+                isSplit: false,
+                subskillCount: 0,
+                difficulty: difficulty
+            )
             return [skill]
         }
     }

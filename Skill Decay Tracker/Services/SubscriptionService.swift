@@ -122,6 +122,8 @@ final class SubscriptionService {
         isPurchasing  = true
         defer { isPurchasing = false }
 
+        AnalyticsService.purchaseStarted(productID: product.id)
+
         do {
             let result = try await product.purchase()
             switch result {
@@ -132,6 +134,7 @@ final class SubscriptionService {
                 }
                 await tx.finish()
                 await refreshEntitlements()
+                AnalyticsService.purchaseCompleted(productID: product.id)
                 return true
             case .userCancelled:
                 return false
@@ -143,6 +146,7 @@ final class SubscriptionService {
             }
         } catch {
             purchaseError = error.localizedDescription
+            AnalyticsService.purchaseFailed(productID: product.id)
             return false
         }
     }
@@ -157,6 +161,7 @@ final class SubscriptionService {
         do {
             try await AppStore.sync()
             await refreshEntitlements()
+            AnalyticsService.restoreCompleted(wasPro: isPro)
         } catch {
             purchaseError = error.localizedDescription
         }

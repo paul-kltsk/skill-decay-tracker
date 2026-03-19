@@ -1,5 +1,7 @@
 import SwiftUI
 import SwiftData
+import FirebaseCore
+import FirebaseCrashlytics
 
 // MARK: - App Tab
 
@@ -31,6 +33,8 @@ struct SkillDecayTrackerApp: App {
     let container: ModelContainer
 
     init() {
+        FirebaseApp.configure()
+
         do {
             let schema = Schema([
                 Skill.self,
