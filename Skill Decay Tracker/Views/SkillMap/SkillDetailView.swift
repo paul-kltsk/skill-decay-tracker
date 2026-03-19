@@ -23,6 +23,7 @@ struct SkillDetailView: View {
 
     @State private var appeared = false
     @State private var showDeleteConfirm = false
+    @State private var showEditSheet = false
 
     // MARK: - Body
 
@@ -31,6 +32,7 @@ struct SkillDetailView: View {
             ScrollView {
                 VStack(spacing: SDTSpacing.xxl) {
                     heroSection
+                    focusSection
                     statsGrid
                     decayCurveSection
                     recentChallengesSection
@@ -42,6 +44,9 @@ struct SkillDetailView: View {
             .navigationTitle(skill.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
+            .sheet(isPresented: $showEditSheet) {
+                EditSkillSheet(skill: skill)
+            }
             .alert(
                 "Delete \"\(skill.name)\"?",
                 isPresented: $showDeleteConfirm
@@ -64,11 +69,19 @@ struct SkillDetailView: View {
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
+        ToolbarItem(placement: .topBarLeading) {
             Button("Done") { dismiss() }
         }
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItem(placement: .topBarTrailing) {
             Menu {
+                Button {
+                    showEditSheet = true
+                } label: {
+                    Label("Edit Skill", systemImage: "pencil")
+                }
+
+                Divider()
+
                 // Move to group submenu
                 if !groups.isEmpty {
                     Menu {
@@ -181,6 +194,39 @@ struct SkillDetailView: View {
             }
         }
         .padding(.top, SDTSpacing.lg)
+    }
+
+    // MARK: - Focus Section
+
+    @ViewBuilder
+    private var focusSection: some View {
+        let ctx = skill.context.trimmingCharacters(in: .whitespacesAndNewlines)
+        VStack(alignment: .leading, spacing: SDTSpacing.sm) {
+            HStack {
+                Label("Focus", systemImage: "scope")
+                    .sdtFont(.bodySemibold)
+                Spacer()
+                Button {
+                    showEditSheet = true
+                } label: {
+                    Text(ctx.isEmpty ? "Add" : "Edit")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color.sdtPrimary)
+                }
+            }
+
+            if ctx.isEmpty {
+                Text("No focus set. Add context to get more targeted questions — e.g. \"Combine Framework\" for a Swift skill.")
+                    .sdtFont(.bodyMedium, color: .sdtSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .sdtCard()
+            } else {
+                Text(ctx)
+                    .sdtFont(.bodyMedium, color: .sdtSecondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .sdtCard()
+            }
+        }
     }
 
     // MARK: - Stats Grid
@@ -317,4 +363,90 @@ struct SkillDetailView: View {
 #Preview {
     let skill = Skill(name: "SwiftUI", category: .programming, decayRate: 0.08)
     return SkillDetailView(skill: skill, onStartPractice: {})
+}
+
+// MARK: - EditSkillSheet
+
+/// Sheet for editing skill name, category, and AI context.
+private struct EditSkillSheet: View {
+
+    let skill: Skill
+
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var name: String
+    @State private var category: SkillCategory
+    @State private var context: String
+
+    init(skill: Skill) {
+        self.skill = skill
+        _name     = State(initialValue: skill.name)
+        _category = State(initialValue: skill.category)
+        _context  = State(initialValue: skill.context)
+    }
+
+    private var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    TextField("Skill name", text: $name)
+                        .autocorrectionDisabled()
+                } header: {
+                    Text("Name")
+                }
+
+                Section {
+                    Picker("Category", selection: $category) {
+                        ForEach(SkillCategory.allCases, id: \.self) { cat in
+                            Label(cat.rawValue.capitalized, systemImage: cat.systemImage)
+                                .tag(cat)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
+                } header: {
+                    Text("Category")
+                }
+
+                Section {
+                    TextField(
+                        "e.g. \"Combine Framework\", \"DELF B2 exam\", \"cocktail bartending\"",
+                        text: $context,
+                        axis: .vertical
+                    )
+                    .lineLimit(3...6)
+                    .autocorrectionDisabled()
+                } header: {
+                    Text("Focus / Context")
+                } footer: {
+                    Text("AI uses this to generate more targeted questions. Leave empty for broad coverage.")
+                }
+            }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color.sdtBackground)
+            .navigationTitle("Edit Skill")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Save") {
+                        skill.name     = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        skill.category = category
+                        skill.context  = context.trimmingCharacters(in: .whitespacesAndNewlines)
+                        try? modelContext.save()
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                    .disabled(!canSave)
+                }
+            }
+        }
+    }
 }
