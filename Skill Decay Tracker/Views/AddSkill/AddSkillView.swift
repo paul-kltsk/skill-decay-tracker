@@ -58,6 +58,13 @@ struct AddSkillView: View {
             .background(Color.sdtBackground)
             .navigationTitle("Add Skill")
             .navigationBarTitleDisplayMode(.inline)
+            // Start generating challenges as soon as the user lands on Confirm —
+            // by the time they read the summary and tap "Start Practice" the
+            // challenges are already ready and the session opens instantly.
+            .task(id: viewModel.currentStep) {
+                guard viewModel.currentStep == 3 else { return }
+                await viewModel.prefetchChallengesForCurrentSettings()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancel") { dismiss() }
@@ -94,9 +101,19 @@ struct AddSkillView: View {
                     dismiss()
                     onStartPractice?(skills)
                 } label: {
-                    Label("Start Practice", systemImage: "play.fill")
+                    if viewModel.isPrefetchingChallenges {
+                        HStack(spacing: SDTSpacing.sm) {
+                            ProgressView()
+                                .scaleEffect(0.85)
+                                .tint(.white)
+                            Text("Generating questions…")
+                        }
+                    } else {
+                        Label("Start Practice", systemImage: "play.fill")
+                    }
                 }
                 .buttonStyle(PrimaryButtonStyle(tint: viewModel.selectedCategory.color))
+                .disabled(viewModel.isPrefetchingChallenges)
 
                 Button("Save & Continue") {
                     let skills = viewModel.saveAll(context: modelContext)
@@ -478,10 +495,33 @@ private struct ConfirmStepView: View {
             .padding(SDTSpacing.lg)
             .sdtCard()
 
-            Text("AI will generate 3 personalised challenges in the background.")
-                .sdtFont(.caption, color: .sdtSecondary)
+            prefetchStatusLabel
                 .padding(.horizontal, SDTSpacing.xs)
                 .padding(.top, SDTSpacing.md)
+        }
+    }
+
+    /// Reflects the background challenge pre-generation state.
+    private var prefetchStatusLabel: some View {
+        Group {
+            if viewModel.isPrefetchingChallenges {
+                HStack(spacing: SDTSpacing.xs) {
+                    ProgressView().scaleEffect(0.7)
+                    Text("Preparing personalised questions…")
+                        .sdtFont(.caption, color: .sdtSecondary)
+                }
+            } else if !viewModel.prefetchedChallenges.isEmpty {
+                HStack(spacing: SDTSpacing.xs) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Color.sdtHealthHealthy)
+                        .font(.system(size: 12))
+                    Text("\(viewModel.prefetchedChallenges.count) questions ready — practice starts instantly.")
+                        .sdtFont(.caption, color: .sdtHealthHealthy)
+                }
+            } else {
+                Text("AI will generate 3 personalised challenges in the background.")
+                    .sdtFont(.caption, color: .sdtSecondary)
+            }
         }
     }
 
@@ -544,8 +584,7 @@ private struct ConfirmStepView: View {
                 .sdtCard()
             }
 
-            Text("AI will generate personalised challenges for each skill in the background.")
-                .sdtFont(.caption, color: .sdtSecondary)
+            prefetchStatusLabel
                 .padding(.horizontal, SDTSpacing.xs)
         }
     }

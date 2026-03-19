@@ -47,9 +47,8 @@ struct HomeView: View {
                     }
                 },
                 onStartPractice: { newSkills in
-                    for skill in newSkills {
-                        viewModel.prefetchChallenges(for: skill, context: modelContext)
-                    }
+                    // Challenges were pre-generated during the Confirm step —
+                    // start the session directly without an extra AI round-trip.
                     guard let first = newSkills.first else { return }
                     Task {
                         await practiceViewModel.startSession(

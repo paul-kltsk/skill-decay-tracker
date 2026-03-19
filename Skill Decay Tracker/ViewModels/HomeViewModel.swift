@@ -74,7 +74,11 @@ final class HomeViewModel {
     }
 
     /// Pre-generates AI challenges for a newly created skill in the background.
+    ///
+    /// No-ops if the skill already has challenges (e.g. pre-generated during the
+    /// Add Skill confirm step).
     func prefetchChallenges(for skill: Skill, context: ModelContext) {
+        guard skill.challenges.isEmpty else { return }
         Task {
             do {
                 let challenges = try await AIService.shared.generateChallenges(

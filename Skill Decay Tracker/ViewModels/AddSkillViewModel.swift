@@ -39,6 +39,46 @@ final class AddSkillViewModel {
     /// True while the "Check & Continue" AI request is in flight.
     private(set) var isCheckingAndAdvancing = false
 
+    // MARK: - Challenge Pre-Generation
+
+    /// AI-generated challenges for the first skill — ready before the user taps "Start Practice".
+    ///
+    /// Populated when the user arrives at the Confirm step so the session can
+    /// start instantly without a loading screen.
+    var prefetchedChallenges: [Challenge] = []
+
+    /// True while challenges are being pre-generated in the background.
+    private(set) var isPrefetchingChallenges = false
+
+    /// Pre-generates AI challenges using the current skill settings.
+    ///
+    /// Called when the user reaches the Confirm step (step 3).
+    /// Creates a temporary, un-persisted `Skill` object to drive the AI prompt,
+    /// then stores the resulting challenges so `saveAll` can link them instantly.
+    func prefetchChallengesForCurrentSettings() async {
+        isPrefetchingChallenges = true
+        prefetchedChallenges    = []
+        defer { isPrefetchingChallenges = false }
+
+        guard !Task.isCancelled else { return }
+
+        // Build a temporary skill for the AI prompt (not inserted into context).
+        let firstName = isSplitting
+            ? (selectedSubSkills.first?.name ?? skillName.trimmingCharacters(in: .whitespacesAndNewlines))
+            : skillName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let firstCategory = isSplitting
+            ? (selectedSubSkills.first?.category ?? selectedCategory)
+            : selectedCategory
+        let ctx      = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
+        let tempSkill = Skill(name: firstName, category: firstCategory,
+                              context: ctx, decayRate: difficultyDecayRate)
+
+        if let generated = try? await AIService.shared.generateChallenges(for: tempSkill, count: 3) {
+            guard !Task.isCancelled else { return }
+            prefetchedChallenges = generated
+        }
+    }
+
     /// Called when the user taps "Check & Continue" on step 0.
     ///
     /// - If the skill name is specific enough → advances to next step automatically.
@@ -172,6 +212,14 @@ final class AddSkillViewModel {
                       context: contextText, decayRate: rate)
             }
             skills.forEach { context.insert($0) }
+            // Link any pre-generated challenges to the first sub-skill so its
+            // practice session can start without an extra AI round-trip.
+            if let firstSkill = skills.first, !prefetchedChallenges.isEmpty {
+                prefetchedChallenges.forEach { c in
+                    firstSkill.challenges.append(c)
+                    context.insert(c)
+                }
+            }
             try? context.save()
             AnalyticsService.skillAdded(
                 category: selectedSubSkills.first?.category.rawValue ?? selectedCategory.rawValue,
@@ -185,6 +233,13 @@ final class AddSkillViewModel {
             let skill = Skill(name: name, category: selectedCategory,
                               context: contextText, decayRate: rate)
             context.insert(skill)
+            // Link any pre-generated challenges so practice starts instantly.
+            if !prefetchedChallenges.isEmpty {
+                prefetchedChallenges.forEach { c in
+                    skill.challenges.append(c)
+                    context.insert(c)
+                }
+            }
             try? context.save()
             AnalyticsService.skillAdded(
                 category: selectedCategory.rawValue,
