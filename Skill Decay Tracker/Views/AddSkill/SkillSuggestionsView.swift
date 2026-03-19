@@ -13,62 +13,11 @@ struct SkillSuggestion: Identifiable, Sendable {
 
 extension SkillSuggestion {
     static let all: [SkillSuggestion] = [
-        // ── Languages (universal, highest demand) ──
-        .init(name: "Spanish",              category: .language),
-        .init(name: "English",              category: .language),
-        .init(name: "French",               category: .language),
-        .init(name: "German",               category: .language),
-        .init(name: "Japanese",             category: .language),
-        .init(name: "Mandarin",             category: .language),
-        .init(name: "Korean",               category: .language),
-        .init(name: "Arabic",               category: .language),
-        .init(name: "Italian",              category: .language),
-        .init(name: "Portuguese",           category: .language),
-        .init(name: "Hindi",                category: .language),
-        .init(name: "Turkish",              category: .language),
-
-        // ── Academic / Science ──
-        .init(name: "Mathematics",          category: .concept),
-        .init(name: "Algebra",              category: .concept),
-        .init(name: "Calculus",             category: .concept),
-        .init(name: "Physics",              category: .concept),
-        .init(name: "Chemistry",            category: .concept),
-        .init(name: "Biology",              category: .concept),
-        .init(name: "History",              category: .concept),
-        .init(name: "Geography",            category: .concept),
-        .init(name: "Economics",            category: .concept),
-        .init(name: "Psychology",           category: .concept),
-        .init(name: "Philosophy",           category: .concept),
-
-        // ── Professional & Business ──
-        .init(name: "Public Speaking",      category: .concept),
-        .init(name: "Marketing Strategy",   category: .concept),
-        .init(name: "Copywriting",          category: .concept),
-        .init(name: "Project Management",   category: .concept),
-        .init(name: "Personal Finance",     category: .concept),
-        .init(name: "Investing",            category: .concept),
-        .init(name: "Negotiation",          category: .concept),
-        .init(name: "Data Analysis",        category: .concept),
-
-        // ── Creative & Arts ──
-        .init(name: "Drawing",              category: .tool),
-        .init(name: "Photography",          category: .tool),
-        .init(name: "Graphic Design",       category: .tool),
-        .init(name: "Video Editing",        category: .tool),
-        .init(name: "Music Theory",         category: .concept),
-        .init(name: "Guitar",               category: .tool),
-        .init(name: "Piano",                category: .tool),
-        .init(name: "Singing",              category: .concept),
-
-        // ── Programming (for developers) ──
-        .init(name: "Python",               category: .programming),
-        .init(name: "JavaScript",           category: .programming),
-        .init(name: "Swift",                category: .programming),
-        .init(name: "SQL",                  category: .programming),
-        .init(name: "React",                category: .programming),
-        .init(name: "Machine Learning",     category: .programming),
-        .init(name: "Git",                  category: .tool),
-        .init(name: "Docker",               category: .tool),
+        .init(name: "Spanish",          category: .language),
+        .init(name: "Mathematics",      category: .concept),
+        .init(name: "Public Speaking",  category: .concept),
+        .init(name: "Guitar",           category: .tool),
+        .init(name: "Python",           category: .programming),
     ]
 
     /// Suggestions filtered by name substring (case-insensitive).

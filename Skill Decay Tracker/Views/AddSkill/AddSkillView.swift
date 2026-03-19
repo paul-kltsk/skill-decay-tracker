@@ -25,6 +25,10 @@ struct AddSkillView: View {
     /// Called with every newly created skill after the user taps "Add Skill".
     var onSkillCreated: (([Skill]) -> Void)? = nil
 
+    /// Optional callback to start a practice session immediately after saving.
+    /// The sheet dismisses first, then the callback fires.
+    var onStartPractice: (([Skill]) -> Void)? = nil
+
     // MARK: - Body
 
     var body: some View {
@@ -79,24 +83,38 @@ struct AddSkillView: View {
 
     // MARK: - Navigation Buttons
 
+    @ViewBuilder
     private var navigationButtons: some View {
-        HStack(spacing: SDTSpacing.md) {
-            if viewModel.currentStep > 0 {
-                Button("Back") { viewModel.back() }
-                    .buttonStyle(BackButtonStyle())
-            }
+        if viewModel.currentStep == 3 {
+            VStack(spacing: SDTSpacing.sm) {
+                Button {
+                    let skills = viewModel.saveAll(context: modelContext)
+                    onSkillCreated?(skills)
+                    dismiss()
+                    onStartPractice?(skills)
+                } label: {
+                    Label("Start Practice", systemImage: "play.fill")
+                }
+                .buttonStyle(PrimaryButtonStyle(tint: viewModel.selectedCategory.color))
 
-            Button(viewModel.currentStep < 3 ? "Continue" : "Add Skill") {
-                if viewModel.currentStep < 3 {
-                    viewModel.advance()
-                } else {
+                Button("Save & Continue") {
                     let skills = viewModel.saveAll(context: modelContext)
                     onSkillCreated?(skills)
                     dismiss()
                 }
+                .buttonStyle(BackButtonStyle())
             }
-            .buttonStyle(PrimaryButtonStyle(tint: viewModel.selectedCategory.color))
-            .disabled(!viewModel.canAdvance && viewModel.currentStep == 0)
+        } else {
+            HStack(spacing: SDTSpacing.md) {
+                if viewModel.currentStep > 0 {
+                    Button("Back") { viewModel.back() }
+                        .buttonStyle(BackButtonStyle())
+                }
+
+                Button("Continue") { viewModel.advance() }
+                    .buttonStyle(PrimaryButtonStyle(tint: viewModel.selectedCategory.color))
+                    .disabled(!viewModel.canAdvance && viewModel.currentStep == 0)
+            }
         }
     }
 }
@@ -118,7 +136,7 @@ private struct NameStepView: View {
 
                 // Name field
                 VStack(alignment: .leading, spacing: SDTSpacing.sm) {
-                    TextField("e.g. SwiftUI, Japanese, Docker…", text: $viewModel.skillName)
+                    TextField("e.g. Spanish, Guitar, Chemistry…", text: $viewModel.skillName)
                         .sdtFont(.bodyLarge)
                         .padding(SDTSpacing.md)
                         .background(Color.sdtSurface)
@@ -140,7 +158,7 @@ private struct NameStepView: View {
                 VStack(alignment: .leading, spacing: SDTSpacing.sm) {
                     Text("Goal or context")
                         .sdtFont(.captionSemibold, color: .sdtSecondary)
-                    TextField("e.g. JLPT N3, Interview prep, Django project…",
+                    TextField("e.g. DELF B2 exam, Jazz improvisation, Organic chemistry…",
                               text: $viewModel.skillContext)
                         .sdtFont(.bodyMedium)
                         .padding(SDTSpacing.md)

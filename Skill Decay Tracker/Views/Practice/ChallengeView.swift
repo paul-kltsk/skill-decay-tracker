@@ -115,6 +115,36 @@ private struct ActiveChallengeView: View {
                     submitBar
                 }
             }
+            .overlay {
+                if viewModel.phase == .evaluating {
+                    evaluatingOverlay
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: viewModel.phase == .evaluating)
+        }
+    }
+
+    // MARK: Evaluating Overlay
+
+    private var evaluatingOverlay: some View {
+        ZStack {
+            Color.sdtBackground.opacity(0.75)
+                .ignoresSafeArea()
+
+            VStack(spacing: SDTSpacing.lg) {
+                ProgressView()
+                    .scaleEffect(1.6)
+                    .tint(.sdtCategoryProgramming)
+
+                Text("AI is evaluating…")
+                    .sdtFont(.bodySemibold)
+            }
+            .padding(.horizontal, SDTSpacing.xxxl)
+            .padding(.vertical, SDTSpacing.xxl)
+            .background(Color.sdtSurface)
+            .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+            .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 8)
         }
     }
 
@@ -143,32 +173,22 @@ private struct ActiveChallengeView: View {
     // MARK: Submit Bar
 
     private var submitBar: some View {
-        VStack(spacing: SDTSpacing.sm) {
-            if viewModel.phase == .evaluating {
-                ProgressView("Evaluating…")
-                    .tint(.sdtCategoryProgramming)
-                    .frame(maxWidth: .infinity)
-                    .padding(SDTSpacing.lg)
-                    .background(Color.sdtSurface)
-            } else {
-                HStack(spacing: SDTSpacing.md) {
-                    Button("Skip") {
-                        viewModel.skipChallenge(context: modelContext)
-                    }
-                    .buttonStyle(SessionButtonStyle(tint: .sdtSecondary, outlined: true))
-                    .frame(width: 90)
-
-                    Button("Submit") {
-                        Task { await viewModel.submitAnswer(context: modelContext) }
-                    }
-                    .buttonStyle(SessionButtonStyle(tint: .sdtCategoryProgramming))
-                    .disabled(!canSubmit)
-                }
-                .padding(.horizontal, SDTSpacing.lg)
-                .padding(.vertical, SDTSpacing.md)
-                .background(Color.sdtBackground)
+        HStack(spacing: SDTSpacing.md) {
+            Button("Skip") {
+                viewModel.skipChallenge(context: modelContext)
             }
+            .buttonStyle(SessionButtonStyle(tint: .sdtSecondary, outlined: true))
+            .frame(width: 90)
+
+            Button("Submit") {
+                Task { await viewModel.submitAnswer(context: modelContext) }
+            }
+            .buttonStyle(SessionButtonStyle(tint: .sdtCategoryProgramming))
+            .disabled(!canSubmit)
         }
+        .padding(.horizontal, SDTSpacing.lg)
+        .padding(.vertical, SDTSpacing.md)
+        .background(Color.sdtBackground)
     }
 
     private var canSubmit: Bool {

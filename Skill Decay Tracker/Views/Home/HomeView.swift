@@ -13,6 +13,7 @@ struct HomeView: View {
     @Environment(SubscriptionService.self) private var sub
     @State private var viewModel = HomeViewModel()
     @State private var showPaywall = false
+    @State private var practiceViewModel = PracticeViewModel()
 
     /// Mirrors `NotificationSettingsView`'s threshold key so both screens
     /// read and write the same value without coupling to UserPreferences.
@@ -39,11 +40,29 @@ struct HomeView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbar { addButton }
         .sheet(isPresented: $viewModel.showAddSkill) {
-            AddSkillView { newSkills in
-                for skill in newSkills {
-                    viewModel.prefetchChallenges(for: skill, context: modelContext)
+            AddSkillView(
+                onSkillCreated: { newSkills in
+                    for skill in newSkills {
+                        viewModel.prefetchChallenges(for: skill, context: modelContext)
+                    }
+                },
+                onStartPractice: { newSkills in
+                    for skill in newSkills {
+                        viewModel.prefetchChallenges(for: skill, context: modelContext)
+                    }
+                    guard let first = newSkills.first else { return }
+                    Task {
+                        await practiceViewModel.startSession(
+                            mode: .deepDive(skillID: first.id),
+                            skills: newSkills,
+                            context: modelContext
+                        )
+                    }
                 }
-            }
+            )
+        }
+        .fullScreenCover(isPresented: $practiceViewModel.isSessionActive) {
+            ChallengeView(viewModel: practiceViewModel)
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(trigger: .skillLimit)

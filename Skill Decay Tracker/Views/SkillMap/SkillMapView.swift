@@ -18,6 +18,7 @@ struct SkillMapView: View {
     @State private var showManageGroups = false
     @State private var showPaywall = false
     @State private var paywallTrigger: ProFeature = .generic
+    @State private var practiceViewModel = PracticeViewModel()
 
     // MARK: - Body
 
@@ -66,7 +67,21 @@ struct SkillMapView: View {
             PaywallView(trigger: paywallTrigger)
         }
         .sheet(isPresented: $viewModel.showAddSkill) {
-            AddSkillView()
+            AddSkillView(
+                onStartPractice: { newSkills in
+                    guard let first = newSkills.first else { return }
+                    Task {
+                        await practiceViewModel.startSession(
+                            mode: .deepDive(skillID: first.id),
+                            skills: newSkills,
+                            context: modelContext
+                        )
+                    }
+                }
+            )
+        }
+        .fullScreenCover(isPresented: $practiceViewModel.isSessionActive) {
+            ChallengeView(viewModel: practiceViewModel)
         }
         .sheet(isPresented: $viewModel.showDetail) {
             if let skill = viewModel.selectedSkill {
