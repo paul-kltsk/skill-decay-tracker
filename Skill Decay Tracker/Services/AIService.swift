@@ -63,8 +63,8 @@ private struct SkillBreadthDTO: Decodable, Sendable {
 // MARK: - Model IDs
 
 private enum ClaudeModel {
-    /// High-quality reasoning — used for challenge generation.
-    static let generation = "claude-sonnet-4-20250514"
+    /// Fast and cost-efficient — used for both generation and evaluation.
+    static let generation = "claude-haiku-4-5-20251001"
     /// Fast and cost-efficient — used for answer evaluation.
     static let evaluation = "claude-haiku-4-5-20251001"
 }
@@ -175,7 +175,7 @@ actor AIService {
             count: count
         )
         do {
-            let raw  = try await sendPrompt(isGeneration: true, maxTokens: 1024, prompt: prompt)
+            let raw  = try await sendPrompt(isGeneration: true, maxTokens: 700, prompt: prompt)
             let dtos = try parseChallengeDTOs(from: raw)
             return dtos.map { mapToChallenge($0) }
         } catch let error as APIError where error.allowsFallback {
