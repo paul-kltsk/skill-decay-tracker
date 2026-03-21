@@ -106,7 +106,7 @@ struct PracticePreferencesView: View {
         .navigationBarTitleDisplayMode(.large)
     }
 
-    @AppStorage("preferredSessionLength") private var selectedSessionLengthRaw: String = SessionLength.medium.rawValue
+    @AppStorage("preferredSessionLength") private var selectedSessionLengthRaw: String = SessionLength.quick.rawValue
 
     private var selectedSessionLength: SessionLength {
         get { SessionLength(rawValue: selectedSessionLengthRaw) ?? .medium }

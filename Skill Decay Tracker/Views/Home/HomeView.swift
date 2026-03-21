@@ -122,7 +122,18 @@ struct HomeView: View {
         DailyBriefingCard(
             portfolioHealth: viewModel.portfolioHealth(for: skills),
             overdueCount:    viewModel.overdueSkills(from: skills).count,
-            topStreakDays:   skills.map(\.streakDays).max() ?? 0
+            topStreakDays:   skills.map(\.streakDays).max() ?? 0,
+            onStartReview: {
+                let overdue = viewModel.overdueSkills(from: skills)
+                guard !overdue.isEmpty else { return }
+                Task {
+                    await practiceViewModel.startSession(
+                        mode: .dailyReview,
+                        skills: overdue,
+                        context: modelContext
+                    )
+                }
+            }
         )
         .padding(.top, SDTSpacing.sm)
     }

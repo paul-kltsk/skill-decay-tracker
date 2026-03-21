@@ -126,6 +126,15 @@ final class PracticeViewModel {
     /// Key = skill UUID, value = (skillName, correctCount, totalCount).
     private var sessionSkillStats: [UUID: (name: String, correct: Int, total: Int)] = [:]
 
+    /// Number of challenges to generate per session, from the user's preferred session length.
+    /// Reads "preferredSessionLength" from UserDefaults (set in PracticePreferencesView).
+    /// Minimum is always 5 so the user always gets a meaningful session.
+    private var preferredSessionCount: Int {
+        let raw = UserDefaults.standard.string(forKey: "preferredSessionLength") ?? "medium"
+        let count = SessionLength(rawValue: raw)?.count ?? 10
+        return max(5, count)
+    }
+
     // MARK: - Computed
 
     var currentChallenge: Challenge? {
@@ -186,24 +195,32 @@ final class PracticeViewModel {
                 phase = .error("No skills to practice. Add some skills first.")
                 return
             }
+            let target = preferredSessionCount
             var pending = skill.pendingChallenges
-            if pending.count < 5 {
+            // Only generate if we have fewer than 5 challenges (the pre-fetch minimum).
+            // This ensures pre-fetched challenges from skill creation are used directly
+            // without triggering a second AI round-trip.
+            if pending.count < min(5, target) {
                 let more = await fetchOrGenerate(
-                    skill: skill, count: 5 - pending.count, context: context)
+                    skill: skill, count: target - pending.count, context: context)
                 pending.append(contentsOf: more)
             }
-            queue = Array(pending.prefix(5))
+            queue = Array(pending.prefix(target))
 
         case .deepDive(let skillID):
             guard let skill = skills.first(where: { $0.id == skillID }) else {
                 phase = .error("Skill not found.")
                 return
             }
+            let target = preferredSessionCount
             var pending = skill.pendingChallenges
-            if pending.isEmpty {
-                pending = await fetchOrGenerate(skill: skill, count: 5, context: context)
+            // Only generate if we have fewer than 5 challenges (the pre-fetch minimum).
+            if pending.count < min(5, target) {
+                let more = await fetchOrGenerate(
+                    skill: skill, count: target - pending.count, context: context)
+                pending.append(contentsOf: more)
             }
-            queue = pending
+            queue = Array(pending.prefix(target))
         }
 
         try? context.save()

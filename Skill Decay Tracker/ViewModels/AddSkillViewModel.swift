@@ -73,7 +73,7 @@ final class AddSkillViewModel {
         let tempSkill = Skill(name: firstName, category: firstCategory,
                               context: ctx, decayRate: difficultyDecayRate)
 
-        if let generated = try? await AIService.shared.generateChallenges(for: tempSkill, count: 3) {
+        if let generated = try? await AIService.shared.generateChallenges(for: tempSkill, count: 5) {
             guard !Task.isCancelled else { return }
             prefetchedChallenges = generated
         }

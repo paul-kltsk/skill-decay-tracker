@@ -58,11 +58,11 @@ struct AddSkillView: View {
             .background(Color.sdtBackground)
             .navigationTitle("Add Skill")
             .navigationBarTitleDisplayMode(.inline)
-            // Start generating challenges as soon as the user lands on Confirm —
-            // by the time they read the summary and tap "Start Practice" the
-            // challenges are already ready and the session opens instantly.
+            // Start generating challenges as soon as the user picks a category (step 1) —
+            // by the time they finish the remaining steps and tap "Start Practice" the
+            // 5 challenges are already saved and the session opens instantly.
             .task(id: viewModel.currentStep) {
-                guard viewModel.currentStep == 3 else { return }
+                guard viewModel.currentStep == 1 else { return }
                 await viewModel.prefetchChallengesForCurrentSettings()
             }
             .toolbar {
@@ -519,7 +519,7 @@ private struct ConfirmStepView: View {
                         .sdtFont(.caption, color: .sdtHealthHealthy)
                 }
             } else {
-                Text("AI will generate 3 personalised challenges in the background.")
+                Text("AI will generate 5 personalised challenges in the background.")
                     .sdtFont(.caption, color: .sdtSecondary)
             }
         }

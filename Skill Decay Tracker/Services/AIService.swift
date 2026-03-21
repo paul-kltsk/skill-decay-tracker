@@ -63,9 +63,9 @@ private struct SkillBreadthDTO: Decodable, Sendable {
 // MARK: - Model IDs
 
 private enum ClaudeModel {
-    /// Fast and cost-efficient — used for both generation and evaluation.
-    static let generation = "claude-haiku-4-5-20251001"
-    /// Fast and cost-efficient — used for answer evaluation.
+    /// High-quality generation model — used for challenge generation.
+    static let generation = "claude-sonnet-4-6"
+    /// Fast and cost-efficient — used for answer evaluation and breadth analysis.
     static let evaluation = "claude-haiku-4-5-20251001"
 }
 
@@ -156,6 +156,19 @@ actor AIService {
         }
     }
 
+    // MARK: - Token Budget
+
+    /// Calculates a safe output token budget for challenge generation.
+    ///
+    /// Each question needs ~300 tokens (question + 4 options + answer + explanation + metadata).
+    /// Base overhead covers the JSON array wrapper and any prompt reflection: ~200 tokens.
+    /// A 30 % safety buffer absorbs verbose explanations without truncating the response.
+    ///
+    /// Examples: 5 q → 2 210 tokens · 10 q → 4 160 tokens · 15 q → 6 110 tokens
+    private func generationTokenBudget(for count: Int) -> Int {
+        Int(Double(200 + 300 * count) * 1.3)
+    }
+
     // MARK: - Challenge Generation
 
     /// Generates `count` micro-challenges for the given skill using Claude.
@@ -175,7 +188,7 @@ actor AIService {
             count: count
         )
         do {
-            let raw  = try await sendPrompt(isGeneration: true, maxTokens: 700, prompt: prompt)
+            let raw  = try await sendPrompt(isGeneration: true, maxTokens: generationTokenBudget(for: count), prompt: prompt)
             let dtos = try parseChallengeDTOs(from: raw)
             return dtos.map { mapToChallenge($0) }
         } catch let error as APIError where error.allowsFallback {
@@ -243,17 +256,20 @@ actor AIService {
             ? ""
             : "\nUser context: \(context.trimmingCharacters(in: .whitespacesAndNewlines))"
         return """
-        You are an expert educator generating micro-challenges for a spaced-repetition learning app.
-        Generate exactly \(count) challenges for the skill: "\(skillName)" (category: \(category)).\(contextLine)
+        You are an expert educator generating knowledge-testing challenges for a spaced-repetition learning app.
+        Generate exactly \(count) challenges that TEST THE USER'S KNOWLEDGE of: "\(skillName)" (category: \(category)).\(contextLine)
         Target difficulty: \(difficulty)/5.
         IMPORTANT: Write all questions, options, and explanations in \(promptLanguage). Do not use any other language.
 
         Rules:
-        - Each challenge must take 1–3 minutes to answer.
+        - Questions must test FACTUAL KNOWLEDGE, comprehension, or application of the topic — not self-awareness or self-rating.
+        - FORBIDDEN question types: "How would you rate your understanding?", "Can you explain X?" as True/False, any self-assessment. These are strictly prohibited.
+        - For multiple_choice: write a concrete factual question with exactly 4 plausible but distinct options; only one is correct.
+        - For true_false: state a specific factual claim about the topic that is clearly true or false (e.g. "ARC increments an object's retain count when a strong reference is created"). Options must be ["True", "False"].
+        - For open_ended or fill_in_blank: ask the user to explain a mechanism, predict output, or fill in a missing term/keyword.
         - Vary the type: prefer multiple_choice, but include at least one open_ended or fill_in_blank.
-        - For multiple_choice: provide exactly 4 distinct options.
-        - For true_false: options must be ["True", "False"].
-        - The explanation must be educational, not just "correct/incorrect".
+        - Each challenge must take 1–3 minutes to answer.
+        - The explanation must be educational — explain WHY the answer is correct, not just state it.
         - difficulty must be an integer 1–5.
 
         Respond ONLY with a valid JSON array. No markdown, no extra text. Schema:
@@ -330,14 +346,23 @@ actor AIService {
         You are a learning expert helping a user set up a spaced-repetition practice app.
         The user wants to learn: "\(name)"\(contextLine)
 
-        Decide if this topic is broad enough to meaningfully split into 3-4 focused sub-skills.
-        Only suggest sub-skills for genuinely broad topics (e.g. "Spanish" → grammar, vocabulary, conversation).
-        Do NOT suggest sub-skills for specific topics (e.g. "React Hooks", "Git Rebase", "Spanish Grammar").
-        If the user provided a goal/context, treat the topic as already specific enough — return empty subSkills.
+        Decide if this topic is TOO BROAD to practice effectively without narrowing it down.
+
+        TOO BROAD — suggest 3-4 focused sub-skills:
+        - Entire programming languages: "Swift", "Python", "JavaScript", "Kotlin", "Go"
+        - Entire human languages: "Spanish", "Japanese", "French"
+        - Vast domains: "Machine Learning", "iOS Development", "Web Development", "Design"
+
+        SPECIFIC ENOUGH — return empty subSkills:
+        - A named feature or concept: "Swift ARC", "React Hooks", "Git Rebase", "Spanish Grammar"
+        - A concrete goal already mentioned in context
+        - Anything the user can realistically practice in focused sessions as-is
+
+        If the user provided a goal/context, the topic is already specific enough — return empty subSkills.
         Write sub-skill names in \(promptLanguage).
 
         Respond ONLY with valid JSON, no markdown:
-        {"subSkills": [{"name": "Spanish — Grammar", "category": "language"}]}
+        {"subSkills": [{"name": "Swift — Memory Management", "category": "programming"}]}
 
         Valid categories: programming, language, tool, concept, custom
         If the topic is already specific: {"subSkills": []}
