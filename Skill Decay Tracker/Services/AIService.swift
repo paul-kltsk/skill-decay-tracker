@@ -411,7 +411,7 @@ actor AIService {
         Challenge(
             type:             ChallengeType(rawValue: dto.type) ?? .multipleChoice,
             question:         dto.question,
-            options:          dto.options ?? [],
+            options:          (dto.options ?? []).shuffled(),
             correctAnswer:    dto.correctAnswer,
             explanation:      dto.explanation,
             difficulty:       max(1, min(5, dto.difficulty ?? 3)),
