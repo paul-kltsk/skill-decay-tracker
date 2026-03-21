@@ -152,14 +152,27 @@ struct HomeView: View {
 
     private var skillList: some View {
         ForEach(viewModel.sortedByUrgency(skills)) { skill in
-            SDTSkillCard(skill: skill)
-                .contextMenu {
-                    Button(role: .destructive) {
-                        viewModel.skillPendingDelete = skill
-                    } label: {
-                        Label("Delete", systemImage: "trash")
+            NavigationLink {
+                SkillDetailView(skill: skill, onStartPractice: {
+                    Task {
+                        await practiceViewModel.startSession(
+                            mode: .deepDive(skillID: skill.id),
+                            skills: [skill],
+                            context: modelContext
+                        )
                     }
+                })
+            } label: {
+                SDTSkillCard(skill: skill)
+            }
+            .buttonStyle(.plain)
+            .contextMenu {
+                Button(role: .destructive) {
+                    viewModel.skillPendingDelete = skill
+                } label: {
+                    Label("Delete", systemImage: "trash")
                 }
+            }
         }
     }
 
