@@ -63,8 +63,8 @@ private struct SkillBreadthDTO: Decodable, Sendable {
 // MARK: - Model IDs
 
 private enum ClaudeModel {
-    /// High-quality generation model — used for challenge generation.
-    static let generation = "claude-sonnet-4-6"
+    /// Fast and cost-efficient — used for challenge generation.
+    static let generation = "claude-haiku-4-5-20251001"
     /// Fast and cost-efficient — used for answer evaluation and breadth analysis.
     static let evaluation = "claude-haiku-4-5-20251001"
 }

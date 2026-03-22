@@ -28,7 +28,7 @@ final class SubscriptionService {
     // MARK: - Free Tier Limits
 
     /// Maximum number of skills a free user can have.
-    static let freeSkillLimit = 5
+    static let freeSkillLimit = 3
 
     // MARK: - Singleton
 
