@@ -68,13 +68,14 @@ struct SkillMapView: View {
         }
         .sheet(isPresented: $viewModel.showAddSkill) {
             AddSkillView(
-                onStartPractice: { newSkills in
+                onStartPractice: { newSkills, questionCount in
                     guard let first = newSkills.first else { return }
                     Task {
                         await practiceViewModel.startSession(
                             mode: .deepDive(skillID: first.id),
                             skills: newSkills,
-                            context: modelContext
+                            context: modelContext,
+                            challengeCount: questionCount
                         )
                     }
                 }

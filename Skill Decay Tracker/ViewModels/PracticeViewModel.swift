@@ -162,7 +162,8 @@ final class PracticeViewModel {
     }
 
     /// Builds the challenge queue for `mode` and transitions to `.inChallenge`.
-    func startSession(mode: SessionMode, skills: [Skill], context: ModelContext) async {
+    /// - Parameter challengeCount: Override the preferred session length (e.g. from skill creation flow).
+    func startSession(mode: SessionMode, skills: [Skill], context: ModelContext, challengeCount: Int? = nil) async {
         currentMode        = mode
         lastSessionSkills  = skills
         phase              = .loading
@@ -195,7 +196,7 @@ final class PracticeViewModel {
                 phase = .error("No skills to practice. Add some skills first.")
                 return
             }
-            let target = preferredSessionCount
+            let target = challengeCount ?? preferredSessionCount
             var pending = skill.pendingChallenges
             // Only generate if we have fewer than 5 challenges (the pre-fetch minimum).
             // This ensures pre-fetched challenges from skill creation are used directly

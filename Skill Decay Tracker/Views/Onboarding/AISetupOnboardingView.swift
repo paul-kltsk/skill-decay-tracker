@@ -83,6 +83,7 @@ struct AISetupOnboardingView: View {
                                     lineWidth: 1.5
                                 )
                         )
+                        .contentShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
                     }
                     .buttonStyle(.plain)
                     .overlay(alignment: .trailing) {

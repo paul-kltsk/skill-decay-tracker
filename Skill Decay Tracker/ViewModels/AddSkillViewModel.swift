@@ -29,6 +29,12 @@ final class AddSkillViewModel {
     /// Free-text goal or context the user provides — injected verbatim into AI prompts.
     var skillContext: String = ""
 
+    // MARK: - Step 3.5: Question Count
+
+    /// Number of questions to generate per practice session. Default 5 (free tier max).
+    /// Pro users can pick 5–15.
+    var selectedQuestionCount: Int = 5
+
     // MARK: - Sub-Skill Analysis
 
     /// AI-generated sub-skill suggestions — populated when AI says the topic is too broad.
@@ -73,7 +79,7 @@ final class AddSkillViewModel {
         let tempSkill = Skill(name: firstName, category: firstCategory,
                               context: ctx, decayRate: difficultyDecayRate)
 
-        if let generated = try? await AIService.shared.generateChallenges(for: tempSkill, count: 5) {
+        if let generated = try? await AIService.shared.generateChallenges(for: tempSkill, count: selectedQuestionCount) {
             guard !Task.isCancelled else { return }
             prefetchedChallenges = generated
         }
@@ -176,7 +182,7 @@ final class AddSkillViewModel {
         guard canAdvance else { return }
         nameError = nil
         let next = nextStep(after: currentStep)
-        guard next <= 3 else { return }
+        guard next <= 4 else { return }
         currentStep = next
     }
 

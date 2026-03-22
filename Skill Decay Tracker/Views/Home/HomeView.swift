@@ -46,15 +46,16 @@ struct HomeView: View {
                         viewModel.prefetchChallenges(for: skill, context: modelContext)
                     }
                 },
-                onStartPractice: { newSkills in
-                    // Challenges were pre-generated during the Confirm step —
+                onStartPractice: { newSkills, questionCount in
+                    // Challenges were pre-generated during skill creation —
                     // start the session directly without an extra AI round-trip.
                     guard let first = newSkills.first else { return }
                     Task {
                         await practiceViewModel.startSession(
                             mode: .deepDive(skillID: first.id),
                             skills: newSkills,
-                            context: modelContext
+                            context: modelContext,
+                            challengeCount: questionCount
                         )
                     }
                 }

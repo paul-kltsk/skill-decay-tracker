@@ -27,7 +27,8 @@ struct AddSkillView: View {
 
     /// Optional callback to start a practice session immediately after saving.
     /// The sheet dismisses first, then the callback fires.
-    var onStartPractice: (([Skill]) -> Void)? = nil
+    /// Parameters: created skills + the question count chosen by the user.
+    var onStartPractice: (([Skill], Int) -> Void)? = nil
 
     // MARK: - Body
 
@@ -45,8 +46,10 @@ struct AddSkillView: View {
                         .tag(1)
                     DifficultyStepView(viewModel: viewModel)
                         .tag(2)
-                    ConfirmStepView(viewModel: viewModel)
+                    QuestionCountStepView(viewModel: viewModel)
                         .tag(3)
+                    ConfirmStepView(viewModel: viewModel)
+                        .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(SDTAnimation.scoreChange, value: viewModel.currentStep)
@@ -58,12 +61,16 @@ struct AddSkillView: View {
             .background(Color.sdtBackground)
             .navigationTitle("Add Skill")
             .navigationBarTitleDisplayMode(.inline)
-            // Start generating challenges as soon as the user picks a category (step 1) —
-            // by the time they finish the remaining steps and tap "Start Practice" the
-            // 5 challenges are already saved and the session opens instantly.
+            // Start generating challenges when the user lands on the Question Count step (3).
+            // By the time they reach Confirm and tap "Start Practice" challenges are ready.
+            // Re-triggers if the user changes the question count.
             .task(id: viewModel.currentStep) {
-                guard viewModel.currentStep == 1 else { return }
+                guard viewModel.currentStep == 3 else { return }
                 await viewModel.prefetchChallengesForCurrentSettings()
+            }
+            .onChange(of: viewModel.selectedQuestionCount) {
+                guard viewModel.currentStep >= 3 else { return }
+                Task { await viewModel.prefetchChallengesForCurrentSettings() }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -77,7 +84,7 @@ struct AddSkillView: View {
 
     private var stepIndicator: some View {
         HStack(spacing: SDTSpacing.sm) {
-            ForEach(0..<4, id: \.self) { step in
+            ForEach(0..<5, id: \.self) { step in
                 Capsule()
                     .fill(step <= viewModel.currentStep
                           ? viewModel.selectedCategory.color
@@ -92,14 +99,14 @@ struct AddSkillView: View {
 
     @ViewBuilder
     private var navigationButtons: some View {
-        if viewModel.currentStep == 3 {
+        if viewModel.currentStep == 4 {
             // Confirm step — two actions
             VStack(spacing: SDTSpacing.sm) {
                 Button {
                     let skills = viewModel.saveAll(context: modelContext)
                     onSkillCreated?(skills)
                     dismiss()
-                    onStartPractice?(skills)
+                    onStartPractice?(skills, viewModel.selectedQuestionCount)
                 } label: {
                     if viewModel.isPrefetchingChallenges {
                         HStack(spacing: SDTSpacing.sm) {
@@ -126,6 +133,8 @@ struct AddSkillView: View {
         } else if viewModel.currentStep == 0 {
             // Name step — Check & Continue (AI validation before advancing)
             Button {
+                UIApplication.shared.sendAction(
+                    #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 if !viewModel.subSkillSuggestions.isEmpty {
                     // Already checked; advance with original or selected sub-skills.
                     viewModel.advance()
@@ -434,6 +443,107 @@ private struct DifficultyStepView: View {
             }
             .padding(.horizontal, SDTSpacing.lg)
             .padding(.top, SDTSpacing.xl)
+        }
+    }
+}
+
+// MARK: - Step 3: Question Count
+
+private struct QuestionCountStepView: View {
+    @Bindable var viewModel: AddSkillViewModel
+    @Environment(SubscriptionService.self) private var sub
+
+    private var isPro: Bool { sub.isPro }
+    private let options = [5, 7, 10, 15]
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: SDTSpacing.xl) {
+                stepHeader(
+                    icon: "list.number",
+                    title: "How many questions?",
+                    subtitle: "Choose how many challenges to tackle per session."
+                )
+
+                VStack(spacing: SDTSpacing.sm) {
+                    ForEach(options, id: \.self) { count in
+                        let isLocked  = !isPro && count > 5
+                        let isSelected = viewModel.selectedQuestionCount == count
+
+                        Button {
+                            guard !isLocked else { return }
+                            viewModel.selectedQuestionCount = count
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: SDTSpacing.xxs) {
+                                    Text("\(count) questions")
+                                        .sdtFont(.bodySemibold,
+                                                 color: isSelected ? .white
+                                                      : isLocked   ? .sdtSecondary
+                                                                   : .sdtPrimary)
+                                    Text(descriptionFor(count))
+                                        .sdtFont(.caption,
+                                                 color: isSelected ? .white.opacity(0.8) : .sdtSecondary)
+                                }
+                                Spacer()
+                                if isLocked {
+                                    Image(systemName: "lock.fill")
+                                        .font(.system(size: 13))
+                                        .foregroundStyle(Color.sdtSecondary)
+                                } else if isSelected {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                            .padding(SDTSpacing.md)
+                            .background(isSelected ? viewModel.selectedCategory.color : Color.sdtSurface)
+                            .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+                            .overlay {
+                                if !isSelected {
+                                    RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                                        .strokeBorder(
+                                            isLocked
+                                                ? Color.sdtSecondary.opacity(0.15)
+                                                : viewModel.selectedCategory.color.opacity(0.3),
+                                            lineWidth: 1.5
+                                        )
+                                }
+                            }
+                            .opacity(isLocked ? 0.55 : 1)
+                            .contentShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isLocked)
+                        .animation(SDTAnimation.scoreChange, value: isSelected)
+                        .sensoryFeedback(.impact(flexibility: .soft), trigger: isSelected)
+                    }
+
+                    if !isPro {
+                        HStack(spacing: SDTSpacing.xs) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Color.sdtPrimary)
+                            Text("Unlock up to 15 questions per session with Pro")
+                                .sdtFont(.caption, color: .sdtSecondary)
+                        }
+                        .padding(SDTSpacing.sm)
+                        .background(Color.sdtPrimary.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+            }
+            .padding(.horizontal, SDTSpacing.lg)
+            .padding(.top, SDTSpacing.xl)
+        }
+    }
+
+    private func descriptionFor(_ count: Int) -> String {
+        switch count {
+        case 5:  return "Quick session · ~5 min"
+        case 7:  return "Balanced session · ~8 min"
+        case 10: return "Standard session · ~12 min"
+        case 15: return "Deep dive · ~18 min"
+        default: return ""
         }
     }
 }
