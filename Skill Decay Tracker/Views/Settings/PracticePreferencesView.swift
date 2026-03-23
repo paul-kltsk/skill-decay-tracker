@@ -8,6 +8,9 @@ struct PracticePreferencesView: View {
 
     @Bindable var profile: UserProfile
     @Environment(\.modelContext) private var modelContext
+    @Environment(SubscriptionService.self) private var sub
+
+    @State private var showPaywall = false
 
     private let difficultyLabels = ["", "Beginner", "Easy", "Balanced", "Hard", "Expert"]
 
@@ -79,24 +82,49 @@ struct PracticePreferencesView: View {
             // MARK: Session Length
             Section {
                 ForEach(SessionLength.allCases) { length in
+                    let isLocked = !sub.isPro && length != .quick
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(length.title)
-                                .sdtFont(.bodyMedium)
+                            HStack(spacing: SDTSpacing.xs) {
+                                Text(length.title)
+                                    .sdtFont(.bodyMedium)
+                                if isLocked {
+                                    ProBadgeLabel()
+                                }
+                            }
                             Text(length.subtitle)
                                 .sdtFont(.caption, color: .sdtSecondary)
                         }
                         Spacer()
-                        if selectedSessionLength == length {
+                        if isLocked {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Color.sdtSecondary.opacity(0.5))
+                        } else if selectedSessionLength == length {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(Color.sdtCategoryProgramming)
                         }
                     }
                     .contentShape(Rectangle())
-                    .onTapGesture { selectedSessionLengthRaw = length.rawValue }
+                    .onTapGesture {
+                        if isLocked {
+                            showPaywall = true
+                        } else {
+                            selectedSessionLengthRaw = length.rawValue
+                        }
+                    }
                 }
             } header: {
                 Text("Default Session Length")
+            } footer: {
+                if !sub.isPro {
+                    Text("Medium and Deep Dive sessions require Pro.")
+                        .sdtFont(.caption, color: .sdtSecondary)
+                }
+            }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView(trigger: .questionCount)
+                    .environment(sub)
             }
         }
         .listStyle(.insetGrouped)

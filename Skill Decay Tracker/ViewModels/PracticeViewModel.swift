@@ -130,12 +130,13 @@ final class PracticeViewModel {
     private var sessionSkillStats: [UUID: (name: String, correct: Int, total: Int)] = [:]
 
     /// Number of challenges to generate per session, from the user's preferred session length.
-    /// Reads "preferredSessionLength" from UserDefaults (set in PracticePreferencesView).
-    /// Minimum is always 5 so the user always gets a meaningful session.
+    ///
+    /// Free users are hard-capped at 5 challenges per session regardless of their setting.
+    /// Pro users use the value stored in UserDefaults by `PracticePreferencesView`.
     private var preferredSessionCount: Int {
-        let raw = UserDefaults.standard.string(forKey: "preferredSessionLength") ?? "medium"
-        let count = SessionLength(rawValue: raw)?.count ?? 10
-        return max(5, count)
+        guard SubscriptionService.shared.isPro else { return 5 }
+        let raw = UserDefaults.standard.string(forKey: "preferredSessionLength") ?? "quick"
+        return SessionLength(rawValue: raw)?.count ?? 5
     }
 
     // MARK: - Computed

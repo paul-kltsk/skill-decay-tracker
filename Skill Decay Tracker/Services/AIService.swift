@@ -1,4 +1,5 @@
 import Foundation
+import NaturalLanguage
 import SwiftData
 
 // MARK: - Evaluation Result
@@ -138,13 +139,18 @@ actor AIService {
 
     init() {}
 
-    // MARK: - Locale
+    // MARK: - Language Detection
 
-    /// The human-readable language name + BCP-47 code for the current device locale,
-    /// e.g. "Russian (ru)" or "Japanese (ja)".  Injected into every AI prompt so that
-    /// generated text (questions, feedback, explanations) matches the app's language.
-    private var promptLanguage: String {
-        let code = Locale.current.language.languageCode?.identifier ?? "en"
+    /// Detects the dominant language of `text` using on-device NLP.
+    ///
+    /// Returns a human-readable label + BCP-47 code, e.g. `"Russian (ru)"`.
+    /// Injected into AI prompts so generated content matches the skill's language,
+    /// not the device locale.  Falls back to `"English (en)"` when detection fails
+    /// (very short text, mixed script, etc.).
+    private func detectedLanguage(from text: String) -> String {
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(text)
+        let code = recognizer.dominantLanguage?.rawValue ?? "en"
         let name = Locale(identifier: "en").localizedString(forLanguageCode: code) ?? code
         return "\(name) (\(code))"
     }
@@ -234,12 +240,16 @@ actor AIService {
         skillContext: String,
         count: Int = 3
     ) async throws -> [Challenge] {
+        // Detect language from skill title + context so questions match what the user typed.
+        let langText = [skillName, skillContext].filter { !$0.isEmpty }.joined(separator: " ")
+        let language = detectedLanguage(from: langText)
         let prompt = generationPrompt(
             skillName: skillName,
             category:  category,
             difficulty: difficulty,
             context:   skillContext,
-            count: count
+            count: count,
+            language: language
         )
         let raw  = try await sendPrompt(isGeneration: true, maxTokens: generationTokenBudget(for: count), prompt: prompt)
         let dtos = try parseChallengeDTOs(from: raw)
@@ -303,7 +313,8 @@ actor AIService {
         category: String,
         difficulty: Int,
         context: String,
-        count: Int
+        count: Int,
+        language: String
     ) -> String {
         let contextLine = context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             ? ""
@@ -312,7 +323,7 @@ actor AIService {
         You are an expert educator generating knowledge-testing challenges for a spaced-repetition learning app.
         Generate exactly \(count) challenges that TEST THE USER'S KNOWLEDGE of: "\(skillName)" (category: \(category)).\(contextLine)
         Target difficulty: \(difficulty)/5.
-        IMPORTANT: Write all questions, options, and explanations in \(promptLanguage). Do not use any other language.
+        IMPORTANT: Write all questions, options, and explanations in \(language). Do not use any other language.
 
         Rules:
         - Questions must test FACTUAL KNOWLEDGE, comprehension, or application of the topic — not self-awareness or self-rating.
@@ -342,9 +353,11 @@ actor AIService {
 
     private func evaluationPrompt(context: ChallengeEvalContext, userAnswer: String) -> String {
         let contextLine = context.skillContext.isEmpty ? "" : "\nSkill context: \(context.skillContext)"
+        let langText = [context.question, context.skillContext].filter { !$0.isEmpty }.joined(separator: " ")
+        let language = detectedLanguage(from: langText)
         return """
         Evaluate whether the user's answer is correct for this challenge.\(contextLine)
-        Write the feedback field in \(promptLanguage).
+        Write the feedback field in \(language).
 
         Challenge type: \(context.type.rawValue)
         Question: \(context.question)
@@ -370,7 +383,9 @@ actor AIService {
     /// Uses the faster evaluation model and returns up to 4 `SkillSuggestion` objects.
     /// Returns an empty array when the topic is already specific or on any error.
     func analyzeSkillBreadth(name: String, context: String = "", category: SkillCategory) async -> [SkillSuggestion] {
-        let prompt = breadthPrompt(name: name, context: context)
+        let langText = [name, context].filter { !$0.isEmpty }.joined(separator: " ")
+        let language = detectedLanguage(from: langText)
+        let prompt = breadthPrompt(name: name, context: context, language: language)
         let raw: String
         do {
             raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
@@ -390,7 +405,7 @@ actor AIService {
         }
     }
 
-    private func breadthPrompt(name: String, context: String = "") -> String {
+    private func breadthPrompt(name: String, context: String = "", language: String) -> String {
         let contextLine = context.isEmpty
             ? ""
             : "\n        The user's stated goal or context: \"\(context)\""
@@ -411,7 +426,7 @@ actor AIService {
         - Anything the user can realistically practice in focused sessions as-is
 
         If the user provided a goal/context, the topic is already specific enough — return empty subSkills.
-        Write sub-skill names in \(promptLanguage).
+        Write sub-skill names in \(language).
 
         Respond ONLY with valid JSON, no markdown:
         {"subSkills": [{"name": "Swift — Memory Management", "category": "programming"}]}
