@@ -157,6 +157,12 @@ final class PracticeViewModel {
         return Double(timeRemaining) / Double(c.timeLimitSeconds)
     }
 
+    // MARK: - Lifecycle
+
+    deinit {
+        timerTask?.cancel()
+    }
+
     // MARK: - Start Session
 
     /// Retries the last session with the same mode and skills (used from error screen).

@@ -103,9 +103,14 @@ final class SubscriptionService {
         updatesTask?.cancel()
         updatesTask = Task.detached(priority: .background) { [weak self] in
             for await result in Transaction.updates {
-                if case .verified(let tx) = result {
+                switch result {
+                case .verified(let tx):
                     await tx.finish()
                     await self?.refreshEntitlements()
+                case .unverified(let tx, _):
+                    // Finish unverified transactions so they don't re-deliver on next launch.
+                    // We do NOT grant entitlements for unverified (failed JWS signature) transactions.
+                    await tx.finish()
                 }
             }
         }
@@ -139,7 +144,7 @@ final class SubscriptionService {
             case .userCancelled:
                 return false
             case .pending:
-                purchaseError = "Purchase is pending approval."
+                purchaseError = "Purchase is pending approval. If Ask to Buy is enabled, a family organizer must approve it in Settings."
                 return false
             @unknown default:
                 return false

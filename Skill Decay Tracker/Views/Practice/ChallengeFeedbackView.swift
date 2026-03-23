@@ -32,7 +32,7 @@ struct ChallengeFeedbackView: View {
                 .padding(.bottom, SDTSpacing.xl)
         }
         .background(Color.sdtBackground)
-        .onAppear { triggerAnimation() }
+        .task { await triggerAnimation() }
     }
 
     // MARK: - Banner
@@ -123,15 +123,14 @@ struct ChallengeFeedbackView: View {
 
     // MARK: - Trigger
 
-    private func triggerAnimation() {
+    private func triggerAnimation() async {
         appeared = true
         withAnimation(SDTAnimation.scoreChange) {
             ringProgress = 1.0
         }
         if !result.isCorrect {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                shake = true
-            }
+            try? await Task.sleep(for: .milliseconds(100))
+            shake = true
         }
     }
 }

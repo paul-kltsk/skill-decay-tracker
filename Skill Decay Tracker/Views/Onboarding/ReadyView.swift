@@ -95,11 +95,10 @@ struct ReadyView: View {
 
             Spacer().frame(height: SDTSpacing.xxxl)
         }
-        .onAppear {
+        .task {
             appeared = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                nameFocused = true
-            }
+            try? await Task.sleep(for: .milliseconds(600))
+            nameFocused = true
         }
     }
 
