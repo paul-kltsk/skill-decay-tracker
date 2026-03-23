@@ -14,14 +14,9 @@ struct SDTStreakBadge: View {
 
     var body: some View {
         HStack(spacing: SDTSpacing.xxs) {
-            PhaseAnimator([false, true]) { pulsing in
-                Image(systemName: "flame.fill")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.orange)
-                    .scaleEffect(pulsing ? 1.15 : 1.0)
-            } animation: { _ in
-                SDTAnimation.healthyPulse
-            }
+            Image(systemName: "flame.fill")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.orange)
 
             Text("\(days)")
                 .sdtFont(.captionSemibold, color: .sdtPrimary)
