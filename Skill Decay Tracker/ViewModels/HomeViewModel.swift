@@ -79,7 +79,10 @@ final class HomeViewModel {
     /// Add Skill confirm step).
     func prefetchChallenges(for skill: Skill, context: ModelContext) {
         guard skill.challenges.isEmpty else { return }
-        Task {
+        Task { [weak self] in
+            // Guard on self so we abort if HomeViewModel is released (e.g. view dismissed
+            // before the AI response arrives) — avoids mutating a stale model context.
+            guard self != nil else { return }
             do {
                 let challenges = try await AIService.shared.generateChallenges(
                     for: skill, count: 3
@@ -90,7 +93,7 @@ final class HomeViewModel {
                 }
                 try? context.save()
             } catch {
-                // Fallback challenges are embedded in AIService; ignore the error.
+                // AIService falls back gracefully; ignore the error here.
             }
         }
     }

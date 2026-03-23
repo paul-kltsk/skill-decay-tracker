@@ -102,14 +102,15 @@ final class OnboardingViewModel {
         // 5. Mark onboarding complete so it never shows again
         UserDefaults.standard.set(true, forKey: "onboarding.completed")
 
-        // 5. Request notification authorization and schedule the daily reminder
-        //    if the user's default preferences have notifications enabled.
-        let prefs = (try? context.fetch(FetchDescriptor<UserProfile>()))?.first?.preferences
+        // 5. Request notification authorization and schedule the daily reminder.
+        //    Snapshot primitive values before entering the Task so no @Model objects
+        //    (UserProfile, UserPreferences) are retained past the onboarding context lifetime.
+        let prefs   = (try? context.fetch(FetchDescriptor<UserProfile>()))?.first?.preferences
+        let enabled = prefs?.notificationsEnabled ?? true
+        let hour    = prefs?.preferredPracticeTime?.hour   ?? 9
+        let minute  = prefs?.preferredPracticeTime?.minute ?? 0
         Task {
             await NotificationService.shared.requestAuthorization()
-            let enabled = prefs?.notificationsEnabled ?? true
-            let hour    = prefs?.preferredPracticeTime?.hour   ?? 9
-            let minute  = prefs?.preferredPracticeTime?.minute ?? 0
             await NotificationService.shared.syncDailyReminder(
                 enabled: enabled, hour: hour, minute: minute)
         }
