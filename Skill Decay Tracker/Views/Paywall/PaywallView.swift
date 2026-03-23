@@ -151,9 +151,15 @@ struct PaywallView: View {
                     .frame(maxWidth: .infinity)
                     .padding(SDTSpacing.xxl)
             } else if sub.products.isEmpty {
-                Text("Could not load plans. Check your connection.")
-                    .sdtFont(.caption, color: .sdtSecondary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: SDTSpacing.md) {
+                    Text("Could not load plans. Check your connection.")
+                        .sdtFont(.caption, color: .sdtSecondary)
+                        .multilineTextAlignment(.center)
+                    Button("Try Again") {
+                        Task { await sub.loadProducts() }
+                    }
+                    .sdtFont(.captionSemibold, color: .sdtPrimary)
+                }
             } else {
                 ForEach(sub.products, id: \.id) { product in
                     PlanCard(
@@ -332,6 +338,7 @@ enum ProFeature {
     case deepDive
     case skillGroups
     case analytics
+    case questionCount
     case generic
 
     var analyticsName: String {
@@ -341,6 +348,7 @@ enum ProFeature {
         case .deepDive:      "deep_dive"
         case .skillGroups:   "skill_groups"
         case .analytics:     "analytics"
+        case .questionCount: "question_count"
         case .generic:       "generic"
         }
     }
@@ -357,6 +365,8 @@ enum ProFeature {
             return "Skill Groups are a Pro feature.\nOrganise your portfolio your way."
         case .analytics:
             return "Full analytics are a Pro feature.\nSee your complete learning history."
+        case .questionCount:
+            return "Longer sessions are a Pro feature.\nUnlock 7, 10, and 15 questions per session."
         case .generic:
             return "Unlock unlimited skills, all practice\nmodes, groups, and full analytics."
         }

@@ -106,7 +106,10 @@ private struct RootTabView: View {
             }
         }
         .preferredColorScheme(colorScheme)
-        .fullScreenCover(isPresented: .constant(!onboardingCompleted)) {
+        .fullScreenCover(isPresented: Binding(
+            get: { !onboardingCompleted },
+            set: { isPresented in if !isPresented { onboardingCompleted = true } }
+        )) {
             OnboardingContainerView {
                 onboardingCompleted = true
             }

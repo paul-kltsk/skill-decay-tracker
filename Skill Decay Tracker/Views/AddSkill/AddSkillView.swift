@@ -452,6 +452,7 @@ private struct DifficultyStepView: View {
 private struct QuestionCountStepView: View {
     @Bindable var viewModel: AddSkillViewModel
     @Environment(SubscriptionService.self) private var sub
+    @State private var showPaywall = false
 
     private var isPro: Bool { sub.isPro }
     private let options = [5, 7, 10, 15]
@@ -471,8 +472,11 @@ private struct QuestionCountStepView: View {
                         let isSelected = viewModel.selectedQuestionCount == count
 
                         Button {
-                            guard !isLocked else { return }
-                            viewModel.selectedQuestionCount = count
+                            if isLocked {
+                                showPaywall = true
+                            } else {
+                                viewModel.selectedQuestionCount = count
+                            }
                         } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: SDTSpacing.xxs) {
@@ -513,27 +517,34 @@ private struct QuestionCountStepView: View {
                             .contentShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
                         }
                         .buttonStyle(.plain)
-                        .disabled(isLocked)
                         .animation(SDTAnimation.scoreChange, value: isSelected)
                         .sensoryFeedback(.impact(flexibility: .soft), trigger: isSelected)
                     }
 
                     if !isPro {
-                        HStack(spacing: SDTSpacing.xs) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 11))
-                                .foregroundStyle(Color.sdtPrimary)
-                            Text("Unlock up to 15 questions per session with Pro")
-                                .sdtFont(.caption, color: .sdtSecondary)
+                        Button {
+                            showPaywall = true
+                        } label: {
+                            HStack(spacing: SDTSpacing.xs) {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(Color.sdtPrimary)
+                                Text("Unlock up to 15 questions per session with Pro")
+                                    .sdtFont(.caption, color: .sdtSecondary)
+                            }
+                            .padding(SDTSpacing.sm)
+                            .background(Color.sdtPrimary.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                         }
-                        .padding(SDTSpacing.sm)
-                        .background(Color.sdtPrimary.opacity(0.06))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .buttonStyle(.plain)
                     }
                 }
             }
             .padding(.horizontal, SDTSpacing.lg)
             .padding(.top, SDTSpacing.xl)
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(trigger: .questionCount)
         }
     }
 

@@ -63,10 +63,14 @@ struct SessionLauncherView: View {
                 }
 
                 if case .error(let msg) = viewModel.phase {
-                    Text(msg)
-                        .sdtFont(.caption, color: .sdtHealthCritical)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, SDTSpacing.lg)
+                    VStack(spacing: SDTSpacing.sm) {
+                        Text(msg)
+                            .sdtFont(.caption, color: .sdtHealthCritical)
+                            .multilineTextAlignment(.center)
+                        Button("Dismiss") { viewModel.endSession() }
+                            .sdtFont(.captionSemibold, color: .sdtSecondary)
+                    }
+                    .padding(.horizontal, SDTSpacing.lg)
                 }
             }
             .padding(.horizontal, SDTSpacing.lg)

@@ -8,6 +8,7 @@ struct ChallengeView: View {
 
     @Bindable var viewModel: PracticeViewModel
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         switch viewModel.phase {
@@ -45,7 +46,8 @@ struct ChallengeView: View {
                 onDismiss: { viewModel.endSession() }
             )
         case .idle:
-            EmptyView()
+            Color.clear
+                .task { dismiss() }
         }
     }
 }

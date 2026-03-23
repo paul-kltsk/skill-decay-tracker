@@ -86,9 +86,18 @@ struct SkillMapView: View {
         }
         .sheet(isPresented: $viewModel.showDetail) {
             if let skill = viewModel.selectedSkill {
-                SkillDetailView(skill: skill)
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
+                SkillDetailView(skill: skill, onStartPractice: {
+                    viewModel.showDetail = false
+                    Task {
+                        await practiceViewModel.startSession(
+                            mode: .deepDive(skillID: skill.id),
+                            skills: [skill],
+                            context: modelContext
+                        )
+                    }
+                })
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
             }
         }
         .task {

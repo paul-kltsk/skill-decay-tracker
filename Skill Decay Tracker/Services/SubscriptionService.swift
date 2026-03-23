@@ -65,7 +65,7 @@ final class SubscriptionService {
 
     // MARK: - Products
 
-    private func loadProducts() async {
+    func loadProducts() async {
         isLoadingProducts = true
         defer { isLoadingProducts = false }
         do {
