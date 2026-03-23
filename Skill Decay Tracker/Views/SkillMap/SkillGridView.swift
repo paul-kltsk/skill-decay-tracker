@@ -157,11 +157,6 @@ private struct GridCard: View {
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
                         .foregroundStyle(Color.sdtHealth(for: skill.healthScore))
                 }
-
-                // Streak (optional)
-                if skill.streakDays > 0 {
-                    SDTStreakBadge(days: skill.streakDays)
-                }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, SDTSpacing.lg)
@@ -173,6 +168,19 @@ private struct GridCard: View {
                 RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
                     .strokeBorder(skill.category.color.opacity(0.25), lineWidth: 1)
             )
+            .overlay(alignment: .topTrailing) {
+                if skill.streakDays > 0 {
+                    SDTStreakBadge(days: skill.streakDays)
+                        .padding(.horizontal, SDTSpacing.sm)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.sdtSurface)
+                                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 1)
+                        )
+                        .offset(x: 6, y: -8)
+                }
+            }
             .scaleEffect(pressed ? 0.96 : 1.0)
         }
         .buttonStyle(.plain)
