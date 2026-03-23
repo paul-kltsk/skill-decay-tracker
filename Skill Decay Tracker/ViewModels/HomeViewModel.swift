@@ -84,8 +84,17 @@ final class HomeViewModel {
             // before the AI response arrives) — avoids mutating a stale model context.
             guard self != nil else { return }
             do {
+                // Extract Sendable scalars on @MainActor before crossing into the AIService actor.
+                let skillName       = skill.name
+                let skillCategory   = skill.category.rawValue
+                let skillDifficulty = skill.effectiveDifficulty
+                let skillContext    = skill.context
                 let challenges = try await AIService.shared.generateChallenges(
-                    for: skill, count: 3
+                    skillName: skillName,
+                    category: skillCategory,
+                    difficulty: skillDifficulty,
+                    skillContext: skillContext,
+                    count: 3
                 )
                 for challenge in challenges {
                     skill.challenges.append(challenge)

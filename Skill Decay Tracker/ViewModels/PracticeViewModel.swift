@@ -157,12 +157,6 @@ final class PracticeViewModel {
         return Double(timeRemaining) / Double(c.timeLimitSeconds)
     }
 
-    // MARK: - Lifecycle
-
-    deinit {
-        timerTask?.cancel()
-    }
-
     // MARK: - Start Session
 
     /// Retries the last session with the same mode and skills (used from error screen).
@@ -282,10 +276,12 @@ final class PracticeViewModel {
         phase = .evaluating
         timerTask?.cancel()
         let elapsed = Date.now.timeIntervalSince(answerStartTime)
+        // Snapshot @Model properties on @MainActor before crossing into AIService actor.
+        let evalContext = ChallengeEvalContext(from: challenge)
 
         do {
             let eval = try await AIService.shared.evaluateAnswer(
-                challenge: challenge,
+                context: evalContext,
                 userAnswer: answer,
                 responseTime: elapsed
             )
@@ -500,8 +496,18 @@ final class PracticeViewModel {
 
     /// Generates new challenges for `skill` via AIService and inserts them into the context.
     private func fetchOrGenerate(skill: Skill, count: Int, context: ModelContext) async -> [Challenge] {
+        // Extract Sendable scalars on @MainActor before crossing into the AIService actor.
+        let skillName       = skill.name
+        let skillCategory   = skill.category.rawValue
+        let skillDifficulty = skill.effectiveDifficulty
+        let skillContext    = skill.context
         do {
-            let new = try await AIService.shared.generateChallenges(for: skill, count: count)
+            let new = try await AIService.shared.generateChallenges(
+                skillName: skillName,
+                category: skillCategory,
+                difficulty: skillDifficulty,
+                skillContext: skillContext,
+                count: count)
             for c in new {
                 skill.challenges.append(c)
                 context.insert(c)

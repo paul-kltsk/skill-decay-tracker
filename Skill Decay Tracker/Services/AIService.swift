@@ -13,6 +13,38 @@ struct EvaluationResult: Sendable {
     let inferredConfidence: ConfidenceRating
 }
 
+// MARK: - Challenge Eval Context
+
+/// Sendable snapshot of the ``Challenge`` properties required by ``AIService`` for evaluation.
+///
+/// Extract values from a ``Challenge`` on `@MainActor` **before** calling into the
+/// `AIService` actor so that no `@Model` object crosses the actor boundary.
+///
+/// ```swift
+/// // On @MainActor — extract scalars
+/// let evalCtx = ChallengeEvalContext(from: challenge)
+/// // Cross actor boundary — only Sendable values
+/// let result = try await AIService.shared.evaluateAnswer(context: evalCtx, ...)
+/// ```
+struct ChallengeEvalContext: Sendable {
+    let type: ChallengeType
+    let question: String
+    let correctAnswer: String
+    let explanation: String
+    let timeLimitSeconds: Int
+    let skillContext: String
+
+    /// Convenience initialiser — call on `@MainActor` where the `Challenge` is accessible.
+    init(from challenge: Challenge) {
+        type             = challenge.type
+        question         = challenge.question
+        correctAnswer    = challenge.correctAnswer
+        explanation      = challenge.explanation
+        timeLimitSeconds = challenge.timeLimitSeconds
+        skillContext     = challenge.skill?.context.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    }
+}
+
 // MARK: - Challenge DTO (AI response)
 
 /// JSON shape Claude returns for each generated challenge.
@@ -63,8 +95,8 @@ private struct SkillBreadthDTO: Decodable, Sendable {
 // MARK: - Model IDs
 
 private enum ClaudeModel {
-    /// High-quality model — used for challenge generation.
-    static let generation = "claude-sonnet-4-20250514"
+    /// Fast and cost-efficient — used for challenge generation.
+    static let generation = "claude-haiku-4-5-20251001"
     /// Fast and cost-efficient — used for answer evaluation and breadth analysis.
     static let evaluation = "claude-haiku-4-5-20251001"
 }
@@ -81,8 +113,12 @@ private enum ClaudeModel {
 ///
 /// **Typical usage:**
 /// ```swift
-/// let challenges = try await AIService.shared.generateChallenges(for: skill, count: 3)
-/// let result     = try await AIService.shared.evaluateAnswer(challenge: c, userAnswer: "Swift")
+/// // Extract Sendable scalars on @MainActor before crossing into the actor
+/// let challenges = try await AIService.shared.generateChallenges(
+///     skillName: skill.name, category: skill.category.rawValue,
+///     difficulty: skill.effectiveDifficulty, skillContext: skill.context, count: 3)
+/// let ctx    = ChallengeEvalContext(from: challenge)
+/// let result = try await AIService.shared.evaluateAnswer(context: ctx, userAnswer: "Swift")
 /// ```
 actor AIService {
 
@@ -171,20 +207,30 @@ actor AIService {
 
     // MARK: - Challenge Generation
 
-    /// Generates `count` micro-challenges for the given skill using Claude.
+    /// Generates `count` micro-challenges for a skill using the active AI provider.
     ///
-    /// Falls back to offline template challenges on network or API-key errors.
+    /// Extract all parameters from `Skill` on `@MainActor` before calling this method
+    /// so that no `@Model` object crosses the actor boundary.
     ///
     /// - Parameters:
-    ///   - skill: The ``Skill`` for which to generate challenges.
-    ///   - count: Number of challenges requested (default 3).
+    ///   - skillName: Name of the skill (e.g. `"Swift ARC"`).
+    ///   - category: Skill category raw value (e.g. `"programming"`).
+    ///   - difficulty: Difficulty 1–5.
+    ///   - skillContext: Optional user-supplied context string.
+    ///   - count: Number of challenges to generate (default 3).
     /// - Returns: Unsaved ``Challenge`` objects ready to insert into SwiftData.
-    func generateChallenges(for skill: Skill, count: Int = 3) async throws -> [Challenge] {
+    func generateChallenges(
+        skillName: String,
+        category: String,
+        difficulty: Int,
+        skillContext: String,
+        count: Int = 3
+    ) async throws -> [Challenge] {
         let prompt = generationPrompt(
-            skillName: skill.name,
-            category:  skill.category.rawValue,
-            difficulty: skill.effectiveDifficulty,
-            context:   skill.context,
+            skillName: skillName,
+            category:  category,
+            difficulty: difficulty,
+            context:   skillContext,
             count: count
         )
         let raw  = try await sendPrompt(isGeneration: true, maxTokens: generationTokenBudget(for: count), prompt: prompt)
@@ -194,45 +240,48 @@ actor AIService {
 
     // MARK: - Answer Evaluation
 
-    /// Evaluates whether `userAnswer` is correct for `challenge`.
+    /// Evaluates whether `userAnswer` is correct for a challenge.
     ///
     /// Objective types (`.multipleChoice`, `.trueFalse`) are evaluated locally
-    /// without an API call. Subjective types use Claude Haiku.
+    /// without an API call. Subjective types use the active AI provider.
+    ///
+    /// Build a ``ChallengeEvalContext`` on `@MainActor` from the ``Challenge`` model
+    /// object before crossing into this actor.
     ///
     /// - Parameters:
-    ///   - challenge: The challenge that was presented.
+    ///   - context: Sendable snapshot of the challenge being evaluated.
     ///   - userAnswer: The answer string supplied by the user.
     ///   - responseTime: How long the user took; used to infer confidence.
     func evaluateAnswer(
-        challenge: Challenge,
+        context: ChallengeEvalContext,
         userAnswer: String,
         responseTime: TimeInterval = 0
     ) async throws -> EvaluationResult {
         // Fast-path: objective types evaluated locally
-        if challenge.type == .multipleChoice || challenge.type == .trueFalse {
+        if context.type == .multipleChoice || context.type == .trueFalse {
             let correct = userAnswer
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .caseInsensitiveCompare(
-                    challenge.correctAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
+                    context.correctAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
                 ) == .orderedSame
             let confidence = inferredConfidence(responseTime: responseTime,
-                                                timeLimitSeconds: challenge.timeLimitSeconds,
+                                                timeLimitSeconds: context.timeLimitSeconds,
                                                 isCorrect: correct)
             let feedback = correct
-                ? challenge.explanation
-                : "Correct answer: \(challenge.correctAnswer). \(challenge.explanation)"
+                ? context.explanation
+                : "Correct answer: \(context.correctAnswer). \(context.explanation)"
             return EvaluationResult(isCorrect: correct,
                                     feedback: feedback,
                                     inferredConfidence: confidence)
         }
 
         // Subjective types — ask AI provider
-        let prompt = evaluationPrompt(challenge: challenge, userAnswer: userAnswer)
+        let prompt = evaluationPrompt(context: context, userAnswer: userAnswer)
         let raw    = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
         let dto    = try parseEvaluationDTO(from: raw)
         let confidence = parseConfidence(dto.confidenceHint,
                                           responseTime: responseTime,
-                                          timeLimitSeconds: challenge.timeLimitSeconds,
+                                          timeLimitSeconds: context.timeLimitSeconds,
                                           isCorrect: dto.isCorrect)
         return EvaluationResult(isCorrect: dto.isCorrect,
                                 feedback: dto.feedback,
@@ -283,16 +332,15 @@ actor AIService {
         """
     }
 
-    private func evaluationPrompt(challenge: Challenge, userAnswer: String) -> String {
-        let skillContext = challenge.skill?.context.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        let contextLine = skillContext.isEmpty ? "" : "\nSkill context: \(skillContext)"
+    private func evaluationPrompt(context: ChallengeEvalContext, userAnswer: String) -> String {
+        let contextLine = context.skillContext.isEmpty ? "" : "\nSkill context: \(context.skillContext)"
         return """
         Evaluate whether the user's answer is correct for this challenge.\(contextLine)
         Write the feedback field in \(promptLanguage).
 
-        Challenge type: \(challenge.type.rawValue)
-        Question: \(challenge.question)
-        Correct answer: \(challenge.correctAnswer)
+        Challenge type: \(context.type.rawValue)
+        Question: \(context.question)
+        Correct answer: \(context.correctAnswer)
         User's answer: \(userAnswer)
 
         Respond ONLY with valid JSON. No markdown:

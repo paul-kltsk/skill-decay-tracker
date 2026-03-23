@@ -76,10 +76,19 @@ final class AddSkillViewModel {
             ? (selectedSubSkills.first?.category ?? selectedCategory)
             : selectedCategory
         let ctx      = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
-        let tempSkill = Skill(name: firstName, category: firstCategory,
-                              context: ctx, decayRate: difficultyDecayRate)
+        // Create a temporary skill only to compute effectiveDifficulty, then extract scalars
+        // so no @Model object crosses the actor boundary into AIService.
+        let tempSkill  = Skill(name: firstName, category: firstCategory,
+                               context: ctx, decayRate: difficultyDecayRate)
+        let difficulty = tempSkill.effectiveDifficulty
 
-        if let generated = try? await AIService.shared.generateChallenges(for: tempSkill, count: selectedQuestionCount) {
+        if let generated = try? await AIService.shared.generateChallenges(
+            skillName: firstName,
+            category: firstCategory.rawValue,
+            difficulty: difficulty,
+            skillContext: ctx,
+            count: selectedQuestionCount
+        ) {
             guard !Task.isCancelled else { return }
             prefetchedChallenges = generated
         }

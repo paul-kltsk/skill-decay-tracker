@@ -206,7 +206,7 @@ healthScore(t) = peakScore × e^(−decayRate × daysSinceLastPractice)
 
 ## Claude API Integration
 
-- Challenge generation: claude-sonnet-4-20250514, max_tokens 1024
+- Challenge generation: claude-haiku-4-5-20251001, max_tokens 1024
 - Answer evaluation: claude-haiku-4-5-20251001, max_tokens 256
 - Response format: structured JSON parsed with Codable
 - Pre-generate 3 challenges per skill during background fetch
