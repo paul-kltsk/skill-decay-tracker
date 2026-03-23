@@ -219,8 +219,8 @@ healthScore(t) = peakScore × e^(−decayRate × daysSinceLastPractice)
 | Tier | Features | Price |
 |------|----------|-------|
 | Free | 3 skills, 5 AI challenges/day, 1 widget | — |
-| Pro | Unlimited skills, unlimited AI, full analytics, all widgets, Dynamic Island, iCloud sync, export | $2.99/week or $29.99/year |
-| Lifetime | All Pro features forever | $79.99 |
+| Pro | Unlimited skills, unlimited AI, full analytics, all widgets, Dynamic Island, iCloud sync, export | $5.99/month or $59.99/year |
+| Lifetime | All Pro features forever | $99.99 |
 
 StoreKit 2: use Transaction.updates for real-time status, Product.SubscriptionInfo for status checks, offer 3-day free trial.
 
