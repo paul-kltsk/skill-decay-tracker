@@ -167,6 +167,13 @@ final class SubscriptionService {
         }
     }
 
+    // MARK: - Error Dismissal
+
+    /// Clears the last purchase error so the alert can be dismissed.
+    func clearPurchaseError() {
+        purchaseError = nil
+    }
+
     // MARK: - Convenience Accessors
 
     var monthlyProduct:  Product? { products.first { $0.id == Self.monthlyID  } }

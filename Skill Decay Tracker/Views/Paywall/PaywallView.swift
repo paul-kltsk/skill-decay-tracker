@@ -58,8 +58,11 @@ struct PaywallView: View {
             withAnimation(.easeOut(duration: 0.5)) { appeared = true }
             AnalyticsService.paywallShown(trigger: trigger.analyticsName)
         }
-        .alert("Purchase Error", isPresented: .constant(sub.purchaseError != nil)) {
-            Button("OK") {}
+        .alert("Purchase Error", isPresented: Binding(
+            get: { sub.purchaseError != nil },
+            set: { if !$0 { sub.clearPurchaseError() } }
+        )) {
+            Button("OK") { sub.clearPurchaseError() }
         } message: {
             Text(sub.purchaseError ?? "")
         }
@@ -345,7 +348,7 @@ enum ProFeature {
     var subtitle: String {
         switch self {
         case .skillLimit:
-            return "You've reached the 5-skill limit.\nUnlock unlimited skills with Pro."
+            return "You've reached the \(SubscriptionService.freeSkillLimit)-skill free limit.\nUnlock unlimited skills with Pro."
         case .quickPractice:
             return "Quick Practice is a Pro feature.\nUpgrade to practice any skill, any time."
         case .deepDive:
