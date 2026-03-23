@@ -27,19 +27,6 @@ struct SDTSkillCard: View {
         .background(Color.sdtSurface)
         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
         .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 2)
-        .overlay(alignment: .topTrailing) {
-            if skill.streakDays > 0 {
-                SDTStreakBadge(days: skill.streakDays)
-                    .padding(.horizontal, SDTSpacing.sm)
-                    .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(Color.sdtSurface)
-                            .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)
-                    )
-                    .offset(x: 6, y: -8)
-            }
-        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
     }
@@ -77,8 +64,14 @@ struct SDTSkillCard: View {
     }
 
     private var scoreColumn: some View {
-        Text("\(Int((skill.healthScore * 100).rounded()))%")
-            .sdtFont(.numericMedium, color: Color.sdtHealth(for: skill.healthScore))
+        VStack(alignment: .trailing, spacing: SDTSpacing.xxs) {
+            Text("\(Int((skill.healthScore * 100).rounded()))%")
+                .sdtFont(.numericMedium, color: Color.sdtHealth(for: skill.healthScore))
+
+            if skill.streakDays > 0 {
+                SDTStreakBadge(days: skill.streakDays)
+            }
+        }
     }
 
     // MARK: - Accessibility
