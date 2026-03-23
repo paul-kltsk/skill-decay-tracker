@@ -32,6 +32,9 @@ enum PracticePhase: Equatable {
     case showingFeedback
     case sessionComplete
     case error(String)
+    /// The proxy server returned HTTP 429 — daily request limit exhausted.
+    /// `retryAfter` is the number of seconds until the limit resets.
+    case rateLimited(retryAfter: TimeInterval)
 }
 
 // MARK: - Difficulty Adjustment Suggestion
@@ -185,6 +188,7 @@ final class PracticeViewModel {
                 let pending = skill.pendingChallenges
                 if pending.isEmpty {
                     let new = await fetchOrGenerate(skill: skill, count: 3, context: context)
+                    if case .rateLimited = phase { return }
                     queue.append(contentsOf: new.prefix(2))
                 } else {
                     queue.append(contentsOf: pending.prefix(2))
@@ -204,6 +208,7 @@ final class PracticeViewModel {
             if pending.count < min(5, target) {
                 let more = await fetchOrGenerate(
                     skill: skill, count: target - pending.count, context: context)
+                if case .rateLimited = phase { return }
                 pending.append(contentsOf: more)
             }
             queue = Array(pending.prefix(target))
@@ -219,6 +224,7 @@ final class PracticeViewModel {
             if pending.count < min(5, target) {
                 let more = await fetchOrGenerate(
                     skill: skill, count: target - pending.count, context: context)
+                if case .rateLimited = phase { return }
                 pending.append(contentsOf: more)
             }
             queue = Array(pending.prefix(target))
@@ -488,14 +494,23 @@ final class PracticeViewModel {
 
     /// Generates new challenges for `skill` via AIService and inserts them into the context.
     private func fetchOrGenerate(skill: Skill, count: Int, context: ModelContext) async -> [Challenge] {
-        guard let new = try? await AIService.shared.generateChallenges(for: skill, count: count) else {
+        do {
+            let new = try await AIService.shared.generateChallenges(for: skill, count: count)
+            for c in new {
+                skill.challenges.append(c)
+                context.insert(c)
+            }
+            return new
+        } catch let apiError as APIError {
+            if case .rateLimited(let retryAfter) = apiError {
+                // Propagate rate-limit directly — caller should abort and show the rate-limit screen.
+                phase = .rateLimited(retryAfter: retryAfter)
+            }
+            // All other API errors (network, bad JSON, etc.) fall through silently.
+            return []
+        } catch {
             return []
         }
-        for c in new {
-            skill.challenges.append(c)
-            context.insert(c)
-        }
-        return new
     }
 
     private func applyXP(_ xp: Int, context: ModelContext) async {

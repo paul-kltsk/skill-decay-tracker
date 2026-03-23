@@ -39,6 +39,11 @@ struct ChallengeView: View {
                 onRetry: { Task { await viewModel.retrySession(context: modelContext) } },
                 onDismiss: { viewModel.endSession() }
             )
+        case .rateLimited(let retryAfter):
+            RateLimitedSessionView(
+                retryAfter: retryAfter,
+                onDismiss: { viewModel.endSession() }
+            )
         case .idle:
             EmptyView()
         }
@@ -98,6 +103,64 @@ private struct ErrorSessionView: View {
                 Button("Dismiss", action: onDismiss)
                     .buttonStyle(SessionButtonStyle(tint: .sdtSecondary))
             }
+        }
+        .padding(SDTSpacing.xxxl)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.sdtBackground)
+    }
+}
+
+// MARK: - Rate Limit Screen
+
+private struct RateLimitedSessionView: View {
+    let retryAfter: TimeInterval
+    let onDismiss: () -> Void
+    @Environment(SubscriptionService.self) private var sub
+
+    private var timeString: String {
+        let total   = Int(retryAfter)
+        let hours   = total / 3600
+        let minutes = (total % 3600) / 60
+        if hours > 0 && minutes > 0 { return "\(hours)h \(minutes)m" }
+        if hours > 0                { return "\(hours)h" }
+        if minutes > 0              { return "\(minutes)m" }
+        return "a moment"
+    }
+
+    var body: some View {
+        VStack(spacing: SDTSpacing.xl) {
+            Image(systemName: "clock.badge.exclamationmark.fill")
+                .font(.system(size: 52))
+                .foregroundStyle(Color.sdtHealthWilting)
+
+            VStack(spacing: SDTSpacing.sm) {
+                Text("Daily limit reached")
+                    .sdtFont(.titleSmall)
+                Text("You've used all your free AI requests for today.\nLimit resets in **\(timeString)**.")
+                    .sdtFont(.bodyMedium, color: .sdtSecondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if !sub.isPro {
+                VStack(spacing: SDTSpacing.xs) {
+                    HStack(spacing: SDTSpacing.xs) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.sdtPrimary)
+                        Text("Pro users get 10× more requests per day")
+                            .sdtFont(.captionSemibold, color: .sdtPrimary)
+                    }
+                    Text("Free: 30 / day  ·  Pro: 300 / day")
+                        .sdtFont(.caption, color: .sdtSecondary)
+                }
+                .padding(SDTSpacing.md)
+                .frame(maxWidth: .infinity)
+                .background(Color.sdtPrimary.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+            }
+
+            Button("Got it", action: onDismiss)
+                .buttonStyle(SessionButtonStyle(tint: .sdtSecondary))
         }
         .padding(SDTSpacing.xxxl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
