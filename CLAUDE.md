@@ -237,6 +237,60 @@ xcodebuild test -scheme "Skill Decay Tracker" -destination "platform=iOS Simulat
 swiftlint lint --config .swiftlint.yml
 ```
 
+## Axiom Skills
+
+Always check relevant Axiom skills **before** starting any task. Use the router skills first; they select the right specialized skill.
+
+### Router Skills (invoke first for their domain)
+
+| Domain | Skill | When to use |
+|--------|-------|-------------|
+| SwiftUI / Views | `axiom-ios-ui` | Any UI, layout, navigation, animation question |
+| SwiftData / Models | `axiom-ios-data` | @Model, queries, migrations, relationships |
+| Swift 6 Concurrency | `axiom-ios-concurrency` | async/await, actors, Sendable, data races |
+| Networking / API | `axiom-ios-networking` | URLSession, Claude API, ProxyAPIClient |
+| Testing | `axiom-ios-testing` | Swift Testing, XCUITest |
+| Build failures | `axiom-ios-build` | Any build/compile error |
+| Performance | `axiom-ios-performance` | Slow UI, memory, battery |
+| System integrations | `axiom-ios-integration` | Widgets, Live Activities, Notifications, Background fetch |
+
+### Specialized Skills (used directly or via router)
+
+| Skill | When to use |
+|-------|-------------|
+| `axiom-swiftdata` | @Model patterns, SwiftData-specific patterns |
+| `axiom-swiftdata-migration` | Schema version changes |
+| `axiom-swift-concurrency` | actors, Task, async sequences |
+| `axiom-in-app-purchases` | StoreKit 2 implementation (SubscriptionService) |
+| `axiom-storekit-ref` | StoreKit 2 API reference |
+| `axiom-extensions-widgets` | WidgetKit (4 widgets) + ActivityKit (Dynamic Island) |
+| `axiom-push-notifications` | NotificationService, rich notifications |
+| `axiom-keychain` | ProviderKeychain, API key storage |
+| `axiom-swiftui-architecture` | @Observable MVVM, ViewModels, @Bindable |
+| `axiom-swiftui-performance` | ConstellationView, large lists, redraws |
+| `axiom-swiftui-nav` | NavigationStack, NavigationPath, deep links |
+| `axiom-swiftui-layout` | Layout issues, GeometryReader, adaptive UI |
+| `axiom-cloud-sync` | CloudKit via SwiftData sync |
+| `axiom-ios-ai` | Claude API integration (AIService, ClaudeAPIClient) |
+| `axiom-background-processing` | Pre-generation background fetch |
+| `axiom-swift-testing` | #expect, @Test, @Suite macros |
+| `axiom-codable` | JSON response parsing, structured AI output |
+| `axiom-ios-accessibility` | VoiceOver, Dynamic Type, 44pt tap targets |
+| `axiom-app-store-submission` | App Store prep, metadata, screenshots |
+| `axiom-shipping` | Pre-release checklist |
+| `axiom-energy` | Battery drain (background tasks, animations) |
+| `axiom-storage` | File system, caching, data lifecycle |
+
+### Reference Skills (API lookup)
+
+`axiom-swiftui-26-ref` · `axiom-swiftui-animation-ref` (PhaseAnimator) · `axiom-cloudkit-ref` · `axiom-keychain-ref` · `axiom-push-notifications-ref` · `axiom-extensions-widgets-ref` · `axiom-background-processing-ref` · `axiom-swift-concurrency-ref` · `axiom-swiftui-nav-ref` · `axiom-swiftui-layout-ref` · `axiom-hig` · `axiom-sf-symbols-ref`
+
+### Not Applicable to This Project
+
+RealityKit · SceneKit · SpriteKit · Camera · Vision · MapKit · CoreLocation · AVFoundation · PhotosLibrary · tvOS · Core Data · GRDB · NowPlaying
+
+---
+
 ## Important Rules
 - NEVER use `ObservableObject`, `@Published`, `@StateObject`, or `@ObservedObject` — we are iOS 18+ only
 - NEVER use `NavigationView` — always `NavigationStack`
