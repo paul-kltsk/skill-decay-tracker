@@ -30,9 +30,7 @@ struct PracticeTimePreference: Codable, Sendable, Equatable {
 ///
 /// `Sendable` — value type with all-`Sendable` stored properties; safe to pass
 /// across actor boundaries without triggering Swift 6 data-race diagnostics.
-struct UserPreferences: Codable, Sendable, Equatable {
-    /// Target practice duration per day in minutes.
-    var dailyGoalMinutes: Int
+struct UserPreferences: Sendable, Equatable {
     /// Whether the app should send practice reminder notifications.
     var notificationsEnabled: Bool
     /// Preferred time of day for reminders, or `nil` when notifications are off.
@@ -47,7 +45,6 @@ struct UserPreferences: Codable, Sendable, Equatable {
     var aiProvider: AIProvider
 
     init() {
-        dailyGoalMinutes      = 15
         notificationsEnabled  = true
         preferredPracticeTime = .defaultMorning
         difficultyPreference  = 3
@@ -55,13 +52,13 @@ struct UserPreferences: Codable, Sendable, Equatable {
         hapticsEnabled        = true
         aiProvider            = .claude
     }
+}
 
-    // Custom decoder — tolerates missing keys from older stored data.
-    // Uses `decodeIfPresent` instead of `try? decode` to avoid triggering
-    // Xcode exception breakpoints on `DecodingError.keyNotFound`.
+// Custom decoder — tolerates missing keys from older stored data.
+// nonisolated breaks the @MainActor inference from aiProvider's Codable synthesis.
+nonisolated extension UserPreferences: Codable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        dailyGoalMinutes      = (try c.decodeIfPresent(Int.self,                    forKey: .dailyGoalMinutes))      ?? 15
         notificationsEnabled  = (try c.decodeIfPresent(Bool.self,                   forKey: .notificationsEnabled))  ?? true
         preferredPracticeTime =  try c.decodeIfPresent(PracticeTimePreference.self, forKey: .preferredPracticeTime)
         difficultyPreference  = (try c.decodeIfPresent(Int.self,                    forKey: .difficultyPreference))  ?? 3

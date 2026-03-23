@@ -16,32 +16,6 @@ struct PracticePreferencesView: View {
 
     var body: some View {
         List {
-            // MARK: Daily Goal
-            Section {
-                HStack {
-                    Text("Daily Goal")
-                    Spacer()
-                    Text("\(profile.preferences.dailyGoalMinutes) min")
-                        .sdtFont(.captionSemibold, color: .sdtSecondary)
-                }
-                Slider(
-                    value: Binding(
-                        get: { Double(profile.preferences.dailyGoalMinutes) },
-                        set: { v in
-                            profile.preferences.dailyGoalMinutes = Int(v)
-                            try? modelContext.save()
-                        }
-                    ),
-                    in: 5...60,
-                    step: 5
-                )
-                .tint(Color.sdtCategoryProgramming)
-            } header: {
-                Text("Daily Goal")
-            } footer: {
-                Text("How many minutes you want to spend practicing per day.")
-            }
-
             // MARK: Difficulty
             Section {
                 VStack(alignment: .leading, spacing: SDTSpacing.sm) {
