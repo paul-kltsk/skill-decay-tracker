@@ -187,13 +187,9 @@ actor AIService {
             context:   skill.context,
             count: count
         )
-        do {
-            let raw  = try await sendPrompt(isGeneration: true, maxTokens: generationTokenBudget(for: count), prompt: prompt)
-            let dtos = try parseChallengeDTOs(from: raw)
-            return dtos.map { mapToChallenge($0) }
-        } catch let error as APIError where error.allowsFallback {
-            return FallbackTemplates.challenges(for: skill, count: count)
-        }
+        let raw  = try await sendPrompt(isGeneration: true, maxTokens: generationTokenBudget(for: count), prompt: prompt)
+        let dtos = try parseChallengeDTOs(from: raw)
+        return dtos.map { mapToChallenge($0) }
     }
 
     // MARK: - Answer Evaluation
