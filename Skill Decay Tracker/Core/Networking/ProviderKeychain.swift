@@ -14,9 +14,9 @@ import Security
 /// keys are transparently readable by both paths.
 enum ProviderKeychain {
 
-    private static let service = "pavel.kulitski.Skill-Decay-Tracker"
+    private nonisolated static let service = "pavel.kulitski.Skill-Decay-Tracker"
 
-    private static func account(for provider: AIProvider) -> String {
+    private nonisolated static func account(for provider: AIProvider) -> String {
         "\(provider.rawValue)-api-key"
     }
 
@@ -26,7 +26,7 @@ enum ProviderKeychain {
     ///
     /// - Returns: `true` on success, `false` if the Keychain write failed.
     @discardableResult
-    static func store(_ key: String, for provider: AIProvider) -> Bool {
+    nonisolated static func store(_ key: String, for provider: AIProvider) -> Bool {
         guard let data = key.data(using: .utf8) else { return false }
 
         // Delete existing item first (ignore status — may not exist)
@@ -52,7 +52,7 @@ enum ProviderKeychain {
     /// Reads the stored API key for `provider`.
     ///
     /// - Throws: `APIError.missingAPIKey` when no key is found.
-    static func read(for provider: AIProvider) throws -> String {
+    nonisolated static func read(for provider: AIProvider) throws -> String {
         let query: [CFString: Any] = [
             kSecClass:       kSecClassGenericPassword,
             kSecAttrService: service,
@@ -76,7 +76,7 @@ enum ProviderKeychain {
     // MARK: - Delete
 
     /// Removes the stored API key for `provider` from the Keychain.
-    static func delete(for provider: AIProvider) {
+    nonisolated static func delete(for provider: AIProvider) {
         let query: [CFString: Any] = [
             kSecClass:       kSecClassGenericPassword,
             kSecAttrService: service,
@@ -88,7 +88,7 @@ enum ProviderKeychain {
     // MARK: - Has
 
     /// Returns `true` if an API key for `provider` is currently in the Keychain.
-    static func has(for provider: AIProvider) -> Bool {
+    nonisolated static func has(for provider: AIProvider) -> Bool {
         let query: [CFString: Any] = [
             kSecClass:       kSecClassGenericPassword,
             kSecAttrService: service,

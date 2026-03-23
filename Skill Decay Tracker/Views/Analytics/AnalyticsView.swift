@@ -17,21 +17,38 @@ struct AnalyticsView: View {
     @State private var viewModel = AnalyticsViewModel()
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: SDTSpacing.xxl) {
-                portfolioSummary
-                healthTrendSection
-                skillComparisonSection
-                typeAccuracySection
-                activitySection
-                achievementsSection
+        Group {
+            if skills.isEmpty {
+                emptyState
+            } else {
+                ScrollView {
+                    VStack(spacing: SDTSpacing.xxl) {
+                        portfolioSummary
+                        healthTrendSection
+                        skillComparisonSection
+                        typeAccuracySection
+                        activitySection
+                        achievementsSection
+                    }
+                    .padding(.horizontal, SDTSpacing.xl)
+                    .padding(.vertical, SDTSpacing.lg)
+                }
             }
-            .padding(.horizontal, SDTSpacing.xl)
-            .padding(.vertical, SDTSpacing.lg)
         }
         .background(Color.sdtBackground)
         .navigationTitle("Analytics")
         .navigationBarTitleDisplayMode(.large)
+    }
+
+    // MARK: - Empty State
+
+    private var emptyState: some View {
+        SDTEmptyState(
+            icon: "chart.bar.fill",
+            title: "No Data Yet",
+            message: "Head to the Skills tab to add your first skill, then complete a practice session to see your analytics here."
+        )
+        .padding(.horizontal, SDTSpacing.xl)
     }
 
     // MARK: - Portfolio Summary

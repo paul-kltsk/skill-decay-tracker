@@ -42,7 +42,7 @@ extension AIProvider {
     }
 
     /// Model used for challenge generation (quality-first).
-    var generationModelID: String {
+    nonisolated var generationModelID: String {
         switch self {
         case .claude: "claude-sonnet-4-20250514"
         case .openai: "gpt-4o-mini"
@@ -51,7 +51,7 @@ extension AIProvider {
     }
 
     /// Model used for answer evaluation (speed-first).
-    var evalModelID: String {
+    nonisolated var evalModelID: String {
         switch self {
         case .claude: "claude-haiku-4-5-20251001"
         case .openai: "gpt-4o-mini"
@@ -97,11 +97,14 @@ extension AIProvider {
 
     // MARK: - UserDefaults
 
-    static let userDefaultsKey = "ai.selectedProvider"
+    nonisolated static let userDefaultsKey = "ai.selectedProvider"
 
     /// Reads the currently persisted provider from `UserDefaults`.
     /// Falls back to `.claude` if nothing is stored.
-    static var persisted: AIProvider {
+    ///
+    /// Explicitly `nonisolated` to override `@MainActor` inference that propagates
+    /// from the synthesised `Codable` conformance used by `UserProfile @Model`.
+    nonisolated static var persisted: AIProvider {
         let raw = UserDefaults.standard.string(forKey: userDefaultsKey) ?? ""
         return AIProvider(rawValue: raw) ?? .claude
     }

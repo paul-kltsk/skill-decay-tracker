@@ -13,11 +13,12 @@ extension URLSession: HTTPSession {}
 // MARK: - Request / Response Types
 
 /// Outgoing body for `POST /v1/messages`.
-private struct MessagesRequest: Encodable {
+private struct MessagesRequest: Sendable {
     let model: String
     let maxTokens: Int
     let messages: [MessageDTO]
-
+}
+nonisolated extension MessagesRequest: Encodable {
     enum CodingKeys: String, CodingKey {
         case model
         case maxTokens = "max_tokens"
@@ -26,20 +27,23 @@ private struct MessagesRequest: Encodable {
 }
 
 /// A single turn in the conversation sent to Claude.
-struct MessageDTO: Encodable, Sendable {
+struct MessageDTO: Sendable {
     let role: String   // "user" | "assistant"
     let content: String
 }
+nonisolated extension MessageDTO: Encodable {}
 
 /// Top-level response body returned by `POST /v1/messages`.
-private struct MessagesResponse: Decodable {
+private struct MessagesResponse: Sendable {
     let content: [ContentBlock]
 
-    struct ContentBlock: Decodable {
+    struct ContentBlock: Sendable {
         let type: String
         let text: String
     }
 }
+nonisolated extension MessagesResponse: Decodable {}
+nonisolated extension MessagesResponse.ContentBlock: Decodable {}
 
 // MARK: - Claude API Client
 

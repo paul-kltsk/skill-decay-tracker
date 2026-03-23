@@ -79,29 +79,34 @@ actor OpenAIClient {
 
 // MARK: - Request / Response Types
 
-private struct OpenAIRequest: Encodable {
+private struct OpenAIRequest: Sendable {
     let model: String
     let messages: [OpenAIMessage]
     let maxTokens: Int
-
+}
+nonisolated extension OpenAIRequest: Encodable {
     enum CodingKeys: String, CodingKey {
         case model, messages
         case maxTokens = "max_tokens"
     }
 }
 
-private struct OpenAIMessage: Encodable {
+private struct OpenAIMessage: Sendable {
     let role: String
     let content: String
 }
+nonisolated extension OpenAIMessage: Encodable {}
 
-private struct OpenAIResponse: Decodable {
+private struct OpenAIResponse: Sendable {
     let choices: [Choice]
 
-    struct Choice: Decodable {
+    struct Choice: Sendable {
         let message: MessageContent
     }
-    struct MessageContent: Decodable {
+    struct MessageContent: Sendable {
         let content: String
     }
 }
+nonisolated extension OpenAIResponse: Decodable {}
+nonisolated extension OpenAIResponse.Choice: Decodable {}
+nonisolated extension OpenAIResponse.MessageContent: Decodable {}

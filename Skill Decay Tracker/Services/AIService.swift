@@ -67,11 +67,13 @@ private struct ChallengeDTO: Decodable, Sendable {
 // MARK: - Evaluation DTO (AI response)
 
 /// JSON shape Claude returns when evaluating an answer.
-private struct EvaluationDTO: Decodable, Sendable {
+private struct EvaluationDTO: Sendable {
     let isCorrect: Bool
     let feedback: String
     let confidenceHint: String?
+}
 
+private extension EvaluationDTO {
     enum CodingKeys: String, CodingKey {
         case isCorrect      = "is_correct"
         case feedback
@@ -79,26 +81,32 @@ private struct EvaluationDTO: Decodable, Sendable {
     }
 }
 
+nonisolated extension EvaluationDTO: Decodable {}
+
 // MARK: - Breadth Analysis DTOs (AI response)
 
 /// One sub-skill suggestion returned by the breadth-analysis prompt.
-private struct SubSkillDTO: Decodable, Sendable {
+private struct SubSkillDTO: Sendable {
     let name: String
     let category: String
 }
 
+nonisolated extension SubSkillDTO: Decodable {}
+
 /// Top-level wrapper for the breadth-analysis response.
-private struct SkillBreadthDTO: Decodable, Sendable {
+private struct SkillBreadthDTO: Sendable {
     let subSkills: [SubSkillDTO]
 }
+
+nonisolated extension SkillBreadthDTO: Decodable {}
 
 // MARK: - Model IDs
 
 private enum ClaudeModel {
     /// Fast and cost-efficient — used for challenge generation.
-    static let generation = "claude-haiku-4-5-20251001"
+    nonisolated static let generation = "claude-haiku-4-5-20251001"
     /// Fast and cost-efficient — used for answer evaluation and breadth analysis.
-    static let evaluation = "claude-haiku-4-5-20251001"
+    nonisolated static let evaluation = "claude-haiku-4-5-20251001"
 }
 
 // Note: OpenAI and Gemini model IDs are stored in AIProvider (generationModelID / evalModelID).

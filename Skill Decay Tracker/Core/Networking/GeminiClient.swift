@@ -84,34 +84,42 @@ actor GeminiClient {
 
 // MARK: - Request / Response Types
 
-private struct GeminiRequest: Encodable {
+private struct GeminiRequest: Sendable {
     let contents: [GeminiContent]
     let generationConfig: GeminiConfig
 }
+nonisolated extension GeminiRequest: Encodable {}
 
-private struct GeminiContent: Encodable {
+private struct GeminiContent: Sendable {
     let parts: [GeminiPart]
 }
+nonisolated extension GeminiContent: Encodable {}
 
-private struct GeminiPart: Encodable {
+private struct GeminiPart: Sendable {
     let text: String
 }
+nonisolated extension GeminiPart: Encodable {}
 
-private struct GeminiConfig: Encodable {
+private struct GeminiConfig: Sendable {
     let maxOutputTokens: Int
     let temperature: Double = 0.7
 }
+nonisolated extension GeminiConfig: Encodable {}
 
-private struct GeminiResponse: Decodable {
+private struct GeminiResponse: Sendable {
     let candidates: [Candidate]
 
-    struct Candidate: Decodable {
+    struct Candidate: Sendable {
         let content: ResponseContent
     }
-    struct ResponseContent: Decodable {
+    struct ResponseContent: Sendable {
         let parts: [GeminiPart]
     }
-    struct GeminiPart: Decodable {
+    struct GeminiPart: Sendable {
         let text: String
     }
 }
+nonisolated extension GeminiResponse: Decodable {}
+nonisolated extension GeminiResponse.Candidate: Decodable {}
+nonisolated extension GeminiResponse.ResponseContent: Decodable {}
+nonisolated extension GeminiResponse.GeminiPart: Decodable {}
