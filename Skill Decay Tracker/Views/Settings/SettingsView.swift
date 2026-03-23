@@ -50,14 +50,6 @@ struct SettingsView: View {
         } message: {
             Text("All skills, challenges, and history will be permanently removed. This cannot be undone.")
         }
-        .sheet(isPresented: Binding(
-            get:  { viewModel.exportString != nil },
-            set:  { if !$0 { viewModel.exportString = nil } }
-        )) {
-            if let json = viewModel.exportString {
-                ExportSheet(json: json)
-            }
-        }
     }
 
     // MARK: - Profile Section
@@ -193,13 +185,6 @@ struct SettingsView: View {
 
     private var dataSection: some View {
         Section {
-            Button {
-                viewModel.prepareExport(skills: skills)
-            } label: {
-                Label("Export Skills as JSON", systemImage: "square.and.arrow.up")
-            }
-            .disabled(skills.isEmpty)
-
             Button(role: .destructive) {
                 viewModel.showDeleteConfirm = true
             } label: {
@@ -209,8 +194,6 @@ struct SettingsView: View {
             .disabled(skills.isEmpty)
         } header: {
             Text("Data & Privacy")
-        } footer: {
-            Text("Exported JSON contains skill names, scores, and statistics only.")
         }
     }
 
@@ -236,37 +219,6 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Export Sheet
-
-private struct ExportSheet: View {
-    let json: String
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                Text(json)
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(Color.sdtPrimary)
-                    .padding(SDTSpacing.lg)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .background(Color.sdtBackground)
-            .navigationTitle("Export")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    ShareLink(item: json, subject: Text("Skill Decay Tracker Export")) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                }
-            }
-        }
-    }
-}
 
 // MARK: - Preview
 
