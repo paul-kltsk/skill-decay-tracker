@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Skill Decay Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #080B12; --surface: #0F1420; --surface2: #141925;
+      --border: rgba(255,255,255,0.07); --primary: #E8ECF4;
+      --secondary: #8B95A8; --muted: #4A5568; --green: #059669; --accent: #3B82F6;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--primary); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(8,11,18,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px;
+      color: var(--primary); text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      
+      overflow: hidden; }  .nav-logo-icon img { width: 100%; height: 100%; display: block; object-fit: cover;
+    }
+    .nav-back { font-size: 14px; color: var(--secondary); text-decoration: none; transition: color .2s; }
+    .nav-back:hover { color: var(--primary); }
+    @media (max-width: 640px) { nav { padding: 16px 20px; } }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 64px 24px 80px; }
+    .page-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+    h1 { font-family: 'Manrope', sans-serif; font-size: 40px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 10px; }
+    .updated { font-size: 13px; color: var(--muted); margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    h2 { font-family: 'Manrope', sans-serif; font-size: 20px; font-weight: 700; margin: 40px 0 14px; }
+    p { font-size: 15px; color: var(--secondary); margin-bottom: 16px; line-height: 1.75; }
+    ul { margin: 0 0 16px 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    ul li {
+      font-size: 15px; color: var(--secondary);
+      padding: 12px 16px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      padding-left: 40px; position: relative;
+    }
+    ul li::before { content: "·"; position: absolute; left: 16px; color: var(--green); font-size: 18px; line-height: 1.5; }
+    strong { color: var(--primary); font-weight: 500; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .info-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px 28px; margin: 32px 0;
+    }
+    .info-box h3 { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .info-box p { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon"><img src="AppIcon-1024.png" alt="" /></div>
+    Skill Decay Tracker
+  </a>
+  <a href="index.html" class="nav-back">← Back to home</a>
+</nav>
+
+<div class="container">
+  <div class="page-label">Legal</div>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: March 22, 2026</p>
+
+  <p>Pavel Kulitski ("we", "our", "us") built the Skill Decay Tracker app as a Freemium application. This page informs visitors about our policies with the collection, use, and disclosure of personal information if anyone decides to use our service.</p>
+
+  <h2>Information We Collect</h2>
+  <p>Skill Decay Tracker is built with a privacy-first approach and collects minimal data:</p>
+  <ul>
+    <li><strong>Skill data</strong> — Names of skills you add, practice results, and health scores. Stored locally on your device using SwiftData. We never access this data.</li>
+    <li><strong>Display name</strong> — The name you enter during onboarding. Stored locally on your device only.</li>
+    <li><strong>API keys</strong> — If you choose to use your own AI provider key (Claude, OpenAI, Gemini), it is stored securely in your device's Keychain. We never transmit your API keys to our servers.</li>
+    <li><strong>Anonymous analytics</strong> — Firebase Analytics collects anonymized usage data (screen views, session counts, feature usage) to improve the app. No personally identifiable information is collected.</li>
+    <li><strong>Crash reports</strong> — Firebase Crashlytics collects anonymous crash data (device model, OS version, stack traces) to help us fix bugs.</li>
+  </ul>
+
+  <h2>AI Challenge Generation</h2>
+  <p>When you practice skills, the app sends your skill name, category, and difficulty level to an AI provider to generate challenges. If you use the built-in AI (no personal key), requests are routed through our proxy server. The proxy server:</p>
+  <ul>
+    <li>Does not log or store the content of your requests or responses</li>
+    <li>Uses a device identifier (UUID) only for rate limiting purposes</li>
+    <li>Signs all requests with HMAC-SHA256 for security</li>
+  </ul>
+  <p>If you use your own API key, requests go directly to the AI provider (Anthropic, OpenAI, or Google) under their respective privacy policies.</p>
+
+  <h2>Data Storage</h2>
+  <p>All your skill data, practice history, and personal settings are stored locally on your device. We do not have access to this data. If you delete the app, all local data is permanently removed.</p>
+
+  <h2>Third-Party Services</h2>
+  <p>The app uses the following third-party services, each governed by their own privacy policy:</p>
+  <ul>
+    <li><a href="https://firebase.google.com/support/privacy" target="_blank">Firebase Analytics &amp; Crashlytics</a> (Google)</li>
+    <li><a href="https://www.anthropic.com/privacy" target="_blank">Anthropic</a> — Claude AI (if using built-in or personal key)</li>
+    <li><a href="https://openai.com/privacy" target="_blank">OpenAI</a> — GPT-4o (if using personal key)</li>
+    <li><a href="https://policies.google.com/privacy" target="_blank">Google</a> — Gemini (if using personal key)</li>
+  </ul>
+
+  <h2>Children's Privacy</h2>
+  <p>Skill Decay Tracker is not directed at children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe your child has provided us with personal information, please contact us so we can take appropriate action.</p>
+
+  <h2>Data Deletion</h2>
+  <p>You can delete all your data at any time from within the app via <strong>Settings → Delete All Data</strong>. Uninstalling the app also removes all locally stored data. To request deletion of any analytics data associated with your device, contact us at the email below.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated revision date. Continued use of the app after changes constitutes acceptance of the updated policy.</p>
+
+  <h2>Contact</h2>
+  <div class="info-box">
+    <h3>Questions about privacy?</h3>
+    <p>Reach out at <a href="mailto:pavel.kulitski@icloud.com">pavel.kulitski@icloud.com</a> — we aim to respond within 24 hours.</p>
+  </div>
+</div>
+
+</body>
+</html>
