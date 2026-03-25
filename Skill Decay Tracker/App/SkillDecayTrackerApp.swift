@@ -20,6 +20,7 @@ enum AppTab: Hashable {
 struct SkillDecayTrackerApp: App {
 
     @State private var selectedTab: AppTab = .home
+    @State private var remoteConfig = RemoteConfigService()
 
     // MARK: Container
 
@@ -55,6 +56,8 @@ struct SkillDecayTrackerApp: App {
         WindowGroup {
             RootTabView(selectedTab: $selectedTab)
                 .environment(SubscriptionService.shared)
+                .environment(remoteConfig)
+                .task { await remoteConfig.fetch() }
                 .task { await seedProfileIfNeeded() }
                 .task { await SubscriptionService.shared.start() }
         }
@@ -80,6 +83,7 @@ struct SkillDecayTrackerApp: App {
 private struct RootTabView: View {
     @Binding var selectedTab: AppTab
     @Query private var profiles: [UserProfile]
+    @Environment(RemoteConfigService.self) private var remoteConfig
 
     @AppStorage("onboarding.completed") private var onboardingCompleted = false
 
@@ -88,6 +92,22 @@ private struct RootTabView: View {
     }
 
     var body: some View {
+        Group {
+            if remoteConfig.needsForceUpdate {
+                ForceUpdateView()
+            } else if remoteConfig.config.isMaintenanceMode {
+                MaintenanceView(
+                    message: remoteConfig.config.maintenanceMessage,
+                    onRetry: { await remoteConfig.fetch() }
+                )
+            } else {
+                mainContent
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var mainContent: some View {
         TabView(selection: $selectedTab) {
             Tab("Home", systemImage: "house.fill", value: AppTab.home) {
                 NavigationStack { HomeView() }
