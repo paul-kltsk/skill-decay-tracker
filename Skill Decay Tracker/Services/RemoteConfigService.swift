@@ -32,7 +32,7 @@ struct AppRemoteConfig {
 
     /// Safe defaults used when CloudKit is unreachable.
     static let defaults = AppRemoteConfig(
-        minimumVersion: "1.0.0",
+        minimumVersion: "0.0.0",
         isMaintenanceMode: false,
         maintenanceMessage: "",
         isAIEnabled: true,

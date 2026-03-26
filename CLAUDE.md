@@ -344,6 +344,7 @@ Always check relevant Axiom skills **before** starting any task. Use the router 
 |-------|-------------|
 | `sdt-server` | Any work with the proxy server — SSH, deploy, endpoints, env vars |
 | `sdt-challenge-flow` | Any work on AIService, ProxyAPIClient, challenge generation, evaluation, breadth analysis |
+| `sdt-cloudkit` | Any work with CloudKit, RemoteConfigService, iCloud sync, ForceUpdateView |
 
 ### Not Applicable to This Project
 
