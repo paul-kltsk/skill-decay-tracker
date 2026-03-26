@@ -75,13 +75,16 @@ final class RemoteConfigService {
 
     private let cacheKey = "sdt.remoteConfig.cache"
 
+    /// Set to `true` once the CloudKit container is registered in the Apple Developer Portal.
+    /// Until then, `fetch()` silently falls back to cached/default values.
+    private let cloudKitEnabled = false
+
     // MARK: Fetch
 
     /// Fetches config from CloudKit public database.
     /// Falls back to local cache, then to `AppRemoteConfig.defaults` if unavailable.
     func fetch() async {
-        // Guard: iCloud not signed in or no CloudKit container configured yet
-        guard FileManager.default.ubiquityIdentityToken != nil else {
+        guard cloudKitEnabled else {
             loadFromCache()
             return
         }
