@@ -299,6 +299,7 @@ actor AIService {
                 healthScore:     healthScore,
                 language:        language,
                 count:           count,
+                context:         skillContext,
                 recentQuestions: recentQuestions
             )
         }

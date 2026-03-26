@@ -13,6 +13,7 @@ struct ProxyGenerateRequest: Encodable, Sendable {
     let healthScore:     Double
     let language:        String
     let count:           Int
+    let context:         String?   // user's goal/focus — injected into the AI prompt
     let recentQuestions: [String]?
 }
 
@@ -176,7 +177,8 @@ actor ProxyAPIClient {
         healthScore:     Double,
         language:        String,
         count:           Int,
-        recentQuestions: [String]
+        context:         String = "",
+        recentQuestions: [String] = []
     ) async throws -> String {
         guard let url = URL(string: "\(baseURL)/api/generate") else {
             throw APIError.networkUnavailable
@@ -190,6 +192,7 @@ actor ProxyAPIClient {
             healthScore:     healthScore,
             language:        language,
             count:           count,
+            context:         context.isEmpty ? nil : context,
             recentQuestions: recentQuestions.isEmpty ? nil : recentQuestions
         )
         return try await performSignedRequest(url: url, body: body)
