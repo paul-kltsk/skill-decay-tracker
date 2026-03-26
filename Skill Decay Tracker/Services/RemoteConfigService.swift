@@ -73,7 +73,6 @@ final class RemoteConfigService {
 
     // MARK: Private
 
-    private let publicDB = CKContainer.default().publicCloudDatabase
     private let cacheKey = "sdt.remoteConfig.cache"
 
     // MARK: Fetch
@@ -81,10 +80,17 @@ final class RemoteConfigService {
     /// Fetches config from CloudKit public database.
     /// Falls back to local cache, then to `AppRemoteConfig.defaults` if unavailable.
     func fetch() async {
+        // Guard: iCloud not signed in or no CloudKit container configured yet
+        guard FileManager.default.ubiquityIdentityToken != nil else {
+            loadFromCache()
+            return
+        }
+
         isLoading = true
         defer { isLoading = false }
 
         do {
+            let publicDB = CKContainer.default().publicCloudDatabase
             let query = CKQuery(
                 recordType: "RemoteConfig",
                 predicate: NSPredicate(value: true)

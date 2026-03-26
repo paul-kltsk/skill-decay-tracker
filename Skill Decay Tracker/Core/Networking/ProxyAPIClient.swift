@@ -247,8 +247,23 @@ actor ProxyAPIClient {
         return try await performSignedRequest(url: url, body: body)
     }
 
+    // MARK: - HMAC-SHA256 Signing
+
+    /// Returns the hex-encoded HMAC-SHA256 of `body` using `appSecret`.
+    private func sign(_ body: String) -> String {
+        let key = SymmetricKey(data: Data(appSecret.utf8))
+        let mac = HMAC<SHA256>.authenticationCode(for: Data(body.utf8), using: key)
+        return Data(mac).map { String(format: "%02x", $0) }.joined()
+    }
+}
+
+// MARK: - Private Helpers
+
+private struct ContentResponse: Decodable { let content: String }
+
+private extension ProxyAPIClient {
     /// Shared helper: encodes `body`, signs it, executes request, returns `content` string.
-    private func performSignedRequest<T: Encodable>(url: URL, body: T) async throws -> String {
+    func performSignedRequest<T: Encodable>(url: URL, body: T) async throws -> String {
         let isProUser  = await MainActor.run { SubscriptionService.shared.isPro }
         let bodyData   = try JSONEncoder().encode(body)
         let bodyString = String(data: bodyData, encoding: .utf8) ?? ""
@@ -274,7 +289,6 @@ actor ProxyAPIClient {
 
         switch http.statusCode {
         case 200...299:
-            struct ContentResponse: Decodable { let content: String }
             guard let parsed = try? JSONDecoder().decode(ContentResponse.self, from: data) else {
                 throw APIError.emptyResponse
             }
@@ -290,14 +304,5 @@ actor ProxyAPIClient {
             throw APIError.httpError(statusCode: http.statusCode,
                                      body: String(data: data, encoding: .utf8) ?? "")
         }
-    }
-
-    // MARK: - HMAC-SHA256 Signing
-
-    /// Returns the hex-encoded HMAC-SHA256 of `body` using `appSecret`.
-    private func sign(_ body: String) -> String {
-        let key = SymmetricKey(data: Data(appSecret.utf8))
-        let mac = HMAC<SHA256>.authenticationCode(for: Data(body.utf8), using: key)
-        return Data(mac).map { String(format: "%02x", $0) }.joined()
     }
 }
