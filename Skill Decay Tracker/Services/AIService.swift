@@ -148,9 +148,33 @@ actor AIService {
     /// not the device locale.  Falls back to `"English (en)"` when detection fails
     /// (very short text, mixed script, etc.).
     private func detectedLanguage(from text: String) -> String {
+        // Short text (e.g. "SwiftData", "Git") can't be reliably detected —
+        // fall back to device language immediately.
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.count < 20 {
+            return deviceLanguage()
+        }
+
         let recognizer = NLLanguageRecognizer()
-        recognizer.processString(text)
-        let code = recognizer.dominantLanguage?.rawValue ?? "en"
+        recognizer.processString(trimmed)
+
+        // Require high confidence before trusting NLP result.
+        let hypotheses = recognizer.languageHypotheses(withMaximum: 1)
+        if let (lang, confidence) = hypotheses.first, confidence >= 0.7 {
+            let code = lang.rawValue
+            let name = Locale(identifier: "en").localizedString(forLanguageCode: code) ?? code
+            return "\(name) (\(code))"
+        }
+
+        return deviceLanguage()
+    }
+
+    /// Returns the user's preferred device language as a human-readable label + BCP-47 code.
+    private func deviceLanguage() -> String {
+        // Locale.preferredLanguages.first gives the top language from Settings → General → Language
+        let bcp47 = Locale.preferredLanguages.first ?? "en"
+        // Strip region suffix: "en-US" → "en", "ru-RU" → "ru", "pl-PL" → "pl"
+        let code = String(bcp47.prefix(2))
         let name = Locale(identifier: "en").localizedString(forLanguageCode: code) ?? code
         return "\(name) (\(code))"
     }
