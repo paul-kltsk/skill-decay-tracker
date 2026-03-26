@@ -206,13 +206,66 @@ healthScore(t) = peakScore × e^(−decayRate × daysSinceLastPractice)
 
 ## Claude API Integration
 
-- Challenge generation: claude-haiku-4-5-20251001, max_tokens 1024
+- Challenge generation: claude-haiku-4-5-20251001
 - Answer evaluation: claude-haiku-4-5-20251001, max_tokens 256
 - Response format: structured JSON parsed with Codable
 - Pre-generate 3 challenges per skill during background fetch
 - Fallback: local cache → template-based questions if API unreachable
 - Rate limiting: max 1 request/3 seconds, exponential backoff on 429
-- API key stored in Keychain, never hardcoded
+- API key stored in Keychain (via `ProviderKeychain`), never hardcoded
+- Supports 3 providers: Claude, OpenAI, Gemini — selected in Settings
+
+### AI Request Routing
+
+Two paths depending on whether the user has a personal API key:
+
+```
+Personal key present → AIService → ClaudeAPIClient / OpenAIClient / GeminiClient → Provider direct
+No personal key     → AIService → ProxyAPIClient → sdtapi.mooo.com → Provider via server
+```
+
+**Proxy structured endpoints** (server builds prompt, handles cache, injects system prompt):
+- `POST /api/generate` — challenge generation with 8h TTL cache + healthScore + dedup
+- `POST /api/evaluate` — answer evaluation
+- `POST /api/breadth`  — skill breadth analysis
+
+**Direct endpoint** (legacy, kept for personal-key users):
+- `POST /api/chat` — raw prompt forwarding (unchanged)
+
+## Proxy Server
+
+**URL:** `https://sdtapi.mooo.com`
+**Source:** `~/Desktop/sdt-proxy/src/`
+**Server:** Hetzner CAX11, IP `178.104.87.2`, Ubuntu 24.04, PM2 + Caddy
+
+### Deploy
+```bash
+scp -r ~/Desktop/sdt-proxy/src root@178.104.87.2:/root/sdt-proxy/
+ssh root@178.104.87.2 "pm2 restart sdt-proxy"
+curl https://sdtapi.mooo.com/health
+```
+
+### Server files
+```
+/root/sdt-proxy/src/
+├── index.ts     — routes
+├── auth.ts      — HMAC-SHA256 validation
+├── rateLimit.ts — per-device daily limits (Free: 30, Pro: 300)
+├── providers.ts — Claude/OpenAI/Gemini with systemPrompt support
+├── prompts.ts   — server-side prompt builders
+└── cache.ts     — 8h TTL cache for /api/generate
+```
+
+Use `/sdt-server` skill for full server reference — SSH, endpoints, env vars, scaling.
+
+## Remote Config
+
+Implemented via **CloudKit public database** — no Firebase needed.
+
+- `RemoteConfigService` — fetches on app launch, falls back to safe defaults silently
+- Fields: `minimumVersion`, `isMaintenanceMode`, `maintenanceMessage`, `isAIEnabled`, `maxFreeSkills`, `maxFreeChallengesPerDay`
+- Manage at: icloud.developer.apple.com → CloudKit Database → Public → RemoteConfig record
+- Requires Apple Developer account to activate (currently uses defaults only)
 
 ## Monetization
 
@@ -284,6 +337,13 @@ Always check relevant Axiom skills **before** starting any task. Use the router 
 ### Reference Skills (API lookup)
 
 `axiom-swiftui-26-ref` · `axiom-swiftui-animation-ref` (PhaseAnimator) · `axiom-cloudkit-ref` · `axiom-keychain-ref` · `axiom-push-notifications-ref` · `axiom-extensions-widgets-ref` · `axiom-background-processing-ref` · `axiom-swift-concurrency-ref` · `axiom-swiftui-nav-ref` · `axiom-swiftui-layout-ref` · `axiom-hig` · `axiom-sf-symbols-ref`
+
+### Local Project Skills
+
+| Skill | When to use |
+|-------|-------------|
+| `sdt-server` | Any work with the proxy server — SSH, deploy, endpoints, env vars |
+| `sdt-challenge-flow` | Any work on AIService, ProxyAPIClient, challenge generation, evaluation, breadth analysis |
 
 ### Not Applicable to This Project
 
