@@ -557,14 +557,38 @@ actor AIService {
         }
     }
 
-    /// Strips markdown code-fence wrappers that Claude sometimes emits.
+    /// Extracts the first valid JSON array or object from `text`.
+    ///
+    /// Handles markdown code-fence wrappers (` ```json ... ``` `) that Claude
+    /// sometimes emits despite the "JSON-only" system prompt.
     private func extractJSON(from text: String) -> String {
-        var result = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if result.hasPrefix("```") {
-            let lines = result.components(separatedBy: "\n")
-            result = lines.dropFirst().dropLast().joined(separator: "\n")
+        let s = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Fast path: already clean JSON
+        if s.hasPrefix("[") || s.hasPrefix("{") { return s }
+
+        // Find the first JSON boundary character and match closing bracket
+        let arrayStart  = s.firstIndex(of: "[")
+        let objectStart = s.firstIndex(of: "{")
+
+        let start: String.Index
+        let open: Character
+        let close: Character
+
+        switch (arrayStart, objectStart) {
+        case (.some(let a), .some(let o)):
+            if a < o { start = a; open = "["; close = "]" }
+            else      { start = o; open = "{"; close = "}" }
+        case (.some(let a), nil): start = a; open = "["; close = "]"
+        case (nil, .some(let o)): start = o; open = "{"; close = "}"
+        case (nil, nil):          return s   // no JSON found — return as-is
         }
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Walk backwards from the end to find the last matching closing bracket
+        guard let end = s.lastIndex(of: close) else { return s }
+        guard start <= end else { return s }
+
+        return String(s[start...end])
     }
 
     // MARK: - DTO → Model Mapping
