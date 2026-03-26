@@ -53,7 +53,7 @@ private struct ChallengeDTO: Decodable, Sendable {
     let type: String
     let question: String
     let options: [String]?
-    let correctAnswer: String
+    let correctAnswer: String?   // nil for open_ended / fill_in_blank
     let explanation: String
     let difficulty: Int?
     let timeLimitSeconds: Int?
@@ -598,7 +598,7 @@ actor AIService {
             type:             ChallengeType(rawValue: dto.type) ?? .multipleChoice,
             question:         dto.question,
             options:          (dto.options ?? []).shuffled(),
-            correctAnswer:    dto.correctAnswer,
+            correctAnswer:    dto.correctAnswer ?? "",
             explanation:      dto.explanation,
             difficulty:       max(1, min(5, dto.difficulty ?? 3)),
             timeLimitSeconds: dto.timeLimitSeconds ?? 120

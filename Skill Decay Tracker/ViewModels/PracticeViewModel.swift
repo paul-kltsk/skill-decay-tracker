@@ -516,10 +516,8 @@ final class PracticeViewModel {
             return new
         } catch let apiError as APIError {
             if case .rateLimited(let retryAfter) = apiError {
-                // Propagate rate-limit directly — caller should abort and show the rate-limit screen.
                 phase = .rateLimited(retryAfter: retryAfter)
             }
-            // All other API errors (network, bad JSON, etc.) fall through silently.
             return []
         } catch {
             return []
