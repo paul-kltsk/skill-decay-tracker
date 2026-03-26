@@ -1,6 +1,44 @@
 import Foundation
 import CryptoKit
 
+// MARK: - Structured Proxy Request Bodies
+
+/// Request body for POST /api/generate — server builds prompt + handles cache.
+struct ProxyGenerateRequest: Encodable, Sendable {
+    let provider:        String
+    let model:           String
+    let skillName:       String
+    let category:        String
+    let difficulty:      Int
+    let healthScore:     Double
+    let language:        String
+    let count:           Int
+    let recentQuestions: [String]?
+}
+
+/// Request body for POST /api/evaluate — server builds eval prompt.
+struct ProxyEvaluateRequest: Encodable, Sendable {
+    let provider:      String
+    let model:         String
+    let challengeType: String
+    let question:      String
+    let correctAnswer: String
+    let explanation:   String
+    let skillContext:  String
+    let userAnswer:    String
+    let language:      String
+}
+
+/// Request body for POST /api/breadth — server builds breadth-analysis prompt.
+struct ProxyBreadthRequest: Encodable, Sendable {
+    let provider:  String
+    let model:     String
+    let skillName: String
+    let context:   String
+    let category:  String
+    let language:  String
+}
+
 // MARK: - Proxy API Client
 
 /// Sends AI prompts through the SDT proxy server at `sdtapi.mooo.com`.
@@ -119,6 +157,135 @@ actor ProxyAPIClient {
             // Upstream AI provider unavailable
             throw APIError.networkUnavailable
 
+        default:
+            throw APIError.httpError(statusCode: http.statusCode,
+                                     body: String(data: data, encoding: .utf8) ?? "")
+        }
+    }
+
+    // MARK: - Structured Endpoints
+
+    /// Sends skill data to POST /api/generate.
+    /// The server builds the prompt, checks the TTL cache, and calls the AI provider.
+    func generate(
+        provider:        AIProvider,
+        model:           String,
+        skillName:       String,
+        category:        String,
+        difficulty:      Int,
+        healthScore:     Double,
+        language:        String,
+        count:           Int,
+        recentQuestions: [String]
+    ) async throws -> String {
+        guard let url = URL(string: "\(baseURL)/api/generate") else {
+            throw APIError.networkUnavailable
+        }
+        let body = ProxyGenerateRequest(
+            provider:        provider.rawValue,
+            model:           model,
+            skillName:       skillName,
+            category:        category,
+            difficulty:      difficulty,
+            healthScore:     healthScore,
+            language:        language,
+            count:           count,
+            recentQuestions: recentQuestions.isEmpty ? nil : recentQuestions
+        )
+        return try await performSignedRequest(url: url, body: body)
+    }
+
+    /// Sends evaluation data to POST /api/evaluate.
+    func evaluate(
+        provider:      AIProvider,
+        model:         String,
+        challengeType: String,
+        question:      String,
+        correctAnswer: String,
+        explanation:   String,
+        skillContext:  String,
+        userAnswer:    String,
+        language:      String
+    ) async throws -> String {
+        guard let url = URL(string: "\(baseURL)/api/evaluate") else {
+            throw APIError.networkUnavailable
+        }
+        let body = ProxyEvaluateRequest(
+            provider:      provider.rawValue,
+            model:         model,
+            challengeType: challengeType,
+            question:      question,
+            correctAnswer: correctAnswer,
+            explanation:   explanation,
+            skillContext:  skillContext,
+            userAnswer:    userAnswer,
+            language:      language
+        )
+        return try await performSignedRequest(url: url, body: body)
+    }
+
+    /// Sends skill breadth analysis request to POST /api/breadth.
+    func analyzeBreadth(
+        provider:  AIProvider,
+        model:     String,
+        skillName: String,
+        context:   String,
+        category:  String,
+        language:  String
+    ) async throws -> String {
+        guard let url = URL(string: "\(baseURL)/api/breadth") else {
+            throw APIError.networkUnavailable
+        }
+        let body = ProxyBreadthRequest(
+            provider:  provider.rawValue,
+            model:     model,
+            skillName: skillName,
+            context:   context,
+            category:  category,
+            language:  language
+        )
+        return try await performSignedRequest(url: url, body: body)
+    }
+
+    /// Shared helper: encodes `body`, signs it, executes request, returns `content` string.
+    private func performSignedRequest<T: Encodable>(url: URL, body: T) async throws -> String {
+        let isProUser  = await MainActor.run { SubscriptionService.shared.isPro }
+        let bodyData   = try JSONEncoder().encode(body)
+        let bodyString = String(data: bodyData, encoding: .utf8) ?? ""
+
+        var request        = URLRequest(url: url, timeoutInterval: 60)
+        request.httpMethod = "POST"
+        request.httpBody   = bodyData
+        request.setValue("application/json",       forHTTPHeaderField: "Content-Type")
+        request.setValue(sign(bodyString),          forHTTPHeaderField: "X-App-Signature")
+        request.setValue(deviceID,                  forHTTPHeaderField: "X-Device-ID")
+        request.setValue(isProUser ? "1" : "0",     forHTTPHeaderField: "X-Is-Pro")
+
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw APIError.networkUnavailable
+        }
+
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.networkUnavailable
+        }
+
+        switch http.statusCode {
+        case 200...299:
+            struct ContentResponse: Decodable { let content: String }
+            guard let parsed = try? JSONDecoder().decode(ContentResponse.self, from: data) else {
+                throw APIError.emptyResponse
+            }
+            return parsed.content
+        case 401:
+            throw APIError.missingAPIKey
+        case 429:
+            let retryAfter = TimeInterval(http.value(forHTTPHeaderField: "Retry-After") ?? "3600") ?? 3600
+            throw APIError.rateLimited(retryAfter: retryAfter)
+        case 502, 503, 504:
+            throw APIError.networkUnavailable
         default:
             throw APIError.httpError(statusCode: http.statusCode,
                                      body: String(data: data, encoding: .utf8) ?? "")

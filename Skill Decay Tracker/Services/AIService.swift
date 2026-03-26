@@ -234,24 +234,51 @@ actor AIService {
     ///   - count: Number of challenges to generate (default 3).
     /// - Returns: Unsaved ``Challenge`` objects ready to insert into SwiftData.
     func generateChallenges(
-        skillName: String,
-        category: String,
-        difficulty: Int,
-        skillContext: String,
-        count: Int = 3
+        skillName:       String,
+        category:        String,
+        difficulty:      Int,
+        skillContext:    String,
+        healthScore:     Double = 0.5,
+        recentQuestions: [String] = [],
+        count:           Int = 3
     ) async throws -> [Challenge] {
-        // Detect language from skill title + context so questions match what the user typed.
         let langText = [skillName, skillContext].filter { !$0.isEmpty }.joined(separator: " ")
         let language = detectedLanguage(from: langText)
-        let prompt = generationPrompt(
-            skillName: skillName,
-            category:  category,
-            difficulty: difficulty,
-            context:   skillContext,
-            count: count,
-            language: language
-        )
-        let raw  = try await sendPrompt(isGeneration: true, maxTokens: generationTokenBudget(for: count), prompt: prompt)
+        let provider = AIProvider.persisted
+
+        let raw: String
+        if ProviderKeychain.has(for: provider) {
+            // Direct path — build prompt locally, call provider directly
+            let prompt = generationPrompt(
+                skillName:  skillName,
+                category:   category,
+                difficulty: difficulty,
+                context:    skillContext,
+                count:      count,
+                language:   language
+            )
+            raw = try await sendPrompt(isGeneration: true,
+                                       maxTokens: generationTokenBudget(for: count),
+                                       prompt: prompt)
+        } else {
+            // Proxy path — send structured data; server builds prompt + handles cache
+            let model: String = switch provider {
+            case .claude: ClaudeModel.generation
+            default:      provider.generationModelID
+            }
+            raw = try await ProxyAPIClient.shared.generate(
+                provider:        provider,
+                model:           model,
+                skillName:       skillName,
+                category:        category,
+                difficulty:      difficulty,
+                healthScore:     healthScore,
+                language:        language,
+                count:           count,
+                recentQuestions: recentQuestions
+            )
+        }
+
         let dtos = try parseChallengeDTOs(from: raw)
         return dtos.map { mapToChallenge($0) }
     }
@@ -294,8 +321,33 @@ actor AIService {
         }
 
         // Subjective types — ask AI provider
-        let prompt = evaluationPrompt(context: context, userAnswer: userAnswer)
-        let raw    = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
+        let provider = AIProvider.persisted
+        let langText = [context.question, context.skillContext].filter { !$0.isEmpty }.joined(separator: " ")
+        let language = detectedLanguage(from: langText)
+
+        let raw: String
+        if ProviderKeychain.has(for: provider) {
+            // Direct path
+            let prompt = evaluationPrompt(context: context, userAnswer: userAnswer)
+            raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
+        } else {
+            // Proxy path — structured evaluation
+            let model: String = switch provider {
+            case .claude: ClaudeModel.evaluation
+            default:      provider.evalModelID
+            }
+            raw = try await ProxyAPIClient.shared.evaluate(
+                provider:      provider,
+                model:         model,
+                challengeType: context.type.rawValue,
+                question:      context.question,
+                correctAnswer: context.correctAnswer,
+                explanation:   context.explanation,
+                skillContext:  context.skillContext,
+                userAnswer:    userAnswer,
+                language:      language
+            )
+        }
         let dto    = try parseEvaluationDTO(from: raw)
         let confidence = parseConfidence(dto.confidenceHint,
                                           responseTime: responseTime,
@@ -385,10 +437,29 @@ actor AIService {
     func analyzeSkillBreadth(name: String, context: String = "", category: SkillCategory) async -> [SkillSuggestion] {
         let langText = [name, context].filter { !$0.isEmpty }.joined(separator: " ")
         let language = detectedLanguage(from: langText)
-        let prompt = breadthPrompt(name: name, context: context, language: language)
+        let provider = AIProvider.persisted
+
         let raw: String
         do {
-            raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
+            if ProviderKeychain.has(for: provider) {
+                // Direct path
+                let prompt = breadthPrompt(name: name, context: context, language: language)
+                raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
+            } else {
+                // Proxy path
+                let model: String = switch provider {
+                case .claude: ClaudeModel.evaluation
+                default:      provider.evalModelID
+                }
+                raw = try await ProxyAPIClient.shared.analyzeBreadth(
+                    provider:  provider,
+                    model:     model,
+                    skillName: name,
+                    context:   context,
+                    category:  category.rawValue,
+                    language:  language
+                )
+            }
         } catch {
             return []
         }
