@@ -19,56 +19,67 @@ iOS app that visualizes your knowledge portfolio as a living ecosystem. Each ski
 | Networking | URLSession + async/await | No third-party HTTP libraries |
 | Payments | StoreKit 2 | Auto-renewable subscriptions |
 | Widgets | WidgetKit | Small, Medium, Large, Lock Screen |
-| Live Activities | ActivityKit | Dynamic Island during practice sessions |
+| Live Activities | ActivityKit | Dynamic Island during sessions — **planned, not yet implemented** |
 | Charts | Swift Charts | Decay curves, progress visualization |
 | Animations | SwiftUI + PhaseAnimator | Organic "growth and decay" metaphors |
 | Testing | Swift Testing + XCUITest | #expect macro, @Test attribute |
 | Architecture | MVVM + Repository Pattern | @Observable ViewModels, protocol-based repos |
-| Analytics | TelemetryDeck | Privacy-first, GDPR compliant |
+| Analytics | Firebase Analytics + Crashlytics | Event tracking + crash reporting (via SPM firebase-ios-sdk) |
 | CI/CD | Xcode Cloud | Auto TestFlight & App Store submission |
 
 ## Project Structure
 
 ```
-SkillDecayTracker/
+Skill Decay Tracker/                   ← Xcode source folder (folder-based project, no .pbxproj file refs)
 ├── App/
-│   └── SkillDecayTrackerApp.swift
+│   └── SkillDecayTrackerApp.swift     — @main, ModelContainer, RootTabView, first-launch seed
 ├── Core/
 │   ├── Design/
-│   │   ├── SDTDesignSystem.swift      — Colors, Typography, Spacing tokens
-│   │   ├── SDTColors.swift            — Semantic + Health gradient + Category accents
+│   │   ├── SDTDesignSystem.swift      — SkillCategory enum, Color(hex:), sdtHealth(for:)
+│   │   ├── SDTColors.swift            — Semantic + Health gradient + Category accent tokens
 │   │   ├── SDTTypography.swift        — SF Pro Rounded headers, SF Mono for code
-│   │   └── SDTSpacing.swift           — xxs(2) through xxxl(48) spacing scale
+│   │   └── SDTSpacing.swift           — xxs(2) through xxxl(48) spacing scale + CornerRadius + minTapTarget
 │   ├── Extensions/
-│   │   ├── Date+Extensions.swift
-│   │   ├── Color+Extensions.swift
-│   │   └── View+Extensions.swift
+│   │   ├── Date+Extensions.swift      — daysSinceNow, relativeString, isToday, calendarDays(from:)
+│   │   └── View+Extensions.swift      — sdtFont(), sdtCard(), minTapTarget(), if(), shakeEffect()
 │   └── Networking/
-│       ├── ClaudeAPIClient.swift      — Claude API wrapper with structured prompts
-│       └── APIError.swift
+│       ├── ClaudeAPIClient.swift      — Direct Claude API (personal key path)
+│       ├── OpenAIClient.swift         — Direct OpenAI API (personal key path)
+│       ├── GeminiClient.swift         — Direct Gemini API (personal key path)
+│       ├── ProxyAPIClient.swift       — Proxy path: generate / evaluate / breadth via sdtapi.mooo.com
+│       ├── ProviderKeychain.swift     — Keychain read/write for API keys (all 3 providers)
+│       └── APIError.swift             — Shared error types
 ├── Models/
-│   ├── Skill.swift                    — @Model: id, name, category, healthScore, decayRate, etc.
-│   ├── Challenge.swift                — @Model: type, question, options, correctAnswer, explanation
-│   ├── ChallengeResult.swift          — @Model: isCorrect, responseTime, confidenceRating
-│   └── UserProfile.swift              — @Model: displayName, xp, level, preferences
+│   ├── Skill.swift                    — @Model: id, name, category, context, healthScore, decayRate, group, overrideDifficulty
+│   ├── SkillGroup.swift               — @Model: id, name, emoji; nullify delete rule → skills become ungrouped
+│   ├── Challenge.swift                — @Model: type, question, options, correctAnswer, explanation, isUsed, nextReviewDate
+│   ├── ChallengeResult.swift          — @Model: isCorrect, responseTime, confidenceRating; ConfidenceRating enum
+│   ├── UserProfile.swift              — @Model: displayName, xp, level, preferences (theme, aiProvider, etc.)
+│   └── AIProvider.swift               — Enum: claude / openai / gemini; generationModelID, evalModelID, keyPrefix
 ├── Services/
-│   ├── DecayEngine.swift              — Modified Ebbinghaus algorithm with per-skill adaptation
-│   ├── AIService.swift                — Challenge generation & answer evaluation via Claude
+│   ├── DecayEngine.swift              — Pure enum namespace: Ebbinghaus formula, spaced-repetition scheduling
+│   ├── AIService.swift                — actor: challenge generation + answer evaluation (routes to proxy or direct)
+│   ├── AnalyticsService.swift         — Pure enum namespace: Firebase Analytics event wrappers
+│   ├── RemoteConfigService.swift      — @Observable: CloudKit remote config (currently cloudKitEnabled = false → uses defaults)
 │   ├── NotificationService.swift      — Rich notifications with challenge preview
-│   └── SubscriptionService.swift      — StoreKit 2 management
+│   └── SubscriptionService.swift      — StoreKit 2 management; @Observable singleton
 ├── ViewModels/
 │   ├── HomeViewModel.swift
 │   ├── SkillMapViewModel.swift
 │   ├── PracticeViewModel.swift
 │   ├── AnalyticsViewModel.swift
 │   ├── AddSkillViewModel.swift
+│   ├── SettingsViewModel.swift
 │   └── OnboardingViewModel.swift
 ├── Views/
 │   ├── Onboarding/
+│   │   ├── OnboardingContainerView.swift — Root container: 5-page flow with dot-progress indicator
 │   │   ├── WelcomeView.swift
 │   │   ├── HowItWorksView.swift
 │   │   ├── AddFirstSkillsView.swift
-│   │   ├── NotificationPrefsView.swift
+│   │   ├── AISetupOnboardingView.swift  — Provider + key setup page
+│   │   └── ReadyView.swift              — Final "you're ready" page
+│   ├── Paywall/
 │   │   └── PaywallView.swift
 │   ├── Home/
 │   │   ├── HomeView.swift             — Daily briefing + skill cards + activity feed
@@ -77,7 +88,8 @@ SkillDecayTracker/
 │   │   ├── SkillMapView.swift         — Constellation + Grid toggle
 │   │   ├── ConstellationView.swift    — Interactive canvas with star nodes
 │   │   ├── SkillGridView.swift        — 2-column sortable grid
-│   │   └── SkillDetailView.swift      — Full detail: health ring, decay curve, stats, history
+│   │   ├── SkillDetailView.swift      — Full detail: health ring, decay curve, stats, history
+│   │   └── ManageGroupsView.swift     — Create / rename / delete skill groups
 │   ├── Practice/
 │   │   ├── SessionLauncherView.swift  — Daily Review / Quick Practice / Deep Dive
 │   │   ├── ChallengeView.swift        — Core challenge presentation & answer input
@@ -89,12 +101,16 @@ SkillDecayTracker/
 │   │   └── AchievementsView.swift     — Badges + level system
 │   ├── Settings/
 │   │   ├── SettingsView.swift
+│   │   ├── AIModelsView.swift         — Provider selection + personal key input
 │   │   ├── NotificationSettingsView.swift
 │   │   ├── PracticePreferencesView.swift
 │   │   └── AppearanceView.swift
 │   ├── AddSkill/
-│   │   ├── AddSkillView.swift         — 4-step creation flow
+│   │   ├── AddSkillView.swift         — Multi-step creation flow (breadth analysis → name → category → goal)
 │   │   └── SkillSuggestionsView.swift — Curated skill database
+│   ├── RemoteConfig/
+│   │   ├── ForceUpdateView.swift      — Shown when app version < minimumVersion
+│   │   └── MaintenanceView.swift      — Shown when isMaintenanceMode = true
 │   └── Components/
 │       ├── SDTSkillCard.swift         — Skill display with health ring + decay indicator
 │       ├── SDTHealthRing.swift        — Circular progress with gradient fill
@@ -110,12 +126,12 @@ SkillDecayTracker/
 │   ├── DailyOverviewWidget.swift      — Medium: top 3 skills + streak
 │   ├── SkillMapMiniWidget.swift       — Large: grid of colored dots
 │   └── LockScreenWidget.swift         — Circular + Inline
-├── LiveActivity/
-│   └── PracticeActivity.swift         — Dynamic Island during sessions
 └── Resources/
     ├── Assets.xcassets
     └── Localizable.xcstrings
 ```
+
+> **LiveActivity / Dynamic Island** — folder and `PracticeActivity.swift` not yet created. Planned for a future sprint.
 
 ## Coding Standards
 
@@ -204,16 +220,15 @@ healthScore(t) = peakScore × e^(−decayRate × daysSinceLastPractice)
 - Fast correct = strong retention; slow correct = fragile retention
 - Core ML model trains on personal data over time for better prediction
 
-## Claude API Integration
+## AI Integration
 
-- Challenge generation: claude-haiku-4-5-20251001
-- Answer evaluation: claude-haiku-4-5-20251001, max_tokens 256
-- Response format: structured JSON parsed with Codable
-- Pre-generate 3 challenges per skill during background fetch
-- Fallback: local cache → template-based questions if API unreachable
-- Rate limiting: max 1 request/3 seconds, exponential backoff on 429
-- API key stored in Keychain (via `ProviderKeychain`), never hardcoded
-- Supports 3 providers: Claude, OpenAI, Gemini — selected in Settings
+- **3 providers supported**: Claude (Anthropic), OpenAI (ChatGPT), Gemini (Google) — selected in Settings → AI Models
+- Challenge generation model: `claude-sonnet-4-20250514` / `gpt-4o-mini` / `gemini-2.0-flash`
+- Answer evaluation model: `claude-haiku-4-5-20251001` / `gpt-4o-mini` / `gemini-2.0-flash`
+- Response format: structured JSON parsed with Codable (`ChallengeDTO`, `EvaluationDTO`)
+- `open_ended` challenges have no `correct_answer` — `ChallengeDTO.correctAnswer` is `String?`
+- API keys stored in Keychain (via `ProviderKeychain`), never hardcoded
+- Context/goal field from Skill is injected into generation prompt as sub-topic focus
 
 ### AI Request Routing
 
@@ -260,12 +275,14 @@ Use `/sdt-server` skill for full server reference — SSH, endpoints, env vars, 
 
 ## Remote Config
 
-Implemented via **CloudKit public database** — no Firebase needed.
+Implemented via **CloudKit public database**.
 
-- `RemoteConfigService` — fetches on app launch, falls back to safe defaults silently
+- `RemoteConfigService` (@Observable) — fetches on launch, falls back to `AppRemoteConfig.defaults` silently
+- **Currently disabled**: `private let cloudKitEnabled = false` — uses defaults until CloudKit container is registered
+- To enable: flip `cloudKitEnabled = true` in `RemoteConfigService.swift` after registering the container
 - Fields: `minimumVersion`, `isMaintenanceMode`, `maintenanceMessage`, `isAIEnabled`, `maxFreeSkills`, `maxFreeChallengesPerDay`
 - Manage at: icloud.developer.apple.com → CloudKit Database → Public → RemoteConfig record
-- Requires Apple Developer account to activate (currently uses defaults only)
+- `minimumVersion` default is `"0.0.0"` — do NOT change to a real version string or ForceUpdateView appears every launch
 
 ## Monetization
 
@@ -344,7 +361,6 @@ Always check relevant Axiom skills **before** starting any task. Use the router 
 |-------|-------------|
 | `sdt-server` | Any work with the proxy server — SSH, deploy, endpoints, env vars |
 | `sdt-challenge-flow` | Any work on AIService, ProxyAPIClient, challenge generation, evaluation, breadth analysis |
-| `sdt-cloudkit` | Any work with CloudKit, RemoteConfigService, iCloud sync, ForceUpdateView |
 
 ### Not Applicable to This Project
 
