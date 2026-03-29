@@ -133,7 +133,10 @@ struct AddSkillView: View {
         } else if viewModel.currentStep == 0 {
             // Name step — Check & Continue (AI validation before advancing)
             Button {
-                nameFocused = false
+                // Dismiss keyboard from parent scope — @FocusState lives in NameStepView (child),
+                // so UIKit resign is the only way to dismiss it from AddSkillView's toolbar.
+                UIApplication.shared.sendAction(
+                    #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 if !viewModel.subSkillSuggestions.isEmpty {
                     // Already checked; advance with original or selected sub-skills.
                     viewModel.advance()

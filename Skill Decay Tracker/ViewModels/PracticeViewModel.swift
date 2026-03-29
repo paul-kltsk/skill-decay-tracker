@@ -124,7 +124,11 @@ final class PracticeViewModel {
     private var currentMode: SessionMode = .dailyReview
 
     deinit {
-        timerTask?.cancel()
+        // `timerTask` is @MainActor-isolated; `assumeIsolated` is safe here because
+        // PracticeViewModel is always created and destroyed on the MainActor.
+        MainActor.assumeIsolated {
+            timerTask?.cancel()
+        }
     }
     /// Skills used in the last session — stored so the session can be retried on error.
     private var lastSessionSkills: [Skill] = []
