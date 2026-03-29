@@ -89,7 +89,11 @@ final class OnboardingViewModel {
             context.insert(skill)
         }
 
-        try? context.save()
+        do { try context.save() } catch {
+            #if DEBUG
+            print("[\(Self.self)] context.save() failed: \(error)")
+            #endif
+        }
 
         // 4. Analytics
         let aiMode = apiKeyState == .saved ? "personal_key" : "builtin"

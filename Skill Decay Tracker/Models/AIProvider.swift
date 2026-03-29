@@ -80,9 +80,9 @@ extension AIProvider {
     /// URL where the user can obtain an API key.
     var apiConsoleURL: URL {
         switch self {
-        case .claude: URL(string: "https://console.anthropic.com/settings/keys")!
-        case .openai: URL(string: "https://platform.openai.com/api-keys")!
-        case .gemini: URL(string: "https://aistudio.google.com/app/apikey")!
+        case .claude: URL(staticString: "https://console.anthropic.com/settings/keys")
+        case .openai: URL(staticString: "https://platform.openai.com/api-keys")
+        case .gemini: URL(staticString: "https://aistudio.google.com/app/apikey")
         }
     }
 

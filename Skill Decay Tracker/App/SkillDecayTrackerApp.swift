@@ -73,7 +73,11 @@ struct SkillDecayTrackerApp: App {
         let count = (try? context.fetchCount(FetchDescriptor<UserProfile>())) ?? 0
         guard count == 0 else { return }
         context.insert(UserProfile(displayName: ""))
-        try? context.save()
+        do { try context.save() } catch {
+            #if DEBUG
+            print("[\(Self.self)] context.save() failed: \(error)")
+            #endif
+        }
     }
 }
 

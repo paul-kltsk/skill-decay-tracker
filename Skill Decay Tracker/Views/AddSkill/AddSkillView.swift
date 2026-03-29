@@ -133,8 +133,7 @@ struct AddSkillView: View {
         } else if viewModel.currentStep == 0 {
             // Name step — Check & Continue (AI validation before advancing)
             Button {
-                UIApplication.shared.sendAction(
-                    #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                nameFocused = false
                 if !viewModel.subSkillSuggestions.isEmpty {
                     // Already checked; advance with original or selected sub-skills.
                     viewModel.advance()

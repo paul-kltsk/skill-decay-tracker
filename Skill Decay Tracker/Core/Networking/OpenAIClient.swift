@@ -17,7 +17,7 @@ actor OpenAIClient {
     // MARK: Configuration
 
     private let session: any HTTPSession
-    private let baseURL = URL(string: "https://api.openai.com/v1/chat/completions")!
+    private let baseURL = URL(staticString: "https://api.openai.com/v1/chat/completions")
     private let minRequestInterval: TimeInterval = 1.0
 
     private var lastRequestDate: Date = .distantPast

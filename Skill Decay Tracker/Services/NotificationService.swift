@@ -73,16 +73,10 @@ actor NotificationService {
         guard await isAuthorized else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = NSLocalizedString(
-            "notification.daily.title",
-            value: "Time to practice!",
-            comment: "Daily reminder notification title"
-        )
-        content.body = NSLocalizedString(
-            "notification.daily.body",
-            value: "Keep your knowledge fresh — a quick session takes just a few minutes.",
-            comment: "Daily reminder notification body"
-        )
+        content.title = String(localized: "notification.daily.title",
+                               defaultValue: "Time to practice!")
+        content.body  = String(localized: "notification.daily.body",
+                               defaultValue: "Keep your knowledge fresh — a quick session takes just a few minutes.")
         content.sound = .default
 
         var components = DateComponents()
@@ -122,19 +116,13 @@ actor NotificationService {
 
         let content = UNMutableNotificationContent()
         content.title = String(
-            format: NSLocalizedString(
-                "notification.decay.title",
-                value: "%@ is fading",
-                comment: "Critical decay alert title — %@ is the skill name"
-            ),
+            format: String(localized: "notification.decay.title",
+                           defaultValue: "%@ is fading"),
             skillName
         )
         content.body = String(
-            format: NSLocalizedString(
-                "notification.decay.body",
-                value: "Your %@ knowledge is at a critical level. A 5-minute session will help restore it.",
-                comment: "Critical decay alert body — %@ is the skill name"
-            ),
+            format: String(localized: "notification.decay.body",
+                           defaultValue: "Your %@ knowledge is at a critical level. A 5-minute session will help restore it."),
             skillName
         )
         content.sound = .default

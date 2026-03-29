@@ -32,7 +32,7 @@ struct SkillMapView: View {
         .navigationTitle("Skill Map")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: SDTSpacing.sm) {
                     // Manage Groups — visible only in Grid mode (where groups are shown)
                     if viewModel.viewMode == .grid {

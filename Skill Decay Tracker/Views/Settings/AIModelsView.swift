@@ -24,7 +24,7 @@ struct AIModelsView: View {
         .background(Color.sdtBackground)
         .navigationTitle("AI Model")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { vm.loadStatuses() }
+        .task { vm.loadStatuses() }
     }
 
     // MARK: - Header

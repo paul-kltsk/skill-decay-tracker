@@ -235,7 +235,11 @@ final class AddSkillViewModel {
                     context.insert(c)
                 }
             }
-            try? context.save()
+            do { try context.save() } catch {
+            #if DEBUG
+            print("[\(Self.self)] context.save() failed: \(error)")
+            #endif
+        }
             AnalyticsService.skillAdded(
                 category: selectedSubSkills.first?.category.rawValue ?? selectedCategory.rawValue,
                 isSplit: true,
@@ -255,7 +259,11 @@ final class AddSkillViewModel {
                     context.insert(c)
                 }
             }
-            try? context.save()
+            do { try context.save() } catch {
+            #if DEBUG
+            print("[\(Self.self)] context.save() failed: \(error)")
+            #endif
+        }
             AnalyticsService.skillAdded(
                 category: selectedCategory.rawValue,
                 isSplit: false,

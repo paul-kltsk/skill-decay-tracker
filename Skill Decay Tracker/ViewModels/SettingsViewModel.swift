@@ -25,6 +25,10 @@ final class SettingsViewModel {
 
     func deleteAllData(skills: [Skill], context: ModelContext) {
         for skill in skills { context.delete(skill) }
-        try? context.save()
+        do { try context.save() } catch {
+            #if DEBUG
+            print("[\(Self.self)] context.save() failed: \(error)")
+            #endif
+        }
     }
 }

@@ -235,7 +235,11 @@ final class PracticeViewModel {
             queue = Array(pending.prefix(target))
         }
 
-        try? context.save()
+        do { try context.save() } catch {
+            #if DEBUG
+            print("[PracticeViewModel] context.save() failed: \(error)")
+            #endif
+        }
         challenges = queue.shuffled()
         currentIndex = 0
 
@@ -407,7 +411,11 @@ final class PracticeViewModel {
         sessionResults.append(result)
         evaluationResult = eval
         phase = .showingFeedback
-        try? context.save()
+        do { try context.save() } catch {
+            #if DEBUG
+            print("[PracticeViewModel] context.save() failed: \(error)")
+            #endif
+        }
     }
 
     // MARK: - Session End
@@ -494,7 +502,11 @@ final class PracticeViewModel {
             DecayEngine.applyDifficultyDecrease(to: skill)
             AnalyticsService.difficultyAdjusted(direction: "decrease")
         }
-        try? context.save()
+        do { try context.save() } catch {
+            #if DEBUG
+            print("[PracticeViewModel] context.save() failed: \(error)")
+            #endif
+        }
     }
 
     // MARK: - Helpers

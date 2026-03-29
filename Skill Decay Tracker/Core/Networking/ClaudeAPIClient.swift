@@ -65,7 +65,7 @@ actor ClaudeAPIClient {
     // MARK: Configuration
 
     private let session: any HTTPSession
-    private let baseURL = URL(string: "https://api.anthropic.com/v1/messages")!
+    private let baseURL = URL(staticString: "https://api.anthropic.com/v1/messages")
     private let anthropicVersion = "2023-06-01"
 
     /// Minimum gap between outgoing requests.

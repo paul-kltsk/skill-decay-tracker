@@ -100,7 +100,11 @@ final class HomeViewModel {
                     skill.challenges.append(challenge)
                     context.insert(challenge)
                 }
-                try? context.save()
+                do { try context.save() } catch {
+            #if DEBUG
+            print("[\(Self.self)] context.save() failed: \(error)")
+            #endif
+        }
             } catch {
                 // AIService falls back gracefully; ignore the error here.
             }

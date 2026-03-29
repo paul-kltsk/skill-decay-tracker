@@ -126,12 +126,14 @@ Skill Decay Tracker/                   ← Xcode source folder (folder-based pro
 │   ├── DailyOverviewWidget.swift      — Medium: top 3 skills + streak
 │   ├── SkillMapMiniWidget.swift       — Large: grid of colored dots
 │   └── LockScreenWidget.swift         — Circular + Inline
-└── Resources/
-    ├── Assets.xcassets
-    └── Localizable.xcstrings
+├── Assets.xcassets
+├── GoogleService-Info.plist          — Firebase config (do NOT commit to public repo)
+├── Info.plist
+└── Skill_Decay_Tracker.entitlements
 ```
 
 > **LiveActivity / Dynamic Island** — folder and `PracticeActivity.swift` not yet created. Planned for a future sprint.
+> **Localizable.xcstrings** — not yet created. Strings are currently hardcoded; localization is a future task.
 
 ## Coding Standards
 
@@ -218,7 +220,7 @@ healthScore(t) = peakScore × e^(−decayRate × daysSinceLastPractice)
 - Successful challenge → decrease decayRate (more durable) + push nextReviewDate
 - Failed challenge → increase decayRate + sooner review
 - Fast correct = strong retention; slow correct = fragile retention
-- Core ML model trains on personal data over time for better prediction
+- **Core ML personalisation** — planned for a future sprint, not yet implemented
 
 ## AI Integration
 
@@ -228,7 +230,7 @@ healthScore(t) = peakScore × e^(−decayRate × daysSinceLastPractice)
 - Response format: structured JSON parsed with Codable (`ChallengeDTO`, `EvaluationDTO`)
 - `open_ended` challenges have no `correct_answer` — `ChallengeDTO.correctAnswer` is `String?`
 - API keys stored in Keychain (via `ProviderKeychain`), never hardcoded
-- Context/goal field from Skill is injected into generation prompt as sub-topic focus
+- Context/goal field from Skill is injected into generation prompt as explicit sub-topic within the skill name (prevents AI misinterpreting short abbreviations like "gcd" out of domain context)
 
 ### AI Request Routing
 
@@ -288,7 +290,7 @@ Implemented via **CloudKit public database**.
 
 | Tier | Features | Price |
 |------|----------|-------|
-| Free | 3 skills, 5 AI challenges/day, 1 widget | — |
+| Free | 3 skills max, 5 AI challenges per session (hard-capped in PracticeViewModel), 1 widget | — |
 | Pro | Unlimited skills, unlimited AI, full analytics, all widgets, Dynamic Island, iCloud sync, export | $5.99/month or $59.99/year |
 | Lifetime | All Pro features forever | $99.99 |
 
@@ -361,6 +363,7 @@ Always check relevant Axiom skills **before** starting any task. Use the router 
 |-------|-------------|
 | `sdt-server` | Any work with the proxy server — SSH, deploy, endpoints, env vars |
 | `sdt-challenge-flow` | Any work on AIService, ProxyAPIClient, challenge generation, evaluation, breadth analysis |
+| `sdt-cloudkit` | CloudKit remote config — enable checklist, schema fields, CKContainer pitfalls, RemoteConfigService |
 
 ### Not Applicable to This Project
 
@@ -376,7 +379,7 @@ RealityKit · SceneKit · SpriteKit · Camera · Vision · MapKit · CoreLocatio
 - NEVER use Combine for new code
 - NEVER use `foregroundColor()` — use `foregroundStyle()`
 - NEVER use `cornerRadius()` — use `.clipShape(RoundedRectangle(cornerRadius:))`
-- NEVER hardcode strings — use String Catalogs (Localizable.xcstrings)
+- NEVER hardcode user-facing strings — use String Catalogs (Localizable.xcstrings, not yet created)
 - NEVER force unwrap optionals in production code
 - ALL public API must have /// documentation comments
 - ALL colors must support both light and dark mode
