@@ -30,8 +30,10 @@ actor ProxyAPIClient {
     ///
     /// ⚠️ Generate your own value with:
     ///   `openssl rand -hex 32`
-    /// Then paste the same string here AND in the server `.env` file.
-    private let appSecret = "689c56112204cb20c351881782fcd001901822eccfd4d5ae9010de51922d5628"
+    /// Then paste the same string here AND in the server `.env` file (`APP_SECRET=...`).
+    ///
+    /// Do NOT commit a real secret to a public repository.
+    private let appSecret = "REPLACE_WITH_YOUR_HMAC_SECRET"
 
     // MARK: - Stable Device ID
 
