@@ -88,17 +88,23 @@ struct SkillDetailView: View {
                         ForEach(groups) { group in
                             let alreadyIn = skill.group?.id == group.id
                             Button {
-                                if alreadyIn {
-                                    skill.group?.skills.removeAll { $0.id == skill.id }
-                                    skill.group = nil
-                                } else {
-                                    skill.group?.skills.removeAll { $0.id == skill.id }
-                                    skill.group = group
-                                    if !group.skills.contains(where: { $0.id == skill.id }) {
-                                        group.skills.append(skill)
+                                Task { @MainActor in
+                                    if alreadyIn {
+                                        skill.group?.skills.removeAll { $0.id == skill.id }
+                                        skill.group = nil
+                                    } else {
+                                        skill.group?.skills.removeAll { $0.id == skill.id }
+                                        skill.group = group
+                                        if !group.skills.contains(where: { $0.id == skill.id }) {
+                                            group.skills.append(skill)
+                                        }
+                                    }
+                                    do { try modelContext.save() } catch {
+                                        #if DEBUG
+                                        print("[SkillDetailView] context.save() failed: \(error)")
+                                        #endif
                                     }
                                 }
-                                try? modelContext.save()
                             } label: {
                                 Label(
                                     "\(group.emoji) \(group.name)",
@@ -110,9 +116,15 @@ struct SkillDetailView: View {
                         if skill.group != nil {
                             Divider()
                             Button(role: .destructive) {
-                                skill.group?.skills.removeAll { $0.id == skill.id }
-                                skill.group = nil
-                                try? modelContext.save()
+                                Task { @MainActor in
+                                    skill.group?.skills.removeAll { $0.id == skill.id }
+                                    skill.group = nil
+                                    do { try modelContext.save() } catch {
+                                        #if DEBUG
+                                        print("[SkillDetailView] context.save() failed: \(error)")
+                                        #endif
+                                    }
+                                }
                             } label: {
                                 Label("Remove from Group", systemImage: "folder.badge.minus")
                             }
