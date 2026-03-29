@@ -109,7 +109,8 @@ final class OnboardingViewModel {
         let enabled = prefs?.notificationsEnabled ?? true
         let hour    = prefs?.preferredPracticeTime?.hour   ?? 9
         let minute  = prefs?.preferredPracticeTime?.minute ?? 0
-        Task {
+        Task { [weak self] in
+            guard self != nil else { return }
             await NotificationService.shared.requestAuthorization()
             await NotificationService.shared.syncDailyReminder(
                 enabled: enabled, hour: hour, minute: minute)

@@ -122,6 +122,10 @@ final class PracticeViewModel {
     private var reviewedSkillNames: Set<String> = []
     private var timerTask: Task<Void, Never>? = nil
     private var currentMode: SessionMode = .dailyReview
+
+    deinit {
+        timerTask?.cancel()
+    }
     /// Skills used in the last session — stored so the session can be retried on error.
     private var lastSessionSkills: [Skill] = []
 
