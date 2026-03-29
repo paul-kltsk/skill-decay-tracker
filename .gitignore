@@ -16,6 +16,7 @@ Packages/
 .agents/
 CLAUDE.md
 skill-lock/
+skills-lock.json
 APP_STORE_SUBSCRIPTIONS.md
 
 # Firebase — contains API key, do not commit to public repos
