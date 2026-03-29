@@ -573,15 +573,14 @@ actor AIService {
         let objectStart = s.firstIndex(of: "{")
 
         let start: String.Index
-        let open: Character
         let close: Character
 
         switch (arrayStart, objectStart) {
         case (.some(let a), .some(let o)):
-            if a < o { start = a; open = "["; close = "]" }
-            else      { start = o; open = "{"; close = "}" }
-        case (.some(let a), nil): start = a; open = "["; close = "]"
-        case (nil, .some(let o)): start = o; open = "{"; close = "}"
+            if a < o { start = a; close = "]" }
+            else      { start = o; close = "}" }
+        case (.some(let a), nil): start = a; close = "]"
+        case (nil, .some(let o)): start = o; close = "}"
         case (nil, nil):          return s   // no JSON found — return as-is
         }
 

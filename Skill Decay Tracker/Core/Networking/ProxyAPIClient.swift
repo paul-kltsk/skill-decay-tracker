@@ -1,46 +1,9 @@
 import Foundation
 import CryptoKit
 
-// MARK: - Structured Proxy Request Bodies
-
-/// Request body for POST /api/generate — server builds prompt + handles cache.
-struct ProxyGenerateRequest: Encodable, Sendable {
-    let provider:        String
-    let model:           String
-    let skillName:       String
-    let category:        String
-    let difficulty:      Int
-    let healthScore:     Double
-    let language:        String
-    let count:           Int
-    let context:         String?   // user's goal/focus — injected into the AI prompt
-    let recentQuestions: [String]?
-}
-
-/// Request body for POST /api/evaluate — server builds eval prompt.
-struct ProxyEvaluateRequest: Encodable, Sendable {
-    let provider:      String
-    let model:         String
-    let challengeType: String
-    let question:      String
-    let correctAnswer: String
-    let explanation:   String
-    let skillContext:  String
-    let userAnswer:    String
-    let language:      String
-}
-
-/// Request body for POST /api/breadth — server builds breadth-analysis prompt.
-struct ProxyBreadthRequest: Encodable, Sendable {
-    let provider:  String
-    let model:     String
-    let skillName: String
-    let context:   String
-    let category:  String
-    let language:  String
-}
-
 // MARK: - Proxy API Client
+// Request/response model types are in ProxyAPIModels.swift (separate file avoids
+// Swift 6 false @MainActor inference on synthesised Encodable/Decodable conformances).
 
 /// Sends AI prompts through the SDT proxy server at `sdtapi.mooo.com`.
 ///
@@ -262,8 +225,6 @@ actor ProxyAPIClient {
 
 // MARK: - Private Helpers
 
-private struct ContentResponse: Decodable { let content: String }
-
 private extension ProxyAPIClient {
     /// Shared helper: encodes `body`, signs it, executes request, returns `content` string.
     func performSignedRequest<T: Encodable>(url: URL, body: T) async throws -> String {
@@ -292,7 +253,7 @@ private extension ProxyAPIClient {
 
         switch http.statusCode {
         case 200...299:
-            guard let parsed = try? JSONDecoder().decode(ContentResponse.self, from: data) else {
+            guard let parsed = try? JSONDecoder().decode(ProxyContentResponse.self, from: data) else {
                 throw APIError.emptyResponse
             }
             return parsed.content
