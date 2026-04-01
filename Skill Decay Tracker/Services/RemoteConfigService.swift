@@ -75,9 +75,8 @@ final class RemoteConfigService {
 
     private let cacheKey = "sdt.remoteConfig.cache"
 
-    /// Set to `true` once the CloudKit container is registered in the Apple Developer Portal.
-    /// Until then, `fetch()` silently falls back to cached/default values.
-    private let cloudKitEnabled = false
+    /// CloudKit container is registered — remote config is now active.
+    private let cloudKitEnabled = true
 
     // MARK: Fetch
 

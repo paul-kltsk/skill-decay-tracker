@@ -24,13 +24,10 @@ struct SkillDecayTrackerApp: App {
 
     // MARK: Container
 
-    /// SwiftData container for all persisted models.
+    /// SwiftData container for all persisted models with CloudKit private database sync.
     ///
-    /// CloudKit sync is planned but not yet active (team entitlements pending).
-    /// To enable, replace `ModelConfiguration()` with:
-    /// ```swift
-    /// ModelConfiguration(cloudKitDatabase: .private("iCloud.pavel.kulitski.Skill-Decay-Tracker"))
-    /// ```
+    /// Syncs to `iCloud.pavel.kulitski.Skill-Decay-Tracker` private database.
+    /// Requires iCloud + CloudKit capability in entitlements (already configured).
     let container: ModelContainer
 
     init() {
@@ -44,7 +41,11 @@ struct SkillDecayTrackerApp: App {
                 UserProfile.self,
                 SkillGroup.self,
             ])
-            container = try ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema))
+            let config = ModelConfiguration(
+                schema: schema,
+                cloudKitDatabase: .private("iCloud.pavel.kulitski.Skill-Decay-Tracker")
+            )
+            container = try ModelContainer(for: schema, configurations: config)
         } catch {
             fatalError("SwiftData failed to initialize: \(error)")
         }
