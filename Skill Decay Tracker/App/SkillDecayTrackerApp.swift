@@ -19,6 +19,7 @@ enum AppTab: Hashable {
 @main
 struct SkillDecayTrackerApp: App {
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab: AppTab = .home
     @State private var remoteConfig = RemoteConfigService()
 
@@ -77,6 +78,11 @@ struct SkillDecayTrackerApp: App {
                 .task { await seedProfileIfNeeded() }
                 .task { await SubscriptionService.shared.start() }
                 .task { WidgetDataService.refresh(context: container.mainContext) }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active {
+                        WidgetDataService.refresh(context: container.mainContext)
+                    }
+                }
         }
         .modelContainer(container)
     }

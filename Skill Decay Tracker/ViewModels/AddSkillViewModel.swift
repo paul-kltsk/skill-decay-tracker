@@ -240,6 +240,7 @@ final class AddSkillViewModel {
             print("[\(Self.self)] context.save() failed: \(error)")
             #endif
         }
+            WidgetDataService.refresh(context: context)
             AnalyticsService.skillAdded(
                 category: selectedSubSkills.first?.category.rawValue ?? selectedCategory.rawValue,
                 isSplit: true,
@@ -264,6 +265,7 @@ final class AddSkillViewModel {
             print("[\(Self.self)] context.save() failed: \(error)")
             #endif
         }
+            WidgetDataService.refresh(context: context)
             AnalyticsService.skillAdded(
                 category: selectedCategory.rawValue,
                 isSplit: false,
