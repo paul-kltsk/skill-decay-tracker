@@ -61,6 +61,7 @@ struct SkillDecayTrackerApp: App {
                 .task { await remoteConfig.fetch() }
                 .task { await seedProfileIfNeeded() }
                 .task { await SubscriptionService.shared.start() }
+                .task { WidgetDataService.refresh(context: container.mainContext) }
         }
         .modelContainer(container)
     }
