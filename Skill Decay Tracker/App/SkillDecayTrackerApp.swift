@@ -54,7 +54,13 @@ struct SkillDecayTrackerApp: App {
             SkillGroup.self,
         ])
         do {
-            container = try ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema))
+            // cloudKitDatabase: .none is required — without it SwiftData defaults to
+            // .automatic, which auto-enables CloudKit when entitlements are present.
+            // Our models are not CloudKit-compatible yet (non-optional properties).
+            container = try ModelContainer(
+                for: schema,
+                configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .none)
+            )
         } catch {
             fatalError("SwiftData failed to initialize: \(error)")
         }
