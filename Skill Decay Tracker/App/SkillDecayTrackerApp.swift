@@ -33,21 +33,30 @@ struct SkillDecayTrackerApp: App {
     init() {
         FirebaseApp.configure()
 
+        let schema = Schema([
+            Skill.self,
+            Challenge.self,
+            ChallengeResult.self,
+            UserProfile.self,
+            SkillGroup.self,
+        ])
+        // Try CloudKit sync first; fall back to local-only if iCloud is unavailable
+        // (device not signed in, container not yet provisioned, or existing local DB).
         do {
-            let schema = Schema([
-                Skill.self,
-                Challenge.self,
-                ChallengeResult.self,
-                UserProfile.self,
-                SkillGroup.self,
-            ])
             let config = ModelConfiguration(
                 schema: schema,
                 cloudKitDatabase: .private("iCloud.pavel.kulitski.Skill-Decay-Tracker")
             )
             container = try ModelContainer(for: schema, configurations: config)
         } catch {
-            fatalError("SwiftData failed to initialize: \(error)")
+            #if DEBUG
+            print("[SwiftData] CloudKit init failed (\(error)); falling back to local storage.")
+            #endif
+            do {
+                container = try ModelContainer(for: schema, configurations: ModelConfiguration(schema: schema))
+            } catch {
+                fatalError("SwiftData failed to initialize even without CloudKit: \(error)")
+            }
         }
     }
 
