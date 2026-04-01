@@ -26,14 +26,9 @@ actor ProxyAPIClient {
     /// Base URL of the proxy server.
     private let baseURL = "https://sdtapi.mooo.com"
 
-    /// Shared HMAC secret — must exactly match `APP_SECRET` in the server's `.env`.
-    ///
-    /// ⚠️ Generate your own value with:
-    ///   `openssl rand -hex 32`
-    /// Then paste the same string here AND in the server `.env` file (`APP_SECRET=...`).
-    ///
-    /// Do NOT commit a real secret to a public repository.
-    private let appSecret = "REPLACE_WITH_YOUR_HMAC_SECRET"
+    /// Shared HMAC secret — loaded from ``Secrets`` (gitignored file).
+    /// Must exactly match `APP_SECRET` in `/root/sdt-proxy/src/.env`.
+    private let appSecret = Secrets.proxyHMACSecret
 
     // MARK: - Stable Device ID
 
