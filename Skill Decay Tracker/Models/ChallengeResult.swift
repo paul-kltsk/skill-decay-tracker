@@ -58,7 +58,7 @@ final class ChallengeResult {
     /// Time the user took to submit an answer, in seconds.
     var responseTime: TimeInterval = 0
     /// The user's self-reported confidence level.
-    var confidenceRating: ConfidenceRating = .medium
+    var confidenceRating: ConfidenceRating = ConfidenceRating.medium
     /// The raw answer string the user submitted.
     var userAnswer: String = ""
 

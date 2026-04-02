@@ -53,7 +53,7 @@ final class Challenge {
 
     // MARK: Content
 
-    var type: ChallengeType = .multipleChoice
+    var type: ChallengeType = ChallengeType.multipleChoice
     /// The question or prompt shown to the user.
     var question: String = ""
     /// Answer choices for `.multipleChoice` and `.trueFalse`; empty for other types.

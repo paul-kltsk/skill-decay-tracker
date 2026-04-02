@@ -19,7 +19,7 @@ final class Skill {
     var id: UUID = UUID()
     var name: String = ""
     /// The category determines accent color and SF Symbol icon (see `SkillCategory`).
-    var category: SkillCategory = .custom
+    var category: SkillCategory = SkillCategory.custom
     var createdAt: Date = Date.now
 
     /// Optional free-text context the user provides when adding the skill.
