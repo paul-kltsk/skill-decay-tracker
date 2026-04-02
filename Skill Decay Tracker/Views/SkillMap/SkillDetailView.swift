@@ -302,11 +302,11 @@ struct SkillDetailView: View {
 
     @ViewBuilder
     private var recentChallengesSection: some View {
-        let recent: [Challenge] = skill.challenges
-            .filter { !$0.results.isEmpty }
+        let recent: [Challenge] = (skill.challenges ?? [])
+            .filter { !($0.results ?? []).isEmpty }
             .sorted { lhs, rhs -> Bool in
-                let lDate = lhs.results.max(by: { $0.practiceDate < $1.practiceDate })?.practiceDate ?? .distantPast
-                let rDate = rhs.results.max(by: { $0.practiceDate < $1.practiceDate })?.practiceDate ?? .distantPast
+                let lDate = (lhs.results ?? []).max(by: { $0.practiceDate < $1.practiceDate })?.practiceDate ?? .distantPast
+                let rDate = (rhs.results ?? []).max(by: { $0.practiceDate < $1.practiceDate })?.practiceDate ?? .distantPast
                 return lDate > rDate
             }
             .prefix(5)
@@ -332,7 +332,7 @@ struct SkillDetailView: View {
     }
 
     private func recentRow(for challenge: Challenge) -> some View {
-        let lastResult = challenge.results.max(by: { $0.practiceDate < $1.practiceDate })
+        let lastResult = (challenge.results ?? []).max(by: { $0.practiceDate < $1.practiceDate })
         let isCorrect  = lastResult?.isCorrect == true
 
         return HStack(spacing: SDTSpacing.md) {
