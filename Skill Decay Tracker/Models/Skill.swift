@@ -28,29 +28,29 @@ final class Skill {
     /// questions are tailored to the user's specific goals or environment.
     ///
     /// Examples: "Django project", "JLPT N3 prep", "Interview preparation"
-    var context: String
+    var context: String = ""
 
     // MARK: Health & Decay
 
     /// Current health in the range 0…1. Written by `DecayEngine` after each calculation.
-    var healthScore: Double
+    var healthScore: Double = 1.0
     /// Peak health ever recorded for this skill — used as the ceiling in the decay formula.
-    var peakScore: Double
+    var peakScore: Double = 1.0
     /// Per-skill decay rate (λ). Starts at 0.1; decreases on success, increases on failure.
-    var decayRate: Double
+    var decayRate: Double = 0.1
     /// The date the user last completed any practice session for this skill.
-    var lastPracticed: Date
+    var lastPracticed: Date = Date.now
     /// The next date the spaced-repetition algorithm schedules a review.
-    var nextReviewDate: Date
+    var nextReviewDate: Date = Date.now
 
     // MARK: Progress
 
     /// Consecutive days the user has practiced this skill.
-    var streakDays: Int
+    var streakDays: Int = 0
     /// Lifetime number of challenges answered for this skill.
-    var totalPracticeCount: Int
+    var totalPracticeCount: Int = 0
     /// Lifetime number of correctly answered challenges.
-    var correctCount: Int
+    var correctCount: Int = 0
 
     // MARK: Relationships
 

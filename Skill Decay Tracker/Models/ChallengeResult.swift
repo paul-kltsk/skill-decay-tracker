@@ -65,7 +65,7 @@ final class ChallengeResult {
     // MARK: Session Context
 
     /// Index of this result within its practice session (0-based).
-    var sessionPosition: Int
+    var sessionPosition: Int = 0
 
     // MARK: Relationships
 

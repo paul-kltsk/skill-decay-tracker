@@ -92,23 +92,23 @@ final class UserProfile {
     // MARK: Gamification
 
     /// Accumulated experience points across all practice sessions.
-    var xp: Int
+    var xp: Int = 0
     /// Current level derived from XP thresholds (computed by ``DecayEngine``).
-    var level: Int
+    var level: Int = 1
     /// The longest streak (days) the user has ever achieved across all skills.
-    var longestStreakDays: Int
+    var longestStreakDays: Int = 0
     /// Total number of practice sessions completed.
-    var totalSessionsCompleted: Int
+    var totalSessionsCompleted: Int = 0
 
     // MARK: Preferences
 
     /// Stored as `Codable` — SwiftData encodes this as a single blob column.
-    var preferences: UserPreferences
+    var preferences: UserPreferences = UserPreferences()
 
     // MARK: Subscription
 
     /// `true` when the user has an active Pro or Lifetime entitlement.
-    var isPro: Bool
+    var isPro: Bool = false
 
     // MARK: Init
 

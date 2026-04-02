@@ -63,14 +63,14 @@ final class Challenge {
     /// Explanation shown after the user answers, regardless of correctness.
     var explanation: String = ""
     /// Difficulty on a 1–5 scale. Used to adapt future challenge generation.
-    var difficulty: Int
+    var difficulty: Int = 3
 
     // MARK: State
 
     /// `true` once this challenge has been presented to the user in any session.
-    var isUsed: Bool
+    var isUsed: Bool = false
     /// Time limit in seconds. `nil` means no limit (open-ended).
-    var timeLimitSeconds: Int
+    var timeLimitSeconds: Int = 120
 
     /// Spaced-repetition review date for this specific challenge.
     ///
