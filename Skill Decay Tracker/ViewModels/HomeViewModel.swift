@@ -78,7 +78,7 @@ final class HomeViewModel {
     /// No-ops if the skill already has challenges (e.g. pre-generated during the
     /// Add Skill confirm step).
     func prefetchChallenges(for skill: Skill, context: ModelContext) {
-        guard skill.challenges.isEmpty else { return }
+        guard (skill.challenges ?? []).isEmpty else { return }
         Task { [weak self] in
             // Guard on self so we abort if HomeViewModel is released (e.g. view dismissed
             // before the AI response arrives) — avoids mutating a stale model context.
@@ -97,7 +97,7 @@ final class HomeViewModel {
                     count: 3
                 )
                 for challenge in challenges {
-                    skill.challenges.append(challenge)
+                    skill.challenges = (skill.challenges ?? []) + [challenge]
                     context.insert(challenge)
                 }
                 do { try context.save() } catch {

@@ -112,7 +112,7 @@ struct ManageGroupsView: View {
         for index in offsets {
             let group = groups[index]
             // Nullify relationship on all skills first
-            for skill in group.skills {
+            for skill in group.skills ?? [] {
                 skill.group = nil
             }
             modelContext.delete(group)
@@ -123,7 +123,7 @@ struct ManageGroupsView: View {
     // MARK: - Helpers
 
     private func skillCountLabel(_ group: SkillGroup) -> String {
-        let count = group.skills.count
+        let count = (group.skills ?? []).count
         return count == 1 ? "1 skill" : "\(count) skills"
     }
 }

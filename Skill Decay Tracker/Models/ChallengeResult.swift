@@ -48,19 +48,19 @@ final class ChallengeResult {
 
     // MARK: Identity
 
-    var id: UUID
-    var practiceDate: Date
+    var id: UUID = UUID()
+    var practiceDate: Date = Date.now
 
     // MARK: Answer Data
 
     /// Whether the user's answer matched the correct answer.
-    var isCorrect: Bool
+    var isCorrect: Bool = false
     /// Time the user took to submit an answer, in seconds.
-    var responseTime: TimeInterval
+    var responseTime: TimeInterval = 0
     /// The user's self-reported confidence level.
-    var confidenceRating: ConfidenceRating
+    var confidenceRating: ConfidenceRating = .medium
     /// The raw answer string the user submitted.
-    var userAnswer: String
+    var userAnswer: String = ""
 
     // MARK: Session Context
 

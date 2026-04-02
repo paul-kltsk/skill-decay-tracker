@@ -81,13 +81,13 @@ final class UserProfile {
 
     // MARK: Identity
 
-    var id: UUID
-    var createdAt: Date
-    var lastActiveDate: Date
+    var id: UUID = UUID()
+    var createdAt: Date = Date.now
+    var lastActiveDate: Date = Date.now
 
     // MARK: Display
 
-    var displayName: String
+    var displayName: String = ""
 
     // MARK: Gamification
 

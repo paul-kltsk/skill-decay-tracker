@@ -20,11 +20,11 @@ final class SkillGroup {
 
     // MARK: Identity
 
-    var id: UUID
-    var name: String
+    var id: UUID = UUID()
+    var name: String = ""
     /// A single emoji that acts as the group's visual icon.
-    var emoji: String
-    var createdAt: Date
+    var emoji: String = "📁"
+    var createdAt: Date = Date.now
 
     // MARK: Relationship
 
@@ -33,7 +33,7 @@ final class SkillGroup {
     /// Delete rule `.nullify` — removing the group leaves skills intact
     /// but sets their `group` pointer to `nil`.
     @Relationship(deleteRule: .nullify, inverse: \Skill.group)
-    var skills: [Skill]
+    var skills: [Skill]?
 
     // MARK: Init
 

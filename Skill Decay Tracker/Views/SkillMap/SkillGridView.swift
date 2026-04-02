@@ -108,14 +108,14 @@ struct SkillGridView: View {
 
     private func move(skill: Skill, to group: SkillGroup) {
         skill.group = group
-        if !group.skills.contains(where: { $0.id == skill.id }) {
-            group.skills.append(skill)
+        if !(group.skills ?? []).contains(where: { $0.id == skill.id }) {
+            group.skills = (group.skills ?? []) + [skill]
         }
         try? modelContext.save()
     }
 
     private func removeFromGroup(skill: Skill) {
-        skill.group?.skills.removeAll { $0.id == skill.id }
+        skill.group?.skills?.removeAll { $0.id == skill.id }
         skill.group = nil
         try? modelContext.save()
     }

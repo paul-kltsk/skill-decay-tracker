@@ -111,8 +111,8 @@ final class AnalyticsViewModel {
 
     func totalXP(for skills: [Skill]) -> Int {
         skills.flatMap { skill in
-            skill.challenges.flatMap { challenge in
-                challenge.results.map { result in
+            (skill.challenges ?? []).flatMap { challenge in
+                (challenge.results ?? []).map { result in
                     DecayEngine.xpReward(
                         isCorrect: result.isCorrect,
                         difficulty: challenge.difficulty,
@@ -171,8 +171,8 @@ final class AnalyticsViewModel {
         var total: [ChallengeType: Int]   = [:]
 
         for skill in skills {
-            for challenge in skill.challenges {
-                for result in challenge.results {
+            for challenge in skill.challenges ?? [] {
+                for result in challenge.results ?? [] {
                     let t = challenge.type
                     total[t, default: 0]   += 1
                     if result.isCorrect { correct[t, default: 0] += 1 }
@@ -203,8 +203,8 @@ final class AnalyticsViewModel {
         // Collect all practice dates
         var dayCounts: [Date: Int] = [:]
         for skill in skills {
-            for challenge in skill.challenges {
-                for result in challenge.results {
+            for challenge in skill.challenges ?? [] {
+                for result in challenge.results ?? [] {
                     let day = calendar.startOfDay(for: result.practiceDate)
                     dayCounts[day, default: 0] += 1
                 }
@@ -224,8 +224,8 @@ final class AnalyticsViewModel {
     func hourDistribution(for skills: [Skill]) -> [HourBucket] {
         var counts = [Int: Int]()
         for skill in skills {
-            for challenge in skill.challenges {
-                for result in challenge.results {
+            for challenge in skill.challenges ?? [] {
+                for result in challenge.results ?? [] {
                     let hour = Calendar.current.component(.hour, from: result.practiceDate)
                     counts[hour, default: 0] += 1
                 }

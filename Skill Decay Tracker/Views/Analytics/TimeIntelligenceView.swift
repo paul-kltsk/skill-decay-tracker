@@ -164,7 +164,7 @@ struct TimeIntelligenceView: View {
     private var responseTimeSection: some View {
         // Average response time per skill (in seconds)
         let responseData: [(name: String, avgTime: Double)] = skills.compactMap { skill in
-            let allTimes = skill.challenges.flatMap { $0.results.map(\.responseTime) }
+            let allTimes = (skill.challenges ?? []).flatMap { ($0.results ?? []).map(\.responseTime) }
             guard !allTimes.isEmpty else { return nil }
             let avg = allTimes.reduce(0, +) / Double(allTimes.count)
             return (name: skill.name, avgTime: avg)

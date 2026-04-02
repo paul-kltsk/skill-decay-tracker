@@ -16,11 +16,11 @@ final class Skill {
 
     // MARK: Identity
 
-    var id: UUID
-    var name: String
+    var id: UUID = UUID()
+    var name: String = ""
     /// The category determines accent color and SF Symbol icon (see `SkillCategory`).
-    var category: SkillCategory
-    var createdAt: Date
+    var category: SkillCategory = .custom
+    var createdAt: Date = Date.now
 
     /// Optional free-text context the user provides when adding the skill.
     ///
@@ -57,7 +57,7 @@ final class Skill {
     /// Pre-generated and historical challenges for this skill.
     /// Deleting a Skill cascades to all its Challenges (and their Results).
     @Relationship(deleteRule: .cascade, inverse: \Challenge.skill)
-    var challenges: [Challenge]
+    var challenges: [Challenge]?
 
     /// The group this skill belongs to, or `nil` if ungrouped.
     var group: SkillGroup?
@@ -138,9 +138,10 @@ final class Skill {
     ///
     /// Mastered challenges (`isUsed && nextReviewDate == nil`) are excluded.
     var pendingChallenges: [Challenge] {
+        let all = challenges ?? []
         let now = Date.now
-        let reviewDue = challenges.filter { $0.isUsed && ($0.nextReviewDate ?? .distantFuture) <= now }
-        let fresh     = challenges.filter { !$0.isUsed }
+        let reviewDue = all.filter { $0.isUsed && ($0.nextReviewDate ?? .distantFuture) <= now }
+        let fresh     = all.filter { !$0.isUsed }
         return reviewDue + fresh   // review-due first → tackled weaknesses before new material
     }
 }

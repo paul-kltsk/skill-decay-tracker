@@ -231,7 +231,7 @@ final class AddSkillViewModel {
             // practice session can start without an extra AI round-trip.
             if let firstSkill = skills.first, !prefetchedChallenges.isEmpty {
                 prefetchedChallenges.forEach { c in
-                    firstSkill.challenges.append(c)
+                    firstSkill.challenges = (firstSkill.challenges ?? []) + [c]
                     context.insert(c)
                 }
             }
@@ -256,7 +256,7 @@ final class AddSkillViewModel {
             // Link any pre-generated challenges so practice starts instantly.
             if !prefetchedChallenges.isEmpty {
                 prefetchedChallenges.forEach { c in
-                    skill.challenges.append(c)
+                    skill.challenges = (skill.challenges ?? []) + [c]
                     context.insert(c)
                 }
             }

@@ -377,7 +377,7 @@ final class PracticeViewModel {
         )
         context.insert(result)
         result.challenge = challenge
-        challenge.results.append(result)
+        challenge.results = (challenge.results ?? []) + [result]
         challenge.isUsed = true
 
         // Schedule spaced-repetition review for weak answers.
@@ -530,7 +530,7 @@ final class PracticeViewModel {
                 skillContext: skillContext,
                 count: count)
             for c in new {
-                skill.challenges.append(c)
+                skill.challenges = (skill.challenges ?? []) + [c]
                 context.insert(c)
             }
             return new

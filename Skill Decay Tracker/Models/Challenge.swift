@@ -48,20 +48,20 @@ final class Challenge {
 
     // MARK: Identity
 
-    var id: UUID
-    var createdAt: Date
+    var id: UUID = UUID()
+    var createdAt: Date = Date.now
 
     // MARK: Content
 
-    var type: ChallengeType
+    var type: ChallengeType = .multipleChoice
     /// The question or prompt shown to the user.
-    var question: String
+    var question: String = ""
     /// Answer choices for `.multipleChoice` and `.trueFalse`; empty for other types.
-    var options: [String]
+    var options: [String] = []
     /// The canonical correct answer string — used by `AIService` for evaluation.
-    var correctAnswer: String
+    var correctAnswer: String = ""
     /// Explanation shown after the user answers, regardless of correctness.
-    var explanation: String
+    var explanation: String = ""
     /// Difficulty on a 1–5 scale. Used to adapt future challenge generation.
     var difficulty: Int
 
@@ -91,7 +91,7 @@ final class Challenge {
     /// All results recorded each time this challenge was answered.
     /// Deleting a Challenge cascades to all its ChallengeResults.
     @Relationship(deleteRule: .cascade, inverse: \ChallengeResult.challenge)
-    var results: [ChallengeResult]
+    var results: [ChallengeResult]?
 
     // MARK: Init
 
@@ -122,7 +122,7 @@ final class Challenge {
 
     /// Whether the user has ever answered this challenge correctly.
     var wasEverAnsweredCorrectly: Bool {
-        results.contains { $0.isCorrect }
+        (results ?? []).contains { $0.isCorrect }
     }
 
     /// `true` when this challenge is scheduled for spaced-repetition review right now.
@@ -133,7 +133,8 @@ final class Challenge {
 
     /// Average response time across all recorded results.
     var averageResponseTime: TimeInterval? {
-        guard !results.isEmpty else { return nil }
-        return results.reduce(0) { $0 + $1.responseTime } / Double(results.count)
+        let r = results ?? []
+        guard !r.isEmpty else { return nil }
+        return r.reduce(0) { $0 + $1.responseTime } / Double(r.count)
     }
 }

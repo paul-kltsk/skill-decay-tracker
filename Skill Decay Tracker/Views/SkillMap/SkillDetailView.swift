@@ -90,13 +90,13 @@ struct SkillDetailView: View {
                             Button {
                                 Task { @MainActor in
                                     if alreadyIn {
-                                        skill.group?.skills.removeAll { $0.id == skill.id }
+                                        skill.group?.skills?.removeAll { $0.id == skill.id }
                                         skill.group = nil
                                     } else {
-                                        skill.group?.skills.removeAll { $0.id == skill.id }
+                                        skill.group?.skills?.removeAll { $0.id == skill.id }
                                         skill.group = group
-                                        if !group.skills.contains(where: { $0.id == skill.id }) {
-                                            group.skills.append(skill)
+                                        if !(group.skills ?? []).contains(where: { $0.id == skill.id }) {
+                                            group.skills = (group.skills ?? []) + [skill]
                                         }
                                     }
                                     do { try modelContext.save() } catch {
@@ -117,7 +117,7 @@ struct SkillDetailView: View {
                             Divider()
                             Button(role: .destructive) {
                                 Task { @MainActor in
-                                    skill.group?.skills.removeAll { $0.id == skill.id }
+                                    skill.group?.skills?.removeAll { $0.id == skill.id }
                                     skill.group = nil
                                     do { try modelContext.save() } catch {
                                         #if DEBUG

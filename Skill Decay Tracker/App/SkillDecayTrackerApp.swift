@@ -34,19 +34,10 @@ struct SkillDecayTrackerApp: App {
     init() {
         FirebaseApp.configure()
 
-        // CloudKit sync for SwiftData requires ALL @Model properties to be optional
-        // or have default values, and ALL relationships to be [T]?.
-        // Our models were designed without this constraint — enabling sync now would
-        // require a migration sprint. Tracked for a future release.
-        //
-        // Remote Config (public CloudKit DB via CKContainer) is unaffected and works.
-        //
-        // To enable later:
-        //   1. Make all @Model properties optional or add defaults
-        //   2. Make all @Relationship arrays [T]?
-        //   3. Replace ModelConfiguration below with:
-        //      ModelConfiguration(schema: schema,
-        //          cloudKitDatabase: .private("iCloud.pavel.kulitski.Skill-Decay-Tracker"))
+        // All @Model classes are now CloudKit-compatible (V2 schema):
+        // • Stored properties have default values
+        // • Relationship arrays are [T]?
+        // SDTMigrationPlan performs a lightweight V1 → V2 migration on existing stores.
         let schema = Schema([
             Skill.self,
             Challenge.self,
@@ -55,12 +46,13 @@ struct SkillDecayTrackerApp: App {
             SkillGroup.self,
         ])
         do {
-            // cloudKitDatabase: .none is required — without it SwiftData defaults to
-            // .automatic, which auto-enables CloudKit when entitlements are present.
-            // Our models are not CloudKit-compatible yet (non-optional properties).
             container = try ModelContainer(
                 for: schema,
-                configurations: ModelConfiguration(schema: schema, cloudKitDatabase: .none)
+                migrationPlan: SDTMigrationPlan.self,
+                configurations: ModelConfiguration(
+                    schema: schema,
+                    cloudKitDatabase: .private("iCloud.pavel.kulitski.Skill-Decay-Tracker")
+                )
             )
         } catch {
             fatalError("SwiftData failed to initialize: \(error)")
