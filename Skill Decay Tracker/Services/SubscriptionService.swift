@@ -75,7 +75,6 @@ final class SubscriptionService {
                 (order.firstIndex(of: $0.id) ?? 99) < (order.firstIndex(of: $1.id) ?? 99)
             }
         } catch {
-            // Simulator without a StoreKit config file → gracefully stay empty.
             products = []
         }
     }
