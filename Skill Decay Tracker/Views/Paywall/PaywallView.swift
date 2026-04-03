@@ -58,6 +58,9 @@ struct PaywallView: View {
             withAnimation(.easeOut(duration: 0.5)) { appeared = true }
             AnalyticsService.paywallShown(trigger: trigger.analyticsName)
         }
+        .onChange(of: sub.isPro) { _, isPro in
+            if isPro { dismiss() }
+        }
         .alert("Purchase Error", isPresented: Binding(
             get: { sub.purchaseError != nil },
             set: { if !$0 { sub.clearPurchaseError() } }
@@ -72,7 +75,7 @@ struct PaywallView: View {
 
     private var header: some View {
         VStack(spacing: SDTSpacing.md) {
-            Spacer().frame(height: SDTSpacing.xxl)
+            Spacer().frame(height: SDTSpacing.sm)
 
             ZStack {
                 // Glow rings
