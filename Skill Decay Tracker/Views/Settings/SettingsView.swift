@@ -16,10 +16,12 @@ struct SettingsView: View {
     @Query private var profiles: [UserProfile]
     @Query(sort: \Skill.name) private var skills: [Skill]
     @Environment(\.modelContext) private var modelContext
+    @Environment(SubscriptionService.self) private var sub
 
     @State private var viewModel  = SettingsViewModel()
     @State private var editName   = false
     @State private var tempName   = ""
+    @State private var showPaywall = false
 
     private var profile: UserProfile? { profiles.first }
 
@@ -30,6 +32,7 @@ struct SettingsView: View {
                 aiModelSection(profile)
                 navigationLinks(profile)
             }
+            subscriptionSection
             dataSection
             aboutSection
         }
@@ -37,6 +40,9 @@ struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .background(Color.sdtBackground)
         .navigationTitle("Settings")
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(trigger: .generic)
+        }
         .navigationBarTitleDisplayMode(.large)
         .confirmationDialog(
             "Delete All Data",
@@ -178,6 +184,42 @@ struct SettingsView: View {
             }
         } header: {
             Text("Preferences")
+        }
+    }
+
+    // MARK: - Subscription Section
+
+    private var subscriptionSection: some View {
+        Section {
+            if sub.isPro {
+                HStack {
+                    Label("Pro Subscriber", systemImage: "checkmark.seal.fill")
+                        .foregroundStyle(Color.sdtPrimary)
+                    Spacer()
+                    ProBadgeLabel()
+                }
+                Button("Manage Subscription") {
+                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                .foregroundStyle(Color.sdtSecondary)
+            } else {
+                Button {
+                    showPaywall = true
+                } label: {
+                    HStack {
+                        Label("Upgrade to Pro", systemImage: "star.fill")
+                            .foregroundStyle(Color.sdtPrimary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Color.sdtSecondary.opacity(0.5))
+                    }
+                }
+            }
+        } header: {
+            Text("Subscription")
         }
     }
 

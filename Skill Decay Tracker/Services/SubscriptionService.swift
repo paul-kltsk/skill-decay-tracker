@@ -23,7 +23,7 @@ final class SubscriptionService {
     static let monthlyID  = "com.pavelkulitski.sdt.pro.monthly"
     static let annualID   = "com.pavelkulitski.sdt.pro.annual"
     static let lifetimeID = "com.pavelkulitski.sdt.pro.lifetime"
-    static let allIDs     = [monthlyID, annualID, lifetimeID]
+    static let allIDs     = [monthlyID, annualID]
 
     // MARK: - Free Tier Limits
 
