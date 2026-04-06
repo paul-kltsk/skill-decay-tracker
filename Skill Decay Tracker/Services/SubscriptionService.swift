@@ -50,6 +50,11 @@ final class SubscriptionService {
     /// `true` while a purchase or restore call is in flight.
     private(set) var isPurchasing = false
 
+    /// `true` when AI requests are routed through the user's own API key.
+    /// Unlocks skill limit and question count without requiring Pro.
+    /// Call `refreshOwnKeyStatus()` after any key or provider change.
+    private(set) var isUsingOwnKey: Bool = false
+
     private var updatesTask: Task<Void, Never>?
 
     // MARK: - Startup
@@ -61,6 +66,13 @@ final class SubscriptionService {
         async let entitlements: Void = refreshEntitlements()
         _ = await (productsLoad, entitlements)
         startListeningForTransactions()
+        refreshOwnKeyStatus()
+    }
+
+    /// Reads the current provider's Keychain status and updates `isUsingOwnKey`.
+    /// Call after saving, deleting, or switching the active AI provider.
+    func refreshOwnKeyStatus() {
+        isUsingOwnKey = ProviderKeychain.has(for: AIProvider.persisted)
     }
 
     // MARK: - Products
@@ -186,7 +198,7 @@ final class SubscriptionService {
 
     /// `true` when the user can add another skill without upgrading.
     func canAddSkill(currentCount: Int) -> Bool {
-        isPro || currentCount < Self.freeSkillLimit
+        isPro || isUsingOwnKey || currentCount < Self.freeSkillLimit
     }
 
     // MARK: - Free-tier Degradation Helpers
@@ -199,19 +211,21 @@ final class SubscriptionService {
         return Set(sorted.prefix(Self.freeSkillLimit).map(\.id))
     }
 
-    /// Returns `true` when `skill` is beyond the free limit and the user has no active Pro subscription.
+    /// Returns `true` when `skill` is beyond the free limit and the user has neither Pro nor their own API key.
     ///
-    /// Locked skills are shown with a visual overlay and are non-interactive until Pro is restored.
+    /// Locked skills are shown with a visual overlay and are non-interactive until Pro is restored or a key is added.
+    /// Skills are never deleted — they unlock automatically when Pro or own-key access is restored.
     func isSkillLocked(_ skill: Skill, allSkills: [Skill]) -> Bool {
-        !isPro && !freeSkillIDs(from: allSkills).contains(skill.id)
+        guard !isPro && !isUsingOwnKey else { return false }
+        return !freeSkillIDs(from: allSkills).contains(skill.id)
     }
 
-    /// The question count to use for a session: the skill's stored value for Pro, capped at 5 for free users.
+    /// The question count to use for a session: the skill's stored value for Pro/own-key, capped at 5 for free users.
     ///
-    /// When a subscription lapses, sessions are capped at 5.
-    /// When Pro is restored, the original `skill.questionCount` is used automatically — no data migration needed.
+    /// When a subscription lapses and no key is active, sessions are capped at 5.
+    /// The original `skill.questionCount` is used automatically when Pro or own-key access is restored.
     func effectiveQuestionCount(for skill: Skill) -> Int {
-        isPro ? skill.questionCount : min(5, skill.questionCount)
+        (isPro || isUsingOwnKey) ? skill.questionCount : min(5, skill.questionCount)
     }
 
     /// Percentage saved by choosing annual over 12 × monthly. `nil` if products unavailable.

@@ -537,8 +537,14 @@ final class PracticeViewModel {
             }
             return new
         } catch let apiError as APIError {
-            if case .rateLimited(let retryAfter) = apiError {
+            switch apiError {
+            case .rateLimited(let retryAfter):
                 phase = .rateLimited(retryAfter: retryAfter)
+            case .invalidAPIKey, .insufficientCredits:
+                // Show an actionable message so the user knows what to fix
+                phase = .error(apiError.userFacingMessage)
+            default:
+                break  // Other errors fall back to offline challenges silently
             }
             return []
         } catch {

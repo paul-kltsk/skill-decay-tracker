@@ -69,9 +69,23 @@ actor GeminiClient {
         guard let http = response as? HTTPURLResponse else {
             throw APIError.networkUnavailable
         }
-        guard (200...299).contains(http.statusCode) else {
+
+        if !(200...299).contains(http.statusCode) {
             let body = String(decoding: data, as: UTF8.self)
-            throw APIError.httpError(statusCode: http.statusCode, body: body)
+            switch http.statusCode {
+            case 400:
+                // Gemini returns HTTP 400 with API_KEY_INVALID for bad keys
+                if body.contains("API_KEY_INVALID") {
+                    throw APIError.invalidAPIKey(provider: .gemini)
+                }
+                throw APIError.httpError(statusCode: 400, body: body)
+            case 403:
+                throw APIError.invalidAPIKey(provider: .gemini)
+            case 429:
+                throw APIError.rateLimited(retryAfter: 60)
+            default:
+                throw APIError.httpError(statusCode: http.statusCode, body: body)
+            }
         }
 
         let decoded = try JSONDecoder().decode(GeminiResponse.self, from: data)

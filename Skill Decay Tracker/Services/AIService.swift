@@ -101,16 +101,8 @@ private struct SkillBreadthDTO: Sendable {
 
 nonisolated extension SkillBreadthDTO: Decodable {}
 
-// MARK: - Model IDs
-
-private enum ClaudeModel {
-    /// Fast and cost-efficient — used for challenge generation.
-    nonisolated static let generation = "claude-haiku-4-5-20251001"
-    /// Fast and cost-efficient — used for answer evaluation and breadth analysis.
-    nonisolated static let evaluation = "claude-haiku-4-5-20251001"
-}
-
-// Note: OpenAI and Gemini model IDs are stored in AIProvider (generationModelID / evalModelID).
+// Note: Model IDs for the own-key path come from AIModelTier.persisted.
+// Proxy path always uses AIModelTier.fast model IDs (server pays, fast = cost-efficient).
 
 // MARK: - AI Service
 
@@ -198,16 +190,12 @@ actor AIService {
     private func sendPrompt(isGeneration: Bool, maxTokens: Int, prompt: String) async throws -> String {
         let provider = AIProvider.persisted
 
-        // Resolve model IDs once — same whether going direct or through proxy.
-        let model: String
-        switch (provider, isGeneration) {
-        case (.claude, true):  model = ClaudeModel.generation
-        case (.claude, false): model = ClaudeModel.evaluation
-        default:               model = isGeneration ? provider.generationModelID : provider.evalModelID
-        }
-
-        // Route: personal key present → direct; missing → proxy.
         if ProviderKeychain.has(for: provider) {
+            // Own-key path: use the user-selected model tier.
+            let tier = AIModelTier.persisted
+            let model = isGeneration
+                ? tier.generationModelID(for: provider)
+                : tier.evalModelID(for: provider)
             switch provider {
             case .claude:
                 return try await ClaudeAPIClient.shared.send(model: model,
@@ -223,6 +211,10 @@ actor AIService {
                                                           prompt: prompt)
             }
         } else {
+            // Proxy path: always use fast (cost-efficient) models — server bears the cost.
+            let model = isGeneration
+                ? AIModelTier.fast.generationModelID(for: provider)
+                : AIModelTier.fast.evalModelID(for: provider)
             return try await ProxyAPIClient.shared.send(provider: provider,
                                                         model: model,
                                                         maxTokens: maxTokens,
@@ -286,10 +278,7 @@ actor AIService {
                                        prompt: prompt)
         } else {
             // Proxy path — send structured data; server builds prompt + handles cache
-            let model: String = switch provider {
-            case .claude: ClaudeModel.generation
-            default:      provider.generationModelID
-            }
+            let model = AIModelTier.fast.generationModelID(for: provider)
             raw = try await ProxyAPIClient.shared.generate(
                 provider:        provider,
                 model:           model,
@@ -357,10 +346,7 @@ actor AIService {
             raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
         } else {
             // Proxy path — structured evaluation
-            let model: String = switch provider {
-            case .claude: ClaudeModel.evaluation
-            default:      provider.evalModelID
-            }
+            let model = AIModelTier.fast.evalModelID(for: provider)
             raw = try await ProxyAPIClient.shared.evaluate(
                 provider:      provider,
                 model:         model,
@@ -472,10 +458,7 @@ actor AIService {
                 raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
             } else {
                 // Proxy path
-                let model: String = switch provider {
-                case .claude: ClaudeModel.evaluation
-                default:      provider.evalModelID
-                }
+                let model = AIModelTier.fast.evalModelID(for: provider)
                 raw = try await ProxyAPIClient.shared.analyzeBreadth(
                     provider:  provider,
                     model:     model,

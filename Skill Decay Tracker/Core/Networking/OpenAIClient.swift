@@ -65,9 +65,21 @@ actor OpenAIClient {
         guard let http = response as? HTTPURLResponse else {
             throw APIError.networkUnavailable
         }
-        guard (200...299).contains(http.statusCode) else {
+
+        if !(200...299).contains(http.statusCode) {
             let body = String(decoding: data, as: UTF8.self)
-            throw APIError.httpError(statusCode: http.statusCode, body: body)
+            switch http.statusCode {
+            case 401:
+                throw APIError.invalidAPIKey(provider: .openai)
+            case 429:
+                // OpenAI returns insufficient_quota at 429, not 402
+                if body.contains("insufficient_quota") {
+                    throw APIError.insufficientCredits(provider: .openai)
+                }
+                throw APIError.rateLimited(retryAfter: 60)
+            default:
+                throw APIError.httpError(statusCode: http.statusCode, body: body)
+            }
         }
 
         let decoded = try JSONDecoder().decode(OpenAIResponse.self, from: data)

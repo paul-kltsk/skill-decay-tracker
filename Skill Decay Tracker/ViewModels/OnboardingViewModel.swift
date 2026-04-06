@@ -21,6 +21,7 @@ final class OnboardingViewModel {
     var selectedProvider: AIProvider = .claude
     var apiKeyText: String = ""
     var apiKeyState: ProviderKeyState = .missing
+    var selectedModelTier: AIModelTier = .balanced
 
     // MARK: - Page 4: First Skill
 
@@ -59,7 +60,11 @@ final class OnboardingViewModel {
             apiKeyState = .invalid
             return
         }
-        apiKeyState = ProviderKeychain.store(trimmed, for: selectedProvider) ? .saved : .invalid
+        let stored = ProviderKeychain.store(trimmed, for: selectedProvider)
+        apiKeyState = stored ? .saved : .invalid
+        if stored {
+            SubscriptionService.shared.refreshOwnKeyStatus()
+        }
     }
 
     func clearAPIKey() {
@@ -71,8 +76,9 @@ final class OnboardingViewModel {
 
     /// Persists all onboarding data and marks onboarding as done.
     func complete(context: ModelContext) {
-        // 1. Mirror provider selection to UserDefaults for AIService
+        // 1. Mirror provider and tier selection to UserDefaults for AIService
         selectedProvider.persist()
+        selectedModelTier.persist()
 
         // 2. Update the existing UserProfile
         let descriptor = FetchDescriptor<UserProfile>()

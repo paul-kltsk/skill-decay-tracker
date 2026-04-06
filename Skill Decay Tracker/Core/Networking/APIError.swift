@@ -13,6 +13,12 @@ enum APIError: Error, LocalizedError, Sendable {
     /// The server returned HTTP 429. `retryAfter` is the suggested wait in seconds.
     case rateLimited(retryAfter: TimeInterval)
 
+    /// HTTP 401 from a direct provider — key is invalid or has been revoked.
+    case invalidAPIKey(provider: AIProvider)
+
+    /// HTTP 402 or provider-specific quota error — the account has run out of credits.
+    case insufficientCredits(provider: AIProvider)
+
     /// The server returned a non-2xx status code.
     case httpError(statusCode: Int, body: String)
 
@@ -33,9 +39,13 @@ enum APIError: Error, LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .missingAPIKey:
-            return String(localized: "Claude API key not set. Add it in Settings.")
+            return String(localized: "API key not set. Add it in Settings → AI Model.")
         case .rateLimited(let after):
             return String(localized: "Too many requests. Please wait \(Int(after)) seconds.")
+        case .invalidAPIKey:
+            return String(localized: "API key is invalid or revoked. Update it in Settings → AI Model.")
+        case .insufficientCredits:
+            return String(localized: "Your AI account has run out of credits.")
         case .httpError(let code, _):
             return String(localized: "Server error (HTTP \(code)). Please try again.")
         case .decodingFailed:
@@ -49,11 +59,38 @@ enum APIError: Error, LocalizedError, Sendable {
         }
     }
 
+    /// User-facing message with actionable guidance. Use this in UI error states.
+    var userFacingMessage: String {
+        switch self {
+        case .invalidAPIKey(.claude):
+            return "Your Anthropic API key is invalid or has been revoked. Update it in Settings → AI Model."
+        case .invalidAPIKey(.openai):
+            return "Your OpenAI API key is invalid or has been revoked. Update it in Settings → AI Model."
+        case .invalidAPIKey(.gemini):
+            return "Your Gemini API key is invalid or has been revoked. Update it in Settings → AI Model."
+        case .insufficientCredits(.claude):
+            return "Your Anthropic account has run out of credits. Top up at console.anthropic.com to continue."
+        case .insufficientCredits(.openai):
+            return "Your OpenAI account has run out of credits. Top up at platform.openai.com/account/billing to continue."
+        case .insufficientCredits(.gemini):
+            return "Your Google AI account has reached its quota. Check aistudio.google.com to continue."
+        case .rateLimited(let after):
+            return "Too many requests. Please wait \(Int(after)) seconds and try again."
+        case .networkUnavailable:
+            return "No internet connection. Using offline challenges for now."
+        default:
+            return errorDescription ?? "Something went wrong. Please try again."
+        }
+    }
+
     /// `true` when the error is recoverable by showing fallback content instead of a hard failure.
     var allowsFallback: Bool {
         switch self {
-        case .missingAPIKey, .rateLimited, .httpError, .networkUnavailable: return true
-        case .decodingFailed, .emptyResponse, .invalidJSON:                   return false
+        case .missingAPIKey, .rateLimited, .httpError, .networkUnavailable,
+             .invalidAPIKey, .insufficientCredits:
+            return true
+        case .decodingFailed, .emptyResponse, .invalidJSON:
+            return false
         }
     }
 }

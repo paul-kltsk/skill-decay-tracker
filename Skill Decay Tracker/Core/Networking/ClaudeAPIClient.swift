@@ -137,6 +137,12 @@ actor ClaudeAPIClient {
         case 200...299:
             return try decodeText(from: data)
 
+        case 401:
+            throw APIError.invalidAPIKey(provider: .claude)
+
+        case 402:
+            throw APIError.insufficientCredits(provider: .claude)
+
         case 429:
             guard attempt < 4 else {
                 throw APIError.rateLimited(retryAfter: 60)
@@ -145,6 +151,10 @@ actor ClaudeAPIClient {
             let delay = max(suggested, pow(2.0, Double(attempt)) * minRequestInterval)
             try await Task.sleep(for: .seconds(delay))
             return try await execute(request: request, attempt: attempt + 1)
+
+        case 529:
+            // Anthropic service overloaded — treat as transient network issue
+            throw APIError.networkUnavailable
 
         default:
             let body = String(decoding: data, as: UTF8.self)
