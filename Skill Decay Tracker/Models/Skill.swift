@@ -68,6 +68,12 @@ final class Skill {
     /// - `1…5` — overrides the auto-computed value until the user resets or a new suggestion is accepted.
     var overrideDifficulty: Int?
 
+    /// Number of questions chosen by the user when creating this skill (5, 7, 10, or 15).
+    ///
+    /// Used as the session target for Deep Dive. Free users are capped at 5 regardless of this value;
+    /// when Pro is restored the original value is used automatically.
+    var questionCount: Int = 5
+
     // MARK: Init
 
     init(

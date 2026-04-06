@@ -227,7 +227,9 @@ final class PracticeViewModel {
                 phase = .error("Skill not found.")
                 return
             }
-            let target = preferredSessionCount
+            // Prefer the per-skill count passed by the caller (accounts for Pro/free cap).
+            // Fall back to the global session-length preference.
+            let target = challengeCount ?? preferredSessionCount
             var pending = skill.pendingChallenges
             // Only generate if we have fewer than 5 challenges (the pre-fetch minimum).
             if pending.count < min(5, target) {

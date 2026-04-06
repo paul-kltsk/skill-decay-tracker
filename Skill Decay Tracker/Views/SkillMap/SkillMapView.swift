@@ -92,7 +92,8 @@ struct SkillMapView: View {
                         await practiceViewModel.startSession(
                             mode: .deepDive(skillID: skill.id),
                             skills: [skill],
-                            context: modelContext
+                            context: modelContext,
+                            challengeCount: sub.effectiveQuestionCount(for: skill)
                         )
                     }
                 })

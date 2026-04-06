@@ -226,7 +226,10 @@ final class AddSkillViewModel {
                 Skill(name: sub.name, category: sub.category,
                       context: contextText, decayRate: rate)
             }
-            skills.forEach { context.insert($0) }
+            skills.forEach {
+                $0.questionCount = selectedQuestionCount
+                context.insert($0)
+            }
             // Link any pre-generated challenges to the first sub-skill so its
             // practice session can start without an extra AI round-trip.
             if let firstSkill = skills.first, !prefetchedChallenges.isEmpty {
@@ -252,6 +255,7 @@ final class AddSkillViewModel {
             let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
             let skill = Skill(name: name, category: selectedCategory,
                               context: contextText, decayRate: rate)
+            skill.questionCount = selectedQuestionCount
             context.insert(skill)
             // Link any pre-generated challenges so practice starts instantly.
             if !prefetchedChallenges.isEmpty {

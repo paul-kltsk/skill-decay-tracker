@@ -14,6 +14,10 @@ struct ConstellationView: View {
     let skills: [Skill]
     let viewModel: SkillMapViewModel
 
+    @Environment(SubscriptionService.self) private var sub
+    /// All skills (unfiltered) — needed to compute the free-tier set correctly.
+    @Query private var allSkills: [Skill]
+
     // MARK: - Gesture State
 
     @State private var magnifyBy: CGFloat = 1.0
@@ -39,7 +43,8 @@ struct ConstellationView: View {
                 connectionLines(size: geo.size)
 
                 ForEach(Array(skills.enumerated()), id: \.element.id) { index, skill in
-                    SkillNode(skill: skill, onTap: { viewModel.select(skill) })
+                    let locked = sub.isSkillLocked(skill, allSkills: allSkills)
+                    SkillNode(skill: skill, isLocked: locked, onTap: { viewModel.select(skill) })
                         .position(viewModel.nodePosition(for: skill, in: geo.size))
                         .opacity(appeared ? 1 : 0)
                         .scaleEffect(appeared ? 1 : 0.1)
@@ -141,6 +146,7 @@ struct ConstellationView: View {
 private struct SkillNode: View {
 
     let skill: Skill
+    let isLocked: Bool
     let onTap: () -> Void
 
     @State private var glowPulse = false
@@ -149,11 +155,11 @@ private struct SkillNode: View {
     private var isHealthy: Bool     { skill.healthScore >= 0.7 }
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: { if !isLocked { onTap() } }) {
             VStack(spacing: 5) {
                 ZStack {
-                    // Glow halo for healthy skills
-                    if isHealthy {
+                    // Glow halo — suppressed for locked nodes
+                    if isHealthy && !isLocked {
                         Circle()
                             .fill(
                                 Color.sdtHealth(for: skill.healthScore)
@@ -165,30 +171,38 @@ private struct SkillNode: View {
 
                     // Category tint background
                     Circle()
-                        .fill(skill.category.color.opacity(0.18))
+                        .fill(skill.category.color.opacity(isLocked ? 0.06 : 0.18))
                         .frame(width: nodeRadius * 2, height: nodeRadius * 2)
 
                     // Health ring overlay
                     SDTHealthRing(score: skill.healthScore, lineWidth: 2.5)
                         .frame(width: nodeRadius * 2 + 6, height: nodeRadius * 2 + 6)
 
-                    // Category symbol
-                    Image(systemName: skill.category.systemImage)
-                        .font(.system(size: nodeRadius * 0.65, weight: .medium))
-                        .foregroundStyle(skill.category.color)
+                    // Category symbol (hidden by lock icon when locked)
+                    if isLocked {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: nodeRadius * 0.55, weight: .medium))
+                            .foregroundStyle(Color.sdtSecondary)
+                    } else {
+                        Image(systemName: skill.category.systemImage)
+                            .font(.system(size: nodeRadius * 0.65, weight: .medium))
+                            .foregroundStyle(skill.category.color)
+                    }
                 }
 
                 Text(skill.name)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(Color.sdtPrimary)
+                    .foregroundStyle(isLocked ? Color.sdtSecondary : Color.sdtPrimary)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: 76)
             }
         }
         .buttonStyle(.plain)
+        .grayscale(isLocked ? 0.9 : 0)
+        .opacity(isLocked ? 0.5 : 1)
         .onAppear {
-            if isHealthy {
+            if isHealthy && !isLocked {
                 withAnimation(SDTAnimation.healthyPulse) { glowPulse = true }
             }
         }

@@ -189,6 +189,31 @@ final class SubscriptionService {
         isPro || currentCount < Self.freeSkillLimit
     }
 
+    // MARK: - Free-tier Degradation Helpers
+
+    /// The first `freeSkillLimit` skills by creation date — always accessible for free users.
+    ///
+    /// Sorting is done inside this method so callers can pass any ordering.
+    func freeSkillIDs(from skills: [Skill]) -> Set<UUID> {
+        let sorted = skills.sorted { $0.createdAt < $1.createdAt }
+        return Set(sorted.prefix(Self.freeSkillLimit).map(\.id))
+    }
+
+    /// Returns `true` when `skill` is beyond the free limit and the user has no active Pro subscription.
+    ///
+    /// Locked skills are shown with a visual overlay and are non-interactive until Pro is restored.
+    func isSkillLocked(_ skill: Skill, allSkills: [Skill]) -> Bool {
+        !isPro && !freeSkillIDs(from: allSkills).contains(skill.id)
+    }
+
+    /// The question count to use for a session: the skill's stored value for Pro, capped at 5 for free users.
+    ///
+    /// When a subscription lapses, sessions are capped at 5.
+    /// When Pro is restored, the original `skill.questionCount` is used automatically — no data migration needed.
+    func effectiveQuestionCount(for skill: Skill) -> Int {
+        isPro ? skill.questionCount : min(5, skill.questionCount)
+    }
+
     /// Percentage saved by choosing annual over 12 × monthly. `nil` if products unavailable.
     var annualSavingsPercent: Int? {
         guard let m = monthlyProduct, let a = annualProduct else { return nil }

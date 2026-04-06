@@ -126,6 +126,7 @@ struct HomeView: View {
             topStreakDays:   skills.map(\.streakDays).max() ?? 0,
             onStartReview: {
                 let overdue = viewModel.overdueSkills(from: skills)
+                    .filter { !sub.isSkillLocked($0, allSkills: skills) }
                 guard !overdue.isEmpty else { return }
                 Task {
                     await practiceViewModel.startSession(
@@ -153,25 +154,48 @@ struct HomeView: View {
 
     private var skillList: some View {
         ForEach(viewModel.sortedByUrgency(skills)) { skill in
-            NavigationLink {
-                SkillDetailView(skill: skill, onStartPractice: {
-                    Task {
-                        await practiceViewModel.startSession(
-                            mode: .deepDive(skillID: skill.id),
-                            skills: [skill],
-                            context: modelContext
-                        )
-                    }
-                })
-            } label: {
+            let locked = sub.isSkillLocked(skill, allSkills: skills)
+            if locked {
+                // Locked skills: visible but non-interactive
                 SDTSkillCard(skill: skill)
-            }
-            .buttonStyle(.plain)
-            .contextMenu {
-                Button(role: .destructive) {
-                    viewModel.skillPendingDelete = skill
+                    .overlay {
+                        RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                            .fill(Color.sdtBackground.opacity(0.5))
+                            .overlay(alignment: .trailing) {
+                                HStack(spacing: SDTSpacing.xs) {
+                                    Image(systemName: "lock.fill")
+                                        .font(.system(size: 12, weight: .semibold))
+                                    Text("Pro")
+                                        .font(.system(size: 11, weight: .bold))
+                                }
+                                .foregroundStyle(Color.sdtSecondary)
+                                .padding(.trailing, SDTSpacing.md)
+                            }
+                    }
+                    .grayscale(0.8)
+                    .opacity(0.6)
+            } else {
+                NavigationLink {
+                    SkillDetailView(skill: skill, onStartPractice: {
+                        Task {
+                            await practiceViewModel.startSession(
+                                mode: .deepDive(skillID: skill.id),
+                                skills: [skill],
+                                context: modelContext,
+                                challengeCount: sub.effectiveQuestionCount(for: skill)
+                            )
+                        }
+                    })
                 } label: {
-                    Label("Delete", systemImage: "trash")
+                    SDTSkillCard(skill: skill)
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        viewModel.skillPendingDelete = skill
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
                 }
             }
         }

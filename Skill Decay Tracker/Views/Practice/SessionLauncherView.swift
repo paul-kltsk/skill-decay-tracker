@@ -166,11 +166,19 @@ struct SessionLauncherView: View {
     // MARK: - Deep Dive Picker Sheet
 
     private var deepDivePicker: some View {
-        NavigationStack {
-            List(skills) { skill in
+        let practiceableSkills = skills.filter { !sub.isSkillLocked($0, allSkills: skills) }
+        return NavigationStack {
+            List(practiceableSkills) { skill in
                 Button {
                     showDeepDivePicker = false
-                    startSession(.deepDive(skillID: skill.id))
+                    Task {
+                        await viewModel.startSession(
+                            mode: .deepDive(skillID: skill.id),
+                            skills: practiceableSkills,
+                            context: modelContext,
+                            challengeCount: sub.effectiveQuestionCount(for: skill)
+                        )
+                    }
                 } label: {
                     HStack(spacing: SDTSpacing.md) {
                         SDTHealthRing(score: skill.healthScore, lineWidth: 4)
@@ -210,13 +218,18 @@ struct SessionLauncherView: View {
 
     // MARK: - Helpers
 
+    /// Skills the current user can practice (locked skills excluded for free tier).
+    private var practiceableSkills: [Skill] {
+        skills.filter { !sub.isSkillLocked($0, allSkills: skills) }
+    }
+
     private var overdueCount: Int {
-        skills.filter { $0.nextReviewDate <= Date.now }.count
+        practiceableSkills.filter { $0.nextReviewDate <= Date.now }.count
     }
 
     private func startSession(_ mode: SessionMode) {
         Task {
-            await viewModel.startSession(mode: mode, skills: skills, context: modelContext)
+            await viewModel.startSession(mode: mode, skills: practiceableSkills, context: modelContext)
         }
     }
 }

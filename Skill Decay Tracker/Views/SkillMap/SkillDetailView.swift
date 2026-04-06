@@ -161,7 +161,7 @@ struct SkillDetailView: View {
                     .scaleEffect(appeared ? 1 : 0.6)
                     .animation(SDTAnimation.scoreChange, value: appeared)
 
-                VStack(spacing: 1) {
+                HStack(alignment: .firstTextBaseline, spacing: 1) {
                     Text("\(Int(skill.healthScore * 100))")
                         .sdtFont(.numericLarge, color: Color.sdtHealth(for: skill.healthScore))
                     Text("%")

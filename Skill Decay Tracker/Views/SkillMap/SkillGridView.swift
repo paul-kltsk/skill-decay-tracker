@@ -13,7 +13,10 @@ struct SkillGridView: View {
     let viewModel: SkillMapViewModel
 
     @Query(sort: \SkillGroup.name) private var groups: [SkillGroup]
+    /// All skills (unfiltered) — needed to compute the free-tier set correctly.
+    @Query private var allSkills: [Skill]
     @Environment(\.modelContext) private var modelContext
+    @Environment(SubscriptionService.self) private var sub
 
     private let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
@@ -68,8 +71,10 @@ struct SkillGridView: View {
 
             LazyVGrid(columns: columns, spacing: SDTSpacing.md) {
                 ForEach(skills) { skill in
+                    let locked = sub.isSkillLocked(skill, allSkills: allSkills)
                     GridCard(
                         skill: skill,
+                        isLocked: locked,
                         allGroups: groups,
                         onTap: { viewModel.select(skill) },
                         onMove: { target in move(skill: skill, to: target) },
@@ -92,8 +97,10 @@ struct SkillGridView: View {
 
             LazyVGrid(columns: columns, spacing: SDTSpacing.md) {
                 ForEach(skills) { skill in
+                    let locked = sub.isSkillLocked(skill, allSkills: allSkills)
                     GridCard(
                         skill: skill,
+                        isLocked: locked,
                         allGroups: groups,
                         onTap: { viewModel.select(skill) },
                         onMove: { target in move(skill: skill, to: target) },
@@ -126,6 +133,7 @@ struct SkillGridView: View {
 private struct GridCard: View {
 
     let skill: Skill
+    let isLocked: Bool
     let allGroups: [SkillGroup]
     let onTap: () -> Void
     let onMove: (SkillGroup) -> Void
@@ -134,7 +142,7 @@ private struct GridCard: View {
     @State private var pressed = false
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: { if !isLocked { onTap() } }) {
             VStack(spacing: SDTSpacing.md) {
                 // Ring + icon
                 ZStack {
@@ -163,13 +171,13 @@ private struct GridCard: View {
             .padding(.horizontal, SDTSpacing.sm)
             .background(Color.sdtSurface)
             .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
-            .shadow(color: .black.opacity(0.06), radius: 8, x: 0, y: 2)
+            .shadow(color: .black.opacity(isLocked ? 0 : 0.06), radius: 8, x: 0, y: 2)
             .overlay(
                 RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
-                    .strokeBorder(skill.category.color.opacity(0.25), lineWidth: 1)
+                    .strokeBorder(skill.category.color.opacity(isLocked ? 0.1 : 0.25), lineWidth: 1)
             )
             .overlay(alignment: .topTrailing) {
-                if skill.streakDays > 0 {
+                if !isLocked && skill.streakDays > 0 {
                     SDTStreakBadge(days: skill.streakDays)
                         .padding(.horizontal, SDTSpacing.sm)
                         .padding(.vertical, 4)
@@ -181,16 +189,39 @@ private struct GridCard: View {
                         .offset(x: 6, y: -8)
                 }
             }
+            // Lock overlay
+            .overlay {
+                if isLocked {
+                    RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                        .fill(Color.sdtBackground.opacity(0.55))
+                        .overlay {
+                            VStack(spacing: SDTSpacing.xs) {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundStyle(Color.sdtSecondary)
+                                Text("Pro")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(Color.sdtSecondary)
+                            }
+                        }
+                }
+            }
+            .grayscale(isLocked ? 0.8 : 0)
+            .opacity(isLocked ? 0.6 : 1)
             .scaleEffect(pressed ? 0.96 : 1.0)
         }
         .buttonStyle(.plain)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
-                .onChanged { _ in withAnimation(.easeInOut(duration: 0.1)) { pressed = true } }
-                .onEnded   { _ in withAnimation(.easeInOut(duration: 0.15)) { pressed = false } }
+                .onChanged { _ in
+                    if !isLocked {
+                        withAnimation(.easeInOut(duration: 0.1)) { pressed = true }
+                    }
+                }
+                .onEnded { _ in withAnimation(.easeInOut(duration: 0.15)) { pressed = false } }
         )
         .sensoryFeedback(.impact(flexibility: .soft), trigger: pressed)
-        .contextMenu { contextMenuItems }
+        .contextMenu { if !isLocked { contextMenuItems } }
     }
 
     // MARK: - Context Menu
