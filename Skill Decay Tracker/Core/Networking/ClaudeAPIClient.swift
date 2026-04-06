@@ -16,12 +16,14 @@ extension URLSession: HTTPSession {}
 private struct MessagesRequest: Sendable {
     let model: String
     let maxTokens: Int
+    let system: String?
     let messages: [MessageDTO]
 }
 nonisolated extension MessagesRequest: Encodable {
     enum CodingKeys: String, CodingKey {
         case model
         case maxTokens = "max_tokens"
+        case system
         case messages
     }
 }
@@ -89,10 +91,11 @@ actor ClaudeAPIClient {
     /// - Parameters:
     ///   - model: Model ID, e.g. `"claude-sonnet-4-20250514"`.
     ///   - maxTokens: Maximum tokens in the reply.
+    ///   - systemPrompt: Optional system-level instruction (injected as top-level `system` field).
     ///   - prompt: The user-turn text.
     /// - Returns: The assistant's raw text reply.
     /// - Throws: ``APIError``
-    func send(model: String, maxTokens: Int, prompt: String) async throws -> String {
+    func send(model: String, maxTokens: Int, systemPrompt: String = "", prompt: String) async throws -> String {
         // Enforce minimum interval
         let elapsed = Date.now.timeIntervalSince(lastRequestDate)
         if elapsed < minRequestInterval {
@@ -104,6 +107,7 @@ actor ClaudeAPIClient {
         let body = MessagesRequest(
             model: model,
             maxTokens: maxTokens,
+            system: systemPrompt.isEmpty ? nil : systemPrompt,
             messages: [MessageDTO(role: "user", content: prompt)]
         )
         var request = URLRequest(url: baseURL)
@@ -137,6 +141,12 @@ actor ClaudeAPIClient {
         case 200...299:
             return try decodeText(from: data)
 
+        case 401:
+            throw APIError.invalidAPIKey(provider: .claude)
+
+        case 402:
+            throw APIError.insufficientCredits(provider: .claude)
+
         case 429:
             guard attempt < 4 else {
                 throw APIError.rateLimited(retryAfter: 60)
@@ -145,6 +155,10 @@ actor ClaudeAPIClient {
             let delay = max(suggested, pow(2.0, Double(attempt)) * minRequestInterval)
             try await Task.sleep(for: .seconds(delay))
             return try await execute(request: request, attempt: attempt + 1)
+
+        case 529:
+            // Anthropic service overloaded — treat as transient network issue
+            throw APIError.networkUnavailable
 
         default:
             let body = String(decoding: data, as: UTF8.self)

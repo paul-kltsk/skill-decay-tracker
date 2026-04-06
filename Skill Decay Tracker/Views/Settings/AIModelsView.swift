@@ -13,11 +13,19 @@ struct AIModelsView: View {
         profile.preferences.aiProvider == .claude && vm.state(for: .claude) != .saved
     }
 
+    /// `true` when the currently active provider has a personal key saved.
+    private var isUsingOwnKey: Bool {
+        !isBuiltInActive && vm.state(for: profile.preferences.aiProvider) == .saved
+    }
+
     var body: some View {
         List {
             headerSection
             builtInSection
             personalKeySection
+            if isUsingOwnKey {
+                modelTierSection
+            }
         }
         .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
@@ -34,7 +42,7 @@ struct AIModelsView: View {
             VStack(alignment: .leading, spacing: SDTSpacing.sm) {
                 Text("AI for your challenges")
                     .sdtFont(.bodySemibold)
-                Text("By default, challenges use Claude via a built-in connection — no API key needed. Add your own key for direct access and more privacy.")
+                Text("Use the built-in connection to get started, or add your own API key for unlimited skills and questions — you only pay your AI provider, never us.")
                     .sdtFont(.bodyMedium, color: .sdtSecondary)
             }
             .padding(.vertical, SDTSpacing.sm)
@@ -50,6 +58,7 @@ struct AIModelsView: View {
             BuiltInSettingsCard(isActive: isBuiltInActive) {
                 profile.preferences.aiProvider = .claude
                 AIProvider.claude.persist()
+                SubscriptionService.shared.refreshOwnKeyStatus()
             }
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
@@ -73,6 +82,7 @@ struct AIModelsView: View {
                     onSelect: {
                         profile.preferences.aiProvider = provider
                         provider.persist()
+                        SubscriptionService.shared.refreshOwnKeyStatus()
                     },
                     onSave: { key in
                         vm.save(key: key, for: provider)
@@ -86,6 +96,7 @@ struct AIModelsView: View {
                         if profile.preferences.aiProvider == provider {
                             profile.preferences.aiProvider = .claude
                             AIProvider.claude.persist()
+                            SubscriptionService.shared.refreshOwnKeyStatus()
                         }
                     }
                 )
@@ -96,6 +107,25 @@ struct AIModelsView: View {
         } header: {
             Text("PERSONAL API KEY")
                 .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.sdtSecondary)
+        }
+    }
+
+    // MARK: - Model Tier Section
+
+    private var modelTierSection: some View {
+        Section {
+            ModelTierPicker(selectedTier: $vm.selectedTier, provider: profile.preferences.aiProvider)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+        } header: {
+            Text("MODEL QUALITY")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.sdtSecondary)
+        } footer: {
+            Text("Applies to challenge generation. Evaluation always uses a fast model to keep costs low.")
+                .font(.system(size: 12))
                 .foregroundStyle(Color.sdtSecondary)
         }
     }
@@ -381,6 +411,90 @@ enum ProviderKeyState: Equatable {
     }
 }
 
+// MARK: - ModelTierPicker
+
+private struct ModelTierPicker: View {
+    @Binding var selectedTier: AIModelTier
+    let provider: AIProvider
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.md) {
+            ForEach(AIModelTier.allCases, id: \.rawValue) { tier in
+                TierRow(
+                    tier: tier,
+                    provider: provider,
+                    isSelected: selectedTier == tier,
+                    onTap: {
+                        selectedTier = tier
+                        tier.persist()
+                    }
+                )
+            }
+        }
+        .padding(SDTSpacing.lg)
+        .background(Color.sdtSurface)
+        .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+    }
+}
+
+private struct TierRow: View {
+    let tier: AIModelTier
+    let provider: AIProvider
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    private var accentColor: Color {
+        switch tier {
+        case .fast:     Color.sdtSecondary
+        case .balanced: Color.sdtPrimary
+        case .best:     Color.orange
+        }
+    }
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: SDTSpacing.md) {
+                // Selection indicator
+                ZStack {
+                    Circle()
+                        .strokeBorder(isSelected ? accentColor : Color.sdtSecondary.opacity(0.4), lineWidth: 1.5)
+                        .frame(width: 20, height: 20)
+                    if isSelected {
+                        Circle()
+                            .fill(accentColor)
+                            .frame(width: 11, height: 11)
+                    }
+                }
+
+                // Tier info
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: SDTSpacing.sm) {
+                        Text(tier.displayName)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(isSelected ? accentColor : Color.sdtPrimary)
+                        Text(tier.speedHint)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.sdtSecondary)
+                    }
+                    Text(tier.qualityDescription)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.sdtSecondary)
+                }
+
+                Spacer()
+
+                // Cost hint
+                Text(tier.costHint(for: provider))
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(isSelected ? accentColor : Color.sdtSecondary)
+                    .multilineTextAlignment(.trailing)
+            }
+            .padding(.vertical, SDTSpacing.xs)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - AIModelsViewModel
 
 @Observable
@@ -388,6 +502,7 @@ enum ProviderKeyState: Equatable {
 final class AIModelsViewModel {
 
     private(set) var keyStates: [AIProvider: ProviderKeyState] = [:]
+    var selectedTier: AIModelTier = AIModelTier.persisted
 
     func state(for provider: AIProvider) -> ProviderKeyState {
         keyStates[provider] ?? .missing
@@ -397,6 +512,7 @@ final class AIModelsViewModel {
         for provider in AIProvider.allCases {
             keyStates[provider] = ProviderKeychain.has(for: provider) ? .saved : .missing
         }
+        selectedTier = AIModelTier.persisted
     }
 
     func save(key: String, for provider: AIProvider) {
@@ -405,12 +521,17 @@ final class AIModelsViewModel {
             keyStates[provider] = .invalid
             return
         }
-        keyStates[provider] = ProviderKeychain.store(trimmed, for: provider) ? .saved : .invalid
+        let stored = ProviderKeychain.store(trimmed, for: provider)
+        keyStates[provider] = stored ? .saved : .invalid
+        if stored {
+            SubscriptionService.shared.refreshOwnKeyStatus()
+        }
     }
 
     func delete(for provider: AIProvider) {
         ProviderKeychain.delete(for: provider)
         keyStates[provider] = .missing
+        SubscriptionService.shared.refreshOwnKeyStatus()
     }
 }
 

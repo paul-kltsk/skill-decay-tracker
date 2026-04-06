@@ -27,7 +27,7 @@ struct AISetupOnboardingView: View {
                     .padding(.bottom, SDTSpacing.sm)
                 Text("Powered by AI")
                     .sdtFont(.titleLarge)
-                Text("Smart challenges are generated just for you.\nNo setup required — start learning right away.")
+                Text("Use the built-in AI to get started, or bring your own API key for unlimited skills and questions — you only pay your AI provider, never us.")
                     .sdtFont(.bodyLarge, color: .sdtSecondary)
                     .multilineTextAlignment(.center)
             }
@@ -171,7 +171,7 @@ private struct BuiltInAICard: View {
                             .background(Color.sdtPrimary.opacity(0.1))
                             .clipShape(Capsule())
                     }
-                    Text("Claude · No API key needed")
+                    Text("Claude · Up to 3 skills, 5 questions per session")
                         .font(.system(size: 12))
                         .foregroundStyle(Color.sdtSecondary)
                 }
@@ -256,7 +256,7 @@ private struct PersonalKeySection: View {
                     .font(.system(size: 11))
                     .foregroundStyle(Color.sdtPrimary)
                     .padding(.top, 1)
-                Text("Your data goes directly to \(vm.selectedProvider.companyName) — not through our server. More private, more requests.")
+                Text("Your key is stored securely on this device and unlocks unlimited skills and questions.")
                     .font(.system(size: 12))
                     .foregroundStyle(Color.sdtSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -264,25 +264,31 @@ private struct PersonalKeySection: View {
 
             // Key state
             if vm.apiKeyState == .saved {
-                HStack(spacing: SDTSpacing.xs) {
-                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                    Text("\(vm.selectedProvider.displayName) key saved securely")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.green)
-                    Spacer()
-                    Button {
-                        vm.clearAPIKey()
-                        showKeyField = true
-                    } label: {
-                        Text("Change")
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.sdtSecondary)
+                VStack(alignment: .leading, spacing: SDTSpacing.md) {
+                    HStack(spacing: SDTSpacing.xs) {
+                        Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                        Text("\(vm.selectedProvider.displayName) key saved")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(.green)
+                        Spacer()
+                        Button {
+                            vm.clearAPIKey()
+                            showKeyField = true
+                        } label: {
+                            Text("Change")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.sdtSecondary)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
+                    .padding(SDTSpacing.sm)
+                    .background(Color.green.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                    // Model tier picker — only visible when key is saved
+                    OnboardingTierPicker(selectedTier: $vm.selectedModelTier,
+                                        provider: vm.selectedProvider)
                 }
-                .padding(SDTSpacing.sm)
-                .background(Color.green.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .transition(.opacity.combined(with: .scale))
             } else if showKeyField {
                 keyEntryView
@@ -381,5 +387,63 @@ private struct PersonalKeySection: View {
             }
         }
         .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+}
+
+// MARK: - OnboardingTierPicker
+
+private struct OnboardingTierPicker: View {
+    @Binding var selectedTier: AIModelTier
+    let provider: AIProvider
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SDTSpacing.sm) {
+            Text("Model quality")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.sdtSecondary)
+
+            HStack(spacing: SDTSpacing.sm) {
+                ForEach(AIModelTier.allCases, id: \.rawValue) { tier in
+                    Button {
+                        selectedTier = tier
+                        tier.persist()
+                    } label: {
+                        VStack(spacing: 3) {
+                            Text(tier.displayName)
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(selectedTier == tier ? tierColor(tier) : Color.sdtSecondary)
+                            Text(tier.costHint(for: provider))
+                                .font(.system(size: 10))
+                                .foregroundStyle(selectedTier == tier ? tierColor(tier).opacity(0.8) : Color.sdtSecondary.opacity(0.7))
+                            Text(tier.speedHint)
+                                .font(.system(size: 10))
+                                .foregroundStyle(Color.sdtSecondary.opacity(0.6))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, SDTSpacing.sm)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(selectedTier == tier ? tierColor(tier).opacity(0.1) : Color.sdtBackground)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .strokeBorder(
+                                            selectedTier == tier ? tierColor(tier).opacity(0.5) : Color.clear,
+                                            lineWidth: 1
+                                        )
+                                )
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func tierColor(_ tier: AIModelTier) -> Color {
+        switch tier {
+        case .fast:     Color.sdtSecondary
+        case .balanced: Color.sdtPrimary
+        case .best:     Color.orange
+        }
     }
 }
