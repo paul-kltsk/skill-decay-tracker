@@ -16,7 +16,8 @@ struct ConstellationView: View {
 
     @Environment(SubscriptionService.self) private var sub
     /// All skills (unfiltered) — needed to compute the free-tier set correctly.
-    @Query private var allSkills: [Skill]
+    /// Passed from SkillMapView which already owns the @Query.
+    let allSkills: [Skill]
 
     // MARK: - Gesture State
 

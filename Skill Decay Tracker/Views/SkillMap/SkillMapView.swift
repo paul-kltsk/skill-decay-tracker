@@ -134,6 +134,7 @@ struct SkillMapView: View {
             } else {
                 ConstellationView(
                     skills: viewModel.filtered(skills),
+                    allSkills: skills,
                     viewModel: viewModel
                 )
             }
