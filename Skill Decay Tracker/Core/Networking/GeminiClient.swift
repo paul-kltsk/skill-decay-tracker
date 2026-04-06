@@ -35,9 +35,10 @@ actor GeminiClient {
     /// - Parameters:
     ///   - model: Model ID, e.g. `"gemini-2.0-flash"`.
     ///   - maxTokens: Maximum tokens in the reply.
+    ///   - systemPrompt: Optional system-level instruction (prepended to user prompt — Gemini has no native system role).
     ///   - prompt: The user-turn text.
     /// - Throws: ``APIError``
-    func send(model: String, maxTokens: Int, prompt: String) async throws -> String {
+    func send(model: String, maxTokens: Int, systemPrompt: String = "", prompt: String) async throws -> String {
         // Rate-limit
         let elapsed = Date.now.timeIntervalSince(lastRequestDate)
         if elapsed < minRequestInterval {
@@ -53,8 +54,9 @@ actor GeminiClient {
         components.queryItems = [URLQueryItem(name: "key", value: apiKey)]
         guard let url = components.url else { throw APIError.networkUnavailable }
 
+        let effectivePrompt = systemPrompt.isEmpty ? prompt : systemPrompt + "\n\n" + prompt
         let body = GeminiRequest(
-            contents: [GeminiContent(parts: [GeminiPart(text: prompt)])],
+            contents: [GeminiContent(parts: [GeminiPart(text: effectivePrompt)])],
             generationConfig: GeminiConfig(maxOutputTokens: maxTokens)
         )
         var request = URLRequest(url: url)

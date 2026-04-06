@@ -36,9 +36,10 @@ actor OpenAIClient {
     /// - Parameters:
     ///   - model: Model ID, e.g. `"gpt-4o-mini"`.
     ///   - maxTokens: Maximum tokens in the reply.
+    ///   - systemPrompt: Optional system-level instruction (prepended as `{"role":"system"}` message).
     ///   - prompt: The user-turn text.
     /// - Throws: ``APIError``
-    func send(model: String, maxTokens: Int, prompt: String) async throws -> String {
+    func send(model: String, maxTokens: Int, systemPrompt: String = "", prompt: String) async throws -> String {
         // Rate-limit
         let elapsed = Date.now.timeIntervalSince(lastRequestDate)
         if elapsed < minRequestInterval {
@@ -47,9 +48,15 @@ actor OpenAIClient {
 
         let apiKey = try ProviderKeychain.read(for: .openai)
 
+        var messages = [OpenAIMessage]()
+        if !systemPrompt.isEmpty {
+            messages.append(OpenAIMessage(role: "system", content: systemPrompt))
+        }
+        messages.append(OpenAIMessage(role: "user", content: prompt))
+
         let body = OpenAIRequest(
             model: model,
-            messages: [OpenAIMessage(role: "user", content: prompt)],
+            messages: messages,
             maxTokens: maxTokens
         )
         var request = URLRequest(url: baseURL)

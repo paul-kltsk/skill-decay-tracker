@@ -131,6 +131,35 @@ actor AIService {
 
     init() {}
 
+    // MARK: - Prompt Constants & Helpers
+
+    /// Identical to the system prompt injected by the proxy server (`sdt-proxy/src/providers.ts`).
+    /// Injected into all own-key generation requests to guarantee JSON-only output, matching
+    /// proxy behavior and eliminating markdown-wrapped responses.
+    private let jsonOnlySystemPrompt =
+        "You are a JSON-only API. You must respond with valid JSON only. " +
+        "Do not include any markdown, code blocks, or explanatory text. " +
+        "Return only the raw JSON object or array."
+
+    /// Maps a skill's health score to a retention-aware instruction.
+    /// Mirrors `retentionHint()` in `sdt-proxy/src/prompts.ts`.
+    private func retentionHint(healthScore: Double) -> String {
+        if healthScore >= 0.8 { return "test edge cases and advanced scenarios" }
+        if healthScore >= 0.5 { return "reinforce core concepts" }
+        return "focus on fundamentals and basic understanding"
+    }
+
+    /// Computes the exact question-type breakdown for `count` questions.
+    /// Mirrors `typeDistribution()` in `sdt-proxy/src/prompts.ts`.
+    private func typeDistribution(count: Int) -> String {
+        switch count {
+        case 1:  return "1 multiple_choice"
+        case 2:  return "1 multiple_choice, 1 open_ended"
+        case 3:  return "2 multiple_choice, 1 open_ended"
+        default: return "\(count - 2) multiple_choice, 1 true_false, 1 open_ended"
+        }
+    }
+
     // MARK: - Language Detection
 
     /// Detects the dominant language of `text` using on-device NLP.
@@ -186,8 +215,9 @@ actor AIService {
     ///   - isGeneration: `true` → use the provider's higher-quality generation model;
     ///                   `false` → use the faster evaluation model.
     ///   - maxTokens: Token budget for the response.
+    ///   - systemPrompt: Optional system-level instruction (empty string = omit).
     ///   - prompt: The full user-turn prompt.
-    private func sendPrompt(isGeneration: Bool, maxTokens: Int, prompt: String) async throws -> String {
+    private func sendPrompt(isGeneration: Bool, maxTokens: Int, systemPrompt: String = "", prompt: String) async throws -> String {
         let provider = AIProvider.persisted
 
         if ProviderKeychain.has(for: provider) {
@@ -200,14 +230,17 @@ actor AIService {
             case .claude:
                 return try await ClaudeAPIClient.shared.send(model: model,
                                                              maxTokens: maxTokens,
+                                                             systemPrompt: systemPrompt,
                                                              prompt: prompt)
             case .openai:
                 return try await OpenAIClient.shared.send(model: model,
                                                           maxTokens: maxTokens,
+                                                          systemPrompt: systemPrompt,
                                                           prompt: prompt)
             case .gemini:
                 return try await GeminiClient.shared.send(model: model,
                                                           maxTokens: maxTokens,
+                                                          systemPrompt: systemPrompt,
                                                           prompt: prompt)
             }
         } else {
@@ -266,15 +299,18 @@ actor AIService {
         if ProviderKeychain.has(for: provider) {
             // Direct path — build prompt locally, call provider directly
             let prompt = generationPrompt(
-                skillName:  skillName,
-                category:   category,
-                difficulty: difficulty,
-                context:    skillContext,
-                count:      count,
-                language:   language
+                skillName:       skillName,
+                category:        category,
+                difficulty:      difficulty,
+                context:         skillContext,
+                count:           count,
+                language:        language,
+                healthScore:     healthScore,
+                recentQuestions: recentQuestions
             )
             raw = try await sendPrompt(isGeneration: true,
                                        maxTokens: generationTokenBudget(for: count),
+                                       systemPrompt: jsonOnlySystemPrompt,
                                        prompt: prompt)
         } else {
             // Proxy path — send structured data; server builds prompt + handles cache
@@ -377,15 +413,27 @@ actor AIService {
         difficulty: Int,
         context: String,
         count: Int,
-        language: String
+        language: String,
+        healthScore: Double,
+        recentQuestions: [String]
     ) -> String {
-        let contextLine = context.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let trimmedContext = context.trimmingCharacters(in: .whitespacesAndNewlines)
+        let contextLine = trimmedContext.isEmpty
             ? ""
-            : "\nUser context: \(context.trimmingCharacters(in: .whitespacesAndNewlines))"
+            : "\nFocus STRICTLY on the sub-topic \"\(trimmedContext)\" within \(skillName). Do NOT generate questions on unrelated topics."
+
+        let avoidSection: String
+        if recentQuestions.isEmpty {
+            avoidSection = ""
+        } else {
+            let list = recentQuestions.prefix(10).map { "- \($0)" }.joined(separator: "\n")
+            avoidSection = "\n\nDo NOT repeat or rephrase any of these questions:\n\(list)"
+        }
+
         return """
-        You are an expert educator generating knowledge-testing challenges for a spaced-repetition learning app.
         Generate exactly \(count) challenges that TEST THE USER'S KNOWLEDGE of: "\(skillName)" (category: \(category)).\(contextLine)
         Target difficulty: \(difficulty)/5.
+        Retention goal: \(retentionHint(healthScore: healthScore)).
         IMPORTANT: Write all questions, options, and explanations in \(language). Do not use any other language.
 
         Rules:
@@ -394,10 +442,10 @@ actor AIService {
         - For multiple_choice: write a concrete factual question with exactly 4 plausible but distinct options; only one is correct.
         - For true_false: state a specific factual claim about the topic that is clearly true or false (e.g. "ARC increments an object's retain count when a strong reference is created"). Options must be ["True", "False"].
         - For open_ended or fill_in_blank: ask the user to explain a mechanism, predict output, or fill in a missing term/keyword.
-        - Vary the type: prefer multiple_choice, but include at least one open_ended or fill_in_blank.
+        - Type distribution: generate exactly \(typeDistribution(count: count)).
         - Each challenge must take 1–3 minutes to answer.
         - The explanation must be educational — explain WHY the answer is correct, not just state it.
-        - difficulty must be an integer 1–5.
+        - difficulty must be an integer 1–5.\(avoidSection)
 
         Respond ONLY with a valid JSON array. No markdown, no extra text. Schema:
         [
