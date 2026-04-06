@@ -330,7 +330,7 @@ actor AIService {
         }
 
         let dtos = try parseChallengeDTOs(from: raw)
-        return dtos.map { mapToChallenge($0) }
+        return Array(dtos.prefix(count)).map { mapToChallenge($0) }
     }
 
     // MARK: - Answer Evaluation

@@ -61,16 +61,12 @@ struct AddSkillView: View {
             .background(Color.sdtBackground)
             .navigationTitle("Add Skill")
             .navigationBarTitleDisplayMode(.inline)
-            // Start generating challenges when the user lands on the Question Count step (3).
-            // By the time they reach Confirm and tap "Start Practice" challenges are ready.
-            // Re-triggers if the user changes the question count.
+            // Phase 1: generate 5-question baseline the moment the user lands on step 3.
+            // Phase 2 (top-up to selectedQuestionCount) is triggered inside advance() when
+            // the user leaves step 3, so no .onChange needed here.
             .task(id: viewModel.currentStep) {
                 guard viewModel.currentStep == 3 else { return }
-                await viewModel.prefetchChallengesForCurrentSettings()
-            }
-            .onChange(of: viewModel.selectedQuestionCount) {
-                guard viewModel.currentStep >= 3 else { return }
-                Task { await viewModel.prefetchChallengesForCurrentSettings() }
+                viewModel.startBaselinePrefetch()
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

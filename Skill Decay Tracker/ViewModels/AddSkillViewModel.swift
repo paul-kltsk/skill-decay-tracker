@@ -49,48 +49,96 @@ final class AddSkillViewModel {
 
     /// AI-generated challenges for the first skill — ready before the user taps "Start Practice".
     ///
-    /// Populated when the user arrives at the Confirm step so the session can
-    /// start instantly without a loading screen.
+    /// Built in two phases:
+    /// 1. **Baseline** — 5 questions generated as soon as the user lands on step 3.
+    /// 2. **Top-up** — the delta (`selectedQuestionCount - 5`) appended when they advance to step 4.
     var prefetchedChallenges: [Challenge] = []
 
     /// True while challenges are being pre-generated in the background.
     private(set) var isPrefetchingChallenges = false
 
-    /// Pre-generates AI challenges using the current skill settings.
+    /// Tracks the running baseline task so top-up can cancel it if the user advances early.
+    private var baselineTask: Task<Void, Never>?
+
+    /// Shared AI prompt parameters — avoids duplicating the "first sub-skill" logic.
     ///
-    /// Called when the user reaches the Confirm step (step 3).
-    /// Creates a temporary, un-persisted `Skill` object to drive the AI prompt,
-    /// then stores the resulting challenges so `saveAll` can link them instantly.
-    func prefetchChallengesForCurrentSettings() async {
-        isPrefetchingChallenges = true
-        prefetchedChallenges    = []
-        defer { isPrefetchingChallenges = false }
-
-        guard !Task.isCancelled else { return }
-
-        // Build a temporary skill for the AI prompt (not inserted into context).
-        let firstName = isSplitting
+    /// Extracts scalars only; no `@Model` object crosses the actor boundary into AIService.
+    private var prefetchPromptParams: (name: String, category: SkillCategory, ctx: String, difficulty: Int) {
+        let name = isSplitting
             ? (selectedSubSkills.first?.name ?? skillName.trimmingCharacters(in: .whitespacesAndNewlines))
             : skillName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let firstCategory = isSplitting
+        let category = isSplitting
             ? (selectedSubSkills.first?.category ?? selectedCategory)
             : selectedCategory
-        let ctx      = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
-        // Create a temporary skill only to compute effectiveDifficulty, then extract scalars
-        // so no @Model object crosses the actor boundary into AIService.
-        let tempSkill  = Skill(name: firstName, category: firstCategory,
-                               context: ctx, decayRate: difficultyDecayRate)
-        let difficulty = tempSkill.effectiveDifficulty
+        let ctx = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
+        let tempSkill = Skill(name: name, category: category, context: ctx, decayRate: difficultyDecayRate)
+        return (name, category, ctx, tempSkill.effectiveDifficulty)
+    }
 
-        if let generated = try? await AIService.shared.generateChallenges(
-            skillName: firstName,
-            category: firstCategory.rawValue,
-            difficulty: difficulty,
-            skillContext: ctx,
-            count: selectedQuestionCount
+    /// Phase 1 — starts a background task that generates exactly 5 questions (the minimum).
+    ///
+    /// Called when the user lands on the Question Count step (step 3). Synchronous so the
+    /// SwiftUI `.task` modifier fires it without awaiting — the real work happens inside
+    /// `baselineTask`. When cancelled by `startTopUpPrefetch`, the task returns silently
+    /// without touching `isPrefetchingChallenges`; top-up owns that flag from then on.
+    func startBaselinePrefetch() {
+        baselineTask?.cancel()
+        baselineTask = nil
+        isPrefetchingChallenges = true
+        prefetchedChallenges = []
+
+        let p = prefetchPromptParams
+        baselineTask = Task {
+            guard !Task.isCancelled else { return }
+            if let generated = try? await AIService.shared.generateChallenges(
+                skillName: p.name,
+                category: p.category.rawValue,
+                difficulty: p.difficulty,
+                skillContext: p.ctx,
+                count: 5
+            ) {
+                guard !Task.isCancelled else { return }
+                self.prefetchedChallenges = generated
+                self.isPrefetchingChallenges = false
+            } else {
+                self.isPrefetchingChallenges = false
+            }
+        }
+    }
+
+    /// Phase 2 — appends the questions needed to reach `selectedQuestionCount`.
+    ///
+    /// Called from `advance()` when leaving step 3. Cancels the baseline task first so
+    /// its eventual assignment can't overwrite the top-up result. Passes already-generated
+    /// question texts as `recentQuestions` to prevent duplicates.
+    func startTopUpPrefetch() async {
+        baselineTask?.cancel()
+        baselineTask = nil
+
+        let current = prefetchedChallenges
+        let needed  = selectedQuestionCount - current.count
+
+        guard needed > 0 else {
+            prefetchedChallenges = Array(current.prefix(selectedQuestionCount))
+            return
+        }
+
+        isPrefetchingChallenges = true
+        defer { isPrefetchingChallenges = false }
+
+        let recentQ = current.map { $0.question }
+        let p = prefetchPromptParams
+
+        if let extra = try? await AIService.shared.generateChallenges(
+            skillName: p.name,
+            category: p.category.rawValue,
+            difficulty: p.difficulty,
+            skillContext: p.ctx,
+            recentQuestions: recentQ,
+            count: needed
         ) {
             guard !Task.isCancelled else { return }
-            prefetchedChallenges = generated
+            prefetchedChallenges = current + extra
         }
     }
 
@@ -187,12 +235,17 @@ final class AddSkillViewModel {
 
     /// Advances the step without running AI checks.
     /// Use ``checkThenAdvance()`` for step 0; this is for steps 1–3.
+    /// Advancing from step 3 (Question Count) kicks off the top-up prefetch.
     func advance() {
         guard canAdvance else { return }
+        let leavingCountStep = currentStep == 3
         nameError = nil
         let next = nextStep(after: currentStep)
         guard next <= 4 else { return }
         currentStep = next
+        if leavingCountStep {
+            Task { await startTopUpPrefetch() }
+        }
     }
 
     func back() {
