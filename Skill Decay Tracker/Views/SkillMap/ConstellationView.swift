@@ -209,18 +209,3 @@ private struct SkillNode: View {
         }
     }
 }
-
-// MARK: - Preview
-
-#Preview {
-    let vm = SkillMapViewModel()
-    let skills = [
-        Skill(name: "SwiftUI", category: .programming, decayRate: 0.05),
-        Skill(name: "Spanish", category: .language, decayRate: 0.12),
-        Skill(name: "Git", category: .tool, decayRate: 0.08),
-        Skill(name: "SOLID Principles", category: .concept, decayRate: 0.07),
-    ]
-    return ConstellationView(skills: skills, viewModel: vm)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.sdtBackground)
-}
