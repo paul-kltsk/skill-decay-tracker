@@ -1,3 +1,5 @@
+import StoreKit
+import SwiftData
 import SwiftUI
 
 /// Shown when all challenges in a session are answered.
@@ -12,6 +14,10 @@ struct SessionCompleteView: View {
     @State private var appeared = false
     /// IDs of adjustments the user has already acted on (accepted or dismissed).
     @State private var resolvedAdjustments: Set<UUID> = []
+
+    @Environment(\.requestReview) private var requestReview
+    @Environment(\.modelContext) private var modelContext
+    @Query private var profiles: [UserProfile]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -34,6 +40,24 @@ struct SessionCompleteView: View {
         .background(Color.sdtBackground)
         .onAppear {
             withAnimation(SDTAnimation.scoreChange.delay(0.1)) { appeared = true }
+            recordCompletedSession()
+        }
+    }
+
+    // MARK: - Session Tracking
+
+    private func recordCompletedSession() {
+        guard let profile = profiles.first else { return }
+        profile.totalSessionsCompleted += 1
+        try? modelContext.save()
+
+        let count = profile.totalSessionsCompleted
+        // Request a review on the 3rd, 10th, and 25th successful session.
+        // "Successful" = accuracy ≥ 60%. Apple limits prompts to 3× per year;
+        // these milestones stay well within that cap.
+        let milestones = [3, 10, 25]
+        if milestones.contains(count) && summary.accuracy >= 0.6 {
+            requestReview()
         }
     }
 
