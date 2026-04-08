@@ -141,15 +141,29 @@ struct AddSkillViewModelTests {
             #expect(!vm.isAnalyzingFocus)
         }
 
-        @Test("scheduleNameAnalysis clears focusSuggestions immediately")
-        func scheduleClearsSuggestions() {
+        @Test("clearFocusSuggestions clears focusSuggestions immediately")
+        func clearRemovesSuggestions() {
             let vm = AddSkillViewModel()
             let suggestion = SkillSuggestion(name: "Memory management", category: .programming)
             vm.focusSuggestions = [suggestion]
-            vm.skillName = "Swift"
-            vm.scheduleNameAnalysis()
-            // Suggestions should be cleared synchronously on schedule
+            vm.clearFocusSuggestions()
             #expect(vm.focusSuggestions.isEmpty)
+        }
+
+        @Test("focusCheckCount starts at 0")
+        func checkCountStartsAtZero() {
+            let vm = AddSkillViewModel()
+            #expect(vm.focusCheckCount == 0)
+        }
+
+        @Test("analyzeNameIfNeeded no-ops when name is empty")
+        func noOpWhenNameEmpty() {
+            let vm = AddSkillViewModel()
+            vm.skillName = ""
+            vm.analyzeNameIfNeeded()
+            // Should not set isAnalyzingFocus or increment counter
+            #expect(!vm.isAnalyzingFocus)
+            #expect(vm.focusCheckCount == 0)
         }
 
         @Test("advance() from step 0 always goes to step 1 (no skipping)")

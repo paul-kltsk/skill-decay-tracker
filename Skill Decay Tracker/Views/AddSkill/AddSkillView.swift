@@ -174,6 +174,10 @@ private struct NameStepView: View {
                         .focused($nameFocused)
                         .submitLabel(.next)
                         .onSubmit { nameFocused = false }
+                        .onChange(of: viewModel.skillName) { _, _ in
+                            // Clear stale chips immediately; analysis fires on blur, not per-keystroke
+                            viewModel.clearFocusSuggestions()
+                        }
 
                     if let error = viewModel.nameError {
                         Text(error)
@@ -192,10 +196,6 @@ private struct NameStepView: View {
                         .background(Color.sdtSurface)
                         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
                         .submitLabel(.done)
-                        .onChange(of: viewModel.skillContext) {
-                            // Deselect chip if the user manually edits the text
-                            // (chip is "selected" only when context exactly matches a suggestion)
-                        }
                 }
 
                 // AI analysis banner (shown while check is in flight)
@@ -211,8 +211,9 @@ private struct NameStepView: View {
             .padding(.top, SDTSpacing.xl)
         }
         .onAppear { nameFocused = true }
-        .onChange(of: viewModel.skillName) {
-            viewModel.scheduleNameAnalysis()
+        .onChange(of: nameFocused) { _, isFocused in
+            // Fire analysis when user leaves the name field — not on every keystroke
+            if !isFocused { viewModel.analyzeNameIfNeeded() }
         }
         .animation(SDTAnimation.scoreChange, value: viewModel.isAnalyzingFocus)
         .animation(SDTAnimation.scoreChange, value: viewModel.focusSuggestions.isEmpty)

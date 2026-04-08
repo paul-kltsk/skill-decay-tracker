@@ -47,7 +47,17 @@ final class AddSkillViewModel {
     /// `true` while the background breadth analysis is in flight.
     private(set) var isAnalyzingFocus = false
 
-    /// Debounce task for the name-change–triggered breadth analysis.
+    /// Number of AI breadth calls made during this creation flow.
+    private(set) var focusCheckCount: Int = 0
+
+    /// Hard cap on AI breadth calls per AddSkillViewModel instance.
+    let focusCheckLimit = 10
+
+    /// In-memory cache keyed by trimmed skill name. Stores result for each unique name
+    /// so editing back to a previously-checked name costs zero tokens.
+    private var focusCache: [String: [SkillSuggestion]] = [:]
+
+    /// Running analysis task — kept so it can be cancelled when the name changes.
     private var nameCheckTask: Task<Void, Never>?
 
     // MARK: - Challenge Pre-Generation
@@ -140,24 +150,45 @@ final class AddSkillViewModel {
 
     // MARK: - Focus Analysis
 
-    /// Debounced breadth analysis triggered whenever the user changes the skill name.
+    /// Clears current suggestions and cancels any in-flight analysis.
     ///
-    /// Waits 700 ms after the last keystroke, then calls the AI. Populates
-    /// `focusSuggestions` with 0–4 focus-goal options; empty = topic is specific enough.
-    func scheduleNameAnalysis() {
+    /// Called immediately when the skill name field changes so stale chips
+    /// disappear before the new analysis completes.
+    func clearFocusSuggestions() {
         nameCheckTask?.cancel()
+        nameCheckTask = nil
         focusSuggestions = []
+        isAnalyzingFocus = false
+    }
+
+    /// Triggers a breadth analysis for the current skill name.
+    ///
+    /// Called when the name field loses focus (blur) or on submit — NOT on every
+    /// keystroke. Three guards before hitting the network:
+    /// 1. **Cache** — if this exact name was already checked, returns the cached result instantly.
+    /// 2. **Limit** — at most `focusCheckLimit` real AI calls per ViewModel instance.
+    /// 3. **Empty name** — no-ops silently.
+    func analyzeNameIfNeeded() {
+        nameCheckTask?.cancel()
         let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty else {
-            isAnalyzingFocus = false
+        guard !name.isEmpty else { return }
+
+        // Cache hit — free, no network call
+        if let cached = focusCache[name] {
+            focusSuggestions = cached
             return
         }
-        let ctx = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Hard limit reached — silently skip
+        guard focusCheckCount < focusCheckLimit else { return }
+
+        let ctx      = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
         let category = selectedCategory
+
         nameCheckTask = Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(700))
             guard !Task.isCancelled else { return }
             isAnalyzingFocus = true
+            focusCheckCount += 1
             let suggestions = await AIService.shared.analyzeSkillBreadth(
                 name: name, context: ctx, category: category)
             guard !Task.isCancelled else {
@@ -165,6 +196,7 @@ final class AddSkillViewModel {
                 return
             }
             isAnalyzingFocus = false
+            focusCache[name] = suggestions   // cache even empty results
             focusSuggestions = suggestions
         }
     }
