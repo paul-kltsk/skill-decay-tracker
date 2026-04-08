@@ -193,10 +193,10 @@ struct PaywallView: View {
             ZStack {
                 if sub.isPurchasing {
                     ProgressView()
-                        .tint(.white)
+                        .tint(Color.sdtOnPrimary)
                 } else {
                     Text(purchaseButtonTitle)
-                        .sdtFont(.bodySemibold, color: .white)
+                        .sdtFont(.bodySemibold, color: .sdtOnPrimary)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -322,7 +322,7 @@ struct ProBadgeLabel: View {
     var body: some View {
         Text("PRO")
             .font(.system(size: 10, weight: .bold, design: .rounded))
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.sdtOnPrimary)
             .padding(.horizontal, 7)
             .padding(.vertical, 3)
             .background(Color.sdtPrimary)

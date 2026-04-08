@@ -58,6 +58,14 @@ extension Color {
             : UIColor(hex: 0x6B7B98)
     })
 
+    /// Foreground for content placed on a `sdtPrimary`-filled surface.
+    /// Light mode: white (#FFFFFF); dark mode: near-black (#0D0D12) — matches sdtBackground dark.
+    static let sdtOnPrimary = Color(uiColor: UIColor { tc in
+        tc.userInterfaceStyle == .dark
+            ? UIColor(hex: 0x0D0D12)
+            : UIColor(hex: 0xFFFFFF)
+    })
+
     // MARK: Health Gradient (fixed — same in light & dark)
 
     /// Health 0.9–1.0 — Emerald: Thriving
