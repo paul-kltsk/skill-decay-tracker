@@ -1,11 +1,14 @@
 import SwiftUI
 import SwiftData
 
-/// ViewModel for the 4-step ``AddSkillView`` sheet.
+/// ViewModel for the 5-step ``AddSkillView`` sheet.
 ///
-/// **Step flow (normal):** Name → Category → Difficulty → Confirm
-/// **Step flow (splitting):** Name → Difficulty → Confirm  (category step skipped;
-///   AI assigns per-sub-skill categories)
+/// **Step flow:** Name → Category → Difficulty → Question Count → Confirm
+///
+/// As the user types on step 0, a debounced AI breadth analysis fires automatically
+/// and may populate `focusSuggestions` — pre-filled "Focus / goal" options the user
+/// can tap to speed up entry. Selecting one writes directly into `skillContext` without
+/// changing the rest of the flow.
 @Observable
 @MainActor
 final class AddSkillViewModel {
@@ -24,7 +27,7 @@ final class AddSkillViewModel {
         !skillName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    // MARK: - Step 1b: Context
+    // MARK: - Step 1b: Context / Focus
 
     /// Free-text goal or context the user provides — injected verbatim into AI prompts.
     var skillContext: String = ""
@@ -35,19 +38,21 @@ final class AddSkillViewModel {
     /// Pro users can pick 5–15.
     var selectedQuestionCount: Int = 5
 
-    // MARK: - Sub-Skill Analysis
+    // MARK: - Focus Analysis (breadth check)
 
-    /// AI-generated sub-skill suggestions — populated when AI says the topic is too broad.
+    /// AI-generated focus-goal suggestions — populated when AI detects the topic is broad.
     /// Internal (not private) so unit tests can inject values without hitting the network.
-    var subSkillSuggestions: [SkillSuggestion] = []
-    /// IDs of suggestions the user has selected to split into.
-    var selectedSubSkillIDs: Set<UUID> = []
-    /// True while the "Check & Continue" AI request is in flight.
-    private(set) var isCheckingAndAdvancing = false
+    var focusSuggestions: [SkillSuggestion] = []
+
+    /// `true` while the background breadth analysis is in flight.
+    private(set) var isAnalyzingFocus = false
+
+    /// Debounce task for the name-change–triggered breadth analysis.
+    private var nameCheckTask: Task<Void, Never>?
 
     // MARK: - Challenge Pre-Generation
 
-    /// AI-generated challenges for the first skill — ready before the user taps "Start Practice".
+    /// AI-generated challenges for the skill — ready before the user taps "Start Practice".
     ///
     /// Built in two phases:
     /// 1. **Baseline** — 5 questions generated as soon as the user lands on step 3.
@@ -60,27 +65,19 @@ final class AddSkillViewModel {
     /// Tracks the running baseline task so top-up can cancel it if the user advances early.
     private var baselineTask: Task<Void, Never>?
 
-    /// Shared AI prompt parameters — avoids duplicating the "first sub-skill" logic.
-    ///
-    /// Extracts scalars only; no `@Model` object crosses the actor boundary into AIService.
+    /// Shared AI prompt parameters.
     private var prefetchPromptParams: (name: String, category: SkillCategory, ctx: String, difficulty: Int) {
-        let name = isSplitting
-            ? (selectedSubSkills.first?.name ?? skillName.trimmingCharacters(in: .whitespacesAndNewlines))
-            : skillName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let category = isSplitting
-            ? (selectedSubSkills.first?.category ?? selectedCategory)
-            : selectedCategory
-        let ctx = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
-        let tempSkill = Skill(name: name, category: category, context: ctx, decayRate: difficultyDecayRate)
-        return (name, category, ctx, tempSkill.effectiveDifficulty)
+        let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let ctx  = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
+        let tempSkill = Skill(name: name, category: selectedCategory, context: ctx, decayRate: difficultyDecayRate)
+        return (name, selectedCategory, ctx, tempSkill.effectiveDifficulty)
     }
 
     /// Phase 1 — starts a background task that generates exactly 5 questions (the minimum).
     ///
     /// Called when the user lands on the Question Count step (step 3). Synchronous so the
     /// SwiftUI `.task` modifier fires it without awaiting — the real work happens inside
-    /// `baselineTask`. When cancelled by `startTopUpPrefetch`, the task returns silently
-    /// without touching `isPrefetchingChallenges`; top-up owns that flag from then on.
+    /// `baselineTask`.
     func startBaselinePrefetch() {
         baselineTask?.cancel()
         baselineTask = nil
@@ -109,8 +106,7 @@ final class AddSkillViewModel {
     /// Phase 2 — appends the questions needed to reach `selectedQuestionCount`.
     ///
     /// Called from `advance()` when leaving step 3. Cancels the baseline task first so
-    /// its eventual assignment can't overwrite the top-up result. Passes already-generated
-    /// question texts as `recentQuestions` to prevent duplicates.
+    /// its eventual assignment can't overwrite the top-up result.
     func startTopUpPrefetch() async {
         baselineTask?.cancel()
         baselineTask = nil
@@ -142,53 +138,36 @@ final class AddSkillViewModel {
         }
     }
 
-    /// Called when the user taps "Check & Continue" on step 0.
+    // MARK: - Focus Analysis
+
+    /// Debounced breadth analysis triggered whenever the user changes the skill name.
     ///
-    /// - If the skill name is specific enough → advances to next step automatically.
-    /// - If the topic is broad → stays on step 0 and shows split suggestions.
-    func checkThenAdvance() async {
-        guard isNameValid else {
-            nameError = "Please enter a skill name."
+    /// Waits 700 ms after the last keystroke, then calls the AI. Populates
+    /// `focusSuggestions` with 0–4 focus-goal options; empty = topic is specific enough.
+    func scheduleNameAnalysis() {
+        nameCheckTask?.cancel()
+        focusSuggestions = []
+        let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else {
+            isAnalyzingFocus = false
             return
         }
-        nameError = nil
-        let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let ctx  = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        isCheckingAndAdvancing = true
-        subSkillSuggestions    = []
-        selectedSubSkillIDs    = []
-
-        let suggestions = await AIService.shared.analyzeSkillBreadth(
-            name: name, context: ctx, category: selectedCategory)
-
-        isCheckingAndAdvancing = false
-
-        if suggestions.isEmpty {
-            // Specific enough — advance straight to the next step.
-            currentStep = nextStep(after: 0)
-        } else {
-            // Broad topic — show split options; user taps Continue when ready.
-            subSkillSuggestions = suggestions
+        let ctx = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
+        let category = selectedCategory
+        nameCheckTask = Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(700))
+            guard !Task.isCancelled else { return }
+            isAnalyzingFocus = true
+            let suggestions = await AIService.shared.analyzeSkillBreadth(
+                name: name, context: ctx, category: category)
+            guard !Task.isCancelled else {
+                isAnalyzingFocus = false
+                return
+            }
+            isAnalyzingFocus = false
+            focusSuggestions = suggestions
         }
     }
-
-    /// Toggles selection of a sub-skill suggestion chip.
-    func toggleSubSkill(_ suggestion: SkillSuggestion) {
-        if selectedSubSkillIDs.contains(suggestion.id) {
-            selectedSubSkillIDs.remove(suggestion.id)
-        } else {
-            selectedSubSkillIDs.insert(suggestion.id)
-        }
-    }
-
-    /// The suggestions the user has opted in to.
-    var selectedSubSkills: [SkillSuggestion] {
-        subSkillSuggestions.filter { selectedSubSkillIDs.contains($0.id) }
-    }
-
-    /// True when the user has selected at least one sub-skill to split into.
-    var isSplitting: Bool { !selectedSubSkills.isEmpty }
 
     // MARK: - Step 2: Category
 
@@ -233,14 +212,14 @@ final class AddSkillViewModel {
         }
     }
 
-    /// Advances the step without running AI checks.
-    /// Use ``checkThenAdvance()`` for step 0; this is for steps 1–3.
-    /// Advancing from step 3 (Question Count) kicks off the top-up prefetch.
+    /// Advances to the next step. Advancing from step 3 kicks off the top-up prefetch.
     func advance() {
         guard canAdvance else { return }
+        nameCheckTask?.cancel()     // no need to keep analysing once user proceeds
+        isAnalyzingFocus = false
         let leavingCountStep = currentStep == 3
         nameError = nil
-        let next = nextStep(after: currentStep)
+        let next = currentStep + 1
         guard next <= 4 else { return }
         currentStep = next
         if leavingCountStep {
@@ -250,87 +229,44 @@ final class AddSkillViewModel {
 
     func back() {
         guard currentStep > 0 else { return }
-        currentStep = prevStep(before: currentStep)
-    }
-
-    /// When splitting, category step (1) is skipped.
-    private func nextStep(after step: Int) -> Int {
-        if step == 0 && isSplitting { return 2 }
-        return step + 1
-    }
-
-    private func prevStep(before step: Int) -> Int {
-        if step == 2 && isSplitting { return 0 }
-        return step - 1
+        currentStep -= 1
     }
 
     // MARK: - Save
 
-    /// Creates one skill per selected sub-skill, or the original skill when not splitting.
+    /// Creates the skill and attaches any pre-generated challenges.
     ///
-    /// - Returns: All inserted `Skill` objects so callers can trigger AI pre-fetch.
+    /// - Returns: The inserted `Skill` object so callers can trigger additional work.
     @discardableResult
     func saveAll(context: ModelContext) -> [Skill] {
         let contextText = skillContext.trimmingCharacters(in: .whitespacesAndNewlines)
         let rate = difficultyDecayRate
         let difficulty = Int(initialDifficulty.rounded())
-        if isSplitting {
-            let skills = selectedSubSkills.map { sub in
-                Skill(name: sub.name, category: sub.category,
-                      context: contextText, decayRate: rate)
+
+        let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let skill = Skill(name: name, category: selectedCategory,
+                          context: contextText, decayRate: rate)
+        skill.questionCount = selectedQuestionCount
+        context.insert(skill)
+        if !prefetchedChallenges.isEmpty {
+            prefetchedChallenges.forEach { c in
+                skill.challenges = (skill.challenges ?? []) + [c]
+                context.insert(c)
             }
-            skills.forEach {
-                $0.questionCount = selectedQuestionCount
-                context.insert($0)
-            }
-            // Link any pre-generated challenges to the first sub-skill so its
-            // practice session can start without an extra AI round-trip.
-            if let firstSkill = skills.first, !prefetchedChallenges.isEmpty {
-                prefetchedChallenges.forEach { c in
-                    firstSkill.challenges = (firstSkill.challenges ?? []) + [c]
-                    context.insert(c)
-                }
-            }
-            do { try context.save() } catch {
+        }
+        do { try context.save() } catch {
             #if DEBUG
             print("[\(Self.self)] context.save() failed: \(error)")
             #endif
         }
-            WidgetDataService.refresh(context: context)
-            AnalyticsService.skillAdded(
-                category: selectedSubSkills.first?.category.rawValue ?? selectedCategory.rawValue,
-                isSplit: true,
-                subskillCount: skills.count,
-                difficulty: difficulty
-            )
-            return skills
-        } else {
-            let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
-            let skill = Skill(name: name, category: selectedCategory,
-                              context: contextText, decayRate: rate)
-            skill.questionCount = selectedQuestionCount
-            context.insert(skill)
-            // Link any pre-generated challenges so practice starts instantly.
-            if !prefetchedChallenges.isEmpty {
-                prefetchedChallenges.forEach { c in
-                    skill.challenges = (skill.challenges ?? []) + [c]
-                    context.insert(c)
-                }
-            }
-            do { try context.save() } catch {
-            #if DEBUG
-            print("[\(Self.self)] context.save() failed: \(error)")
-            #endif
-        }
-            WidgetDataService.refresh(context: context)
-            AnalyticsService.skillAdded(
-                category: selectedCategory.rawValue,
-                isSplit: false,
-                subskillCount: 0,
-                difficulty: difficulty
-            )
-            return [skill]
-        }
+        WidgetDataService.refresh(context: context)
+        AnalyticsService.skillAdded(
+            category: selectedCategory.rawValue,
+            isSplit: false,
+            subskillCount: 0,
+            difficulty: difficulty
+        )
+        return [skill]
     }
 
     // MARK: - Quick-fill from Suggestion

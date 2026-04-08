@@ -540,9 +540,9 @@ actor AIService {
         You are a learning expert helping a user set up a spaced-repetition practice app.
         The user wants to learn: "\(name)"\(contextLine)
 
-        Decide if this topic is TOO BROAD to practice effectively without narrowing it down.
+        Decide if this topic is TOO BROAD to practice effectively without a concrete focus goal.
 
-        TOO BROAD — suggest 3-4 focused sub-skills:
+        TOO BROAD — suggest 3-4 focused practice goals (short, actionable phrases):
         - Entire programming languages: "Swift", "Python", "JavaScript", "Kotlin", "Go"
         - Entire human languages: "Spanish", "Japanese", "French"
         - Vast domains: "Machine Learning", "iOS Development", "Web Development", "Design"
@@ -553,10 +553,12 @@ actor AIService {
         - Anything the user can realistically practice in focused sessions as-is
 
         If the user provided a goal/context, the topic is already specific enough — return empty subSkills.
-        Write sub-skill names in \(language).
+
+        Write focus goal names in \(language). Keep each suggestion short (2–5 words) and goal-oriented,
+        e.g. "Memory management & ARC", "B2 grammar & writing", "REST API design".
 
         Respond ONLY with valid JSON, no markdown:
-        {"subSkills": [{"name": "Swift — Memory Management", "category": "programming"}]}
+        {"subSkills": [{"name": "Memory management & ARC", "category": "programming"}]}
 
         Valid categories: programming, language, tool, concept, custom
         If the topic is already specific: {"subSkills": []}

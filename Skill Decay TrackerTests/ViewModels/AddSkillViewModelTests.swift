@@ -68,22 +68,23 @@ struct AddSkillViewModelTests {
             #expect(vm.currentStep == 1)
         }
 
-        @Test("advance() goes 0 → 1 → 2 → 3")
+        @Test("advance() goes 0 → 1 → 2 → 3 → 4")
         func advanceFullFlow() {
             let vm = AddSkillViewModel()
             vm.skillName = "Swift"
             vm.advance(); #expect(vm.currentStep == 1)
             vm.advance(); #expect(vm.currentStep == 2)
             vm.advance(); #expect(vm.currentStep == 3)
+            vm.advance(); #expect(vm.currentStep == 4)
         }
 
-        @Test("advance() does not go past step 3")
+        @Test("advance() does not go past step 4")
         func advanceDoesNotExceedMax() {
             let vm = AddSkillViewModel()
             vm.skillName = "Swift"
-            vm.currentStep = 3
+            vm.currentStep = 4
             vm.advance()
-            #expect(vm.currentStep == 3)
+            #expect(vm.currentStep == 4)
         }
 
         @Test("back() decrements step 3 → 2 → 1 → 0")
@@ -102,12 +103,11 @@ struct AddSkillViewModelTests {
             #expect(vm.currentStep == 0)
         }
 
-        @Test("advance() on step 0 with empty name sets nameError")
-        func advanceWithEmptyNameSetsError() {
+        @Test("advance() on step 0 with empty name does not advance")
+        func advanceWithEmptyNameDoesNotAdvance() {
             let vm = AddSkillViewModel()
             vm.skillName = ""
             vm.advance()
-            #expect(vm.nameError != nil)
             #expect(vm.currentStep == 0)
         }
 
@@ -123,86 +123,51 @@ struct AddSkillViewModelTests {
         }
     }
 
-    // MARK: - Splitting navigation (category step skipped)
+    // MARK: - Focus suggestions
 
-    @Suite("Splitting navigation", .tags(.viewModel, .navigation))
+    @Suite("Focus suggestions", .tags(.viewModel))
     @MainActor
-    struct SplittingNavigationTests {
+    struct FocusSuggestionsTests {
 
-        private func vmWithSelectedSubSkills() -> AddSkillViewModel {
+        @Test("focusSuggestions is empty by default")
+        func emptyByDefault() {
             let vm = AddSkillViewModel()
-            vm.skillName = "Spanish"
-            // Manually inject a suggestion and select it to activate splitting.
-            let suggestion = SkillSuggestion(name: "Spanish — Grammar", category: .language)
-            vm.subSkillSuggestions = [suggestion]
-            vm.selectedSubSkillIDs = [suggestion.id]
-            return vm
+            #expect(vm.focusSuggestions.isEmpty)
         }
 
-        @Test("isSplitting is false by default")
-        func isSplittingFalseByDefault() {
+        @Test("isAnalyzingFocus is false by default")
+        func notAnalyzingByDefault() {
             let vm = AddSkillViewModel()
-            #expect(!vm.isSplitting)
+            #expect(!vm.isAnalyzingFocus)
         }
 
-        @Test("isSplitting is true when a sub-skill is selected")
-        func isSplittingWhenSubSkillSelected() {
-            let vm = vmWithSelectedSubSkills()
-            #expect(vm.isSplitting)
+        @Test("scheduleNameAnalysis clears focusSuggestions immediately")
+        func scheduleClearsSuggestions() {
+            let vm = AddSkillViewModel()
+            let suggestion = SkillSuggestion(name: "Memory management", category: .programming)
+            vm.focusSuggestions = [suggestion]
+            vm.skillName = "Swift"
+            vm.scheduleNameAnalysis()
+            // Suggestions should be cleared synchronously on schedule
+            #expect(vm.focusSuggestions.isEmpty)
         }
 
-        @Test("advance() from step 0 jumps to step 2 when splitting")
-        func advanceSkipsCategoryStepWhenSplitting() {
-            let vm = vmWithSelectedSubSkills()
+        @Test("advance() from step 0 always goes to step 1 (no skipping)")
+        func advanceFromNameAlwaysGoesToCategory() {
+            let vm = AddSkillViewModel()
+            vm.skillName = "Swift"
+            // Even with focus suggestions present, navigation is always linear
+            vm.focusSuggestions = [SkillSuggestion(name: "Memory management", category: .programming)]
             vm.advance()
-            #expect(vm.currentStep == 2, "Category step (1) must be skipped when splitting")
+            #expect(vm.currentStep == 1)
         }
 
-        @Test("advance() from step 2 goes to step 3 when splitting")
-        func advanceFromDifficultyToConfirmWhenSplitting() {
-            let vm = vmWithSelectedSubSkills()
-            vm.currentStep = 2
-            vm.advance()
-            #expect(vm.currentStep == 3)
-        }
-
-        @Test("back() from step 2 returns to step 0 when splitting")
-        func backFromDifficultyReturnToNameWhenSplitting() {
-            let vm = vmWithSelectedSubSkills()
+        @Test("back() from step 2 goes to step 1 (no skipping)")
+        func backFromDifficultyGoesToCategory() {
+            let vm = AddSkillViewModel()
             vm.currentStep = 2
             vm.back()
-            #expect(vm.currentStep == 0, "Category step (1) must be skipped on back() when splitting")
-        }
-
-        @Test("toggleSubSkill adds and removes IDs correctly")
-        func toggleSubSkillToggles() {
-            let vm = AddSkillViewModel()
-            let suggestion = SkillSuggestion(name: "Grammar", category: .language)
-            vm.subSkillSuggestions = [suggestion]
-
-            vm.toggleSubSkill(suggestion)
-            #expect(vm.selectedSubSkillIDs.contains(suggestion.id))
-
-            vm.toggleSubSkill(suggestion)
-            #expect(!vm.selectedSubSkillIDs.contains(suggestion.id))
-        }
-
-        @Test("selectedSubSkills only contains toggled-on suggestions")
-        func selectedSubSkillsMatchesIDs() {
-            let vm = AddSkillViewModel()
-            let s1 = SkillSuggestion(name: "Grammar",     category: .language)
-            let s2 = SkillSuggestion(name: "Vocabulary",  category: .language)
-            let s3 = SkillSuggestion(name: "Conversation", category: .language)
-            vm.subSkillSuggestions = [s1, s2, s3]
-
-            vm.toggleSubSkill(s1)
-            vm.toggleSubSkill(s3)
-
-            let selected = vm.selectedSubSkills
-            #expect(selected.count == 2)
-            #expect(selected.contains { $0.id == s1.id })
-            #expect(selected.contains { $0.id == s3.id })
-            #expect(!selected.contains { $0.id == s2.id })
+            #expect(vm.currentStep == 1)
         }
     }
 

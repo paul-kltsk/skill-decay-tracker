@@ -1,11 +1,9 @@
 import SwiftUI
 import SwiftData
 
-/// A 4-step modal wizard for adding a new skill to the portfolio.
+/// A 5-step modal wizard for adding a new skill to the portfolio.
 ///
-/// Steps: **Name → Category → Difficulty → Confirm**
-/// When the user selects AI-suggested sub-skills the Category step is skipped;
-/// each sub-skill receives the AI-assigned category.
+/// Steps: **Name → Category → Difficulty → Question Count → Confirm**
 ///
 /// ```swift
 /// .sheet(isPresented: $show) {
@@ -127,34 +125,16 @@ struct AddSkillView: View {
             }
 
         } else if viewModel.currentStep == 0 {
-            // Name step — Check & Continue (AI validation before advancing)
+            // Name step — Continue (AI check runs automatically in background)
             Button {
-                // Dismiss keyboard from parent scope — @FocusState lives in NameStepView (child),
-                // so UIKit resign is the only way to dismiss it from AddSkillView's toolbar.
                 UIApplication.shared.sendAction(
                     #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                if !viewModel.subSkillSuggestions.isEmpty {
-                    // Already checked; advance with original or selected sub-skills.
-                    viewModel.advance()
-                } else {
-                    Task { await viewModel.checkThenAdvance() }
-                }
+                viewModel.advance()
             } label: {
-                if viewModel.isCheckingAndAdvancing {
-                    HStack(spacing: SDTSpacing.sm) {
-                        ProgressView()
-                            .scaleEffect(0.85)
-                            .tint(.white)
-                        Text("Checking…")
-                    }
-                } else if !viewModel.subSkillSuggestions.isEmpty {
-                    Text("Continue")
-                } else {
-                    Label("Check & Continue", systemImage: "sparkles")
-                }
+                Text("Continue")
             }
             .buttonStyle(PrimaryButtonStyle(tint: viewModel.selectedCategory.color))
-            .disabled(!viewModel.isNameValid || viewModel.isCheckingAndAdvancing)
+            .disabled(!viewModel.isNameValid)
 
         } else {
             // Steps 1–2 — plain Back / Continue
@@ -201,9 +181,9 @@ private struct NameStepView: View {
                     }
                 }
 
-                // Context field
+                // Context / focus field
                 VStack(alignment: .leading, spacing: SDTSpacing.sm) {
-                    Text("Goal or context")
+                    Text("Focus or goal")
                         .sdtFont(.captionSemibold, color: .sdtSecondary)
                     TextField("e.g. DELF B2 exam, Jazz improvisation, Organic chemistry…",
                               text: $viewModel.skillContext)
@@ -212,43 +192,88 @@ private struct NameStepView: View {
                         .background(Color.sdtSurface)
                         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
                         .submitLabel(.done)
+                        .onChange(of: viewModel.skillContext) {
+                            // Deselect chip if the user manually edits the text
+                            // (chip is "selected" only when context exactly matches a suggestion)
+                        }
                 }
 
-                // Sub-skill suggestions (shown after AI check finds a broad topic)
-                subSkillSection
+                // AI analysis banner (shown while check is in flight)
+                if viewModel.isAnalyzingFocus {
+                    analyzingBanner
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+
+                // Focus suggestions (shown after AI check finds a broad topic)
+                focusSuggestionsSection
             }
             .padding(.horizontal, SDTSpacing.lg)
             .padding(.top, SDTSpacing.xl)
         }
         .onAppear { nameFocused = true }
+        .onChange(of: viewModel.skillName) {
+            viewModel.scheduleNameAnalysis()
+        }
+        .animation(SDTAnimation.scoreChange, value: viewModel.isAnalyzingFocus)
+        .animation(SDTAnimation.scoreChange, value: viewModel.focusSuggestions.isEmpty)
     }
 
-    // MARK: Sub-Skill Section
+    // MARK: Analyzing Banner
+
+    private var analyzingBanner: some View {
+        HStack(spacing: SDTSpacing.md) {
+            ProgressView()
+                .scaleEffect(0.8)
+                .tint(Color.sdtCategoryProgramming)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("AI is exploring focused directions…")
+                    .sdtFont(.captionSemibold)
+                Text("We'll suggest a more specific goal if it makes sense")
+                    .sdtFont(.caption, color: .sdtSecondary)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, SDTSpacing.md)
+        .padding(.vertical, SDTSpacing.sm)
+        .background(Color.sdtCategoryProgramming.opacity(0.07))
+        .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
+        .overlay {
+            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
+                .strokeBorder(Color.sdtCategoryProgramming.opacity(0.2), lineWidth: 1)
+        }
+    }
+
+    // MARK: Focus Suggestions Section
 
     @ViewBuilder
-    private var subSkillSection: some View {
-        if !viewModel.subSkillSuggestions.isEmpty {
+    private var focusSuggestionsSection: some View {
+        if !viewModel.focusSuggestions.isEmpty {
             VStack(alignment: .leading, spacing: SDTSpacing.md) {
                 HStack(spacing: SDTSpacing.xs) {
-                    Image(systemName: "sparkles")
+                    Image(systemName: "scope")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Color.sdtCategoryProgramming)
-                    Text("Split into sub-skills")
+                    Text("AI suggests a more focused direction")
                         .sdtFont(.captionSemibold, color: .sdtSecondary)
                 }
 
-                Text("This topic covers multiple areas. Select the sub-skills you want to track, or tap Continue to add as one skill.")
+                Text("Tap a suggestion to use it as your focus goal, or write your own in the field above.")
                     .sdtFont(.caption, color: .sdtSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 FlexRow(spacing: SDTSpacing.sm) {
-                    ForEach(viewModel.subSkillSuggestions) { suggestion in
-                        SubSkillChip(
-                            suggestion: suggestion,
-                            isSelected: viewModel.selectedSubSkillIDs.contains(suggestion.id)
-                        ) {
+                    ForEach(viewModel.focusSuggestions) { suggestion in
+                        let isSel = viewModel.skillContext
+                            .trimmingCharacters(in: .whitespacesAndNewlines) == suggestion.name
+                        FocusChip(suggestion: suggestion, isSelected: isSel) {
                             withAnimation(SDTAnimation.scoreChange) {
-                                viewModel.toggleSubSkill(suggestion)
+                                if isSel {
+                                    viewModel.skillContext = ""
+                                } else {
+                                    viewModel.skillContext = suggestion.name
+                                }
                             }
                         }
                     }
@@ -266,9 +291,9 @@ private struct NameStepView: View {
     }
 }
 
-// MARK: - Sub-Skill Chip
+// MARK: - Focus Chip
 
-private struct SubSkillChip: View {
+private struct FocusChip: View {
     let suggestion: SkillSuggestion
     let isSelected: Bool
     let onTap: () -> Void
@@ -283,17 +308,15 @@ private struct SubSkillChip: View {
                 Text(suggestion.name)
                     .sdtFont(.captionSemibold)
             }
-            .foregroundStyle(isSelected ? .white : Color.sdtPrimary)
+            .foregroundStyle(isSelected ? .white : Color.sdtCategoryProgramming)
             .padding(.horizontal, SDTSpacing.md)
             .padding(.vertical, SDTSpacing.xs)
-            .background(isSelected
-                        ? suggestion.category.color
-                        : Color.sdtSurface)
+            .background(isSelected ? Color.sdtCategoryProgramming : Color.sdtSurface)
             .clipShape(Capsule())
             .overlay {
                 if !isSelected {
                     Capsule()
-                        .strokeBorder(suggestion.category.color.opacity(0.4), lineWidth: 1)
+                        .strokeBorder(Color.sdtCategoryProgramming.opacity(0.4), lineWidth: 1)
                 }
             }
         }
@@ -571,11 +594,7 @@ private struct ConfirmStepView: View {
                     subtitle: "You can edit these settings later in Skill Detail."
                 )
 
-                if viewModel.isSplitting {
-                    splittingConfirm
-                } else {
-                    singleConfirm
-                }
+                singleConfirm
             }
             .padding(.horizontal, SDTSpacing.lg)
             .padding(.top, SDTSpacing.xl)
@@ -641,70 +660,6 @@ private struct ConfirmStepView: View {
                 Text("AI will generate 5 personalised challenges in the background.")
                     .sdtFont(.caption, color: .sdtSecondary)
             }
-        }
-    }
-
-    // MARK: Sub-skill splitting confirm
-
-    private var splittingConfirm: some View {
-        VStack(alignment: .leading, spacing: SDTSpacing.md) {
-            // Skills to create
-            VStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(viewModel.selectedSubSkills.enumerated()), id: \.element.id) { index, sub in
-                    HStack(spacing: SDTSpacing.md) {
-                        Image(systemName: sub.category.systemImage)
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundStyle(sub.category.color)
-                            .frame(width: 24)
-
-                        Text(sub.name)
-                            .sdtFont(.bodySemibold)
-
-                        Spacer()
-
-                        Text(sub.category.rawValue)
-                            .sdtFont(.caption, color: .sdtSecondary)
-                    }
-                    .padding(SDTSpacing.md)
-
-                    if index < viewModel.selectedSubSkills.count - 1 {
-                        Divider().padding(.leading, 52)
-                    }
-                }
-            }
-            .sdtCard()
-
-            // Shared settings row
-            HStack(spacing: SDTSpacing.md) {
-                Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Color.sdtSecondary)
-                    .frame(width: 24)
-                Text("All starting at")
-                    .sdtFont(.bodyMedium, color: .sdtSecondary)
-                Spacer()
-                Text(viewModel.difficultyLabel)
-                    .sdtFont(.bodySemibold)
-            }
-            .padding(SDTSpacing.md)
-            .sdtCard()
-
-            if !viewModel.skillContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                HStack(spacing: SDTSpacing.md) {
-                    Image(systemName: "text.quote")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.sdtSecondary)
-                        .frame(width: 24)
-                    Text(viewModel.skillContext.trimmingCharacters(in: .whitespacesAndNewlines))
-                        .sdtFont(.bodyMedium, color: .sdtSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(SDTSpacing.md)
-                .sdtCard()
-            }
-
-            prefetchStatusLabel
-                .padding(.horizontal, SDTSpacing.xs)
         }
     }
 
