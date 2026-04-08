@@ -98,6 +98,10 @@ final class PracticeViewModel {
     private(set) var challenges: [Challenge] = []
     /// Index of the currently displayed challenge.
     private(set) var currentIndex = 0
+    /// Challenges the user skipped — presented after all main questions are answered.
+    private(set) var skippedChallenges: [Challenge] = []
+    /// `true` while working through the skipped-question review phase.
+    private(set) var isReviewingSkipped = false
 
     /// The text answer typed by the user (open-ended / code types).
     var userAnswer = ""
@@ -261,7 +265,16 @@ final class PracticeViewModel {
 
     private func beginChallenge() {
         guard currentIndex < challenges.count else {
-            finishSession()
+            if !skippedChallenges.isEmpty {
+                // Swap in the skipped queue and restart from the top.
+                challenges = skippedChallenges
+                skippedChallenges = []
+                currentIndex = 0
+                isReviewingSkipped = true
+                beginChallenge()
+            } else {
+                finishSession()
+            }
             return
         }
         userAnswer    = ""
@@ -314,11 +327,15 @@ final class PracticeViewModel {
         }
     }
 
-    /// Skips the current challenge (counts as incorrect for decay purposes).
+    /// Skips the current challenge and queues it for review at the end of the session.
     func skipChallenge(context: ModelContext) {
         timerTask?.cancel()
         AnalyticsService.challengeSkipped(mode: currentMode.analyticsName)
-        // Don't record — just move on without updating decay
+        // Queue the skipped challenge for review — unless already in the review phase,
+        // in which case just drop it to prevent infinite re-queuing.
+        if !isReviewingSkipped, let current = currentChallenge {
+            skippedChallenges.append(current)
+        }
         currentIndex += 1
         beginChallenge()
     }
@@ -481,14 +498,16 @@ final class PracticeViewModel {
                 totalChallenges: challenges.count
             )
         }
-        isSessionActive   = false
-        phase             = .idle
-        challenges        = []
-        currentIndex      = 0
-        summary           = nil
-        sessionResults    = []
-        sessionXP         = 0
-        sessionSkillStats = [:]
+        isSessionActive    = false
+        phase              = .idle
+        challenges         = []
+        currentIndex       = 0
+        skippedChallenges  = []
+        isReviewingSkipped = false
+        summary            = nil
+        sessionResults     = []
+        sessionXP          = 0
+        sessionSkillStats  = [:]
     }
 
     // MARK: - Difficulty Adjustment

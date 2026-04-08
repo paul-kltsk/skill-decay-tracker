@@ -181,6 +181,9 @@ private struct ActiveChallengeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: SDTSpacing.lg) {
+                    if viewModel.isReviewingSkipped {
+                        skippedReviewBanner
+                    }
                     if let challenge = viewModel.currentChallenge {
                         SDTChallengeCard(
                             challenge: challenge,
@@ -256,6 +259,22 @@ private struct ActiveChallengeView: View {
         case .codeCompletion:
             CodeCompletionView(answer: $viewModel.userAnswer)
         }
+    }
+
+    // MARK: Skipped Review Banner
+
+    private var skippedReviewBanner: some View {
+        HStack(spacing: SDTSpacing.xs) {
+            Image(systemName: "arrow.uturn.left.circle.fill")
+            Text("Revisiting skipped questions")
+                .sdtFont(.captionSemibold, color: .sdtHealthFading)
+        }
+        .foregroundStyle(Color.sdtHealthFading)
+        .padding(.horizontal, SDTSpacing.md)
+        .padding(.vertical, SDTSpacing.xs)
+        .background(Color.sdtHealthFading.opacity(0.12))
+        .clipShape(Capsule())
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: Submit Bar
