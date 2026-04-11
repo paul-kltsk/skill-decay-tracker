@@ -235,6 +235,13 @@ struct PaywallView: View {
             Text("Subscriptions renew automatically. Cancel anytime in Settings.")
                 .sdtFont(.caption, color: .sdtSecondary)
                 .multilineTextAlignment(.center)
+
+            HStack(spacing: SDTSpacing.lg) {
+                Link("Privacy Policy", destination: AppConstants.URLs.privacyPolicy)
+                Text("·").foregroundStyle(Color.sdtSecondary.opacity(0.4))
+                Link("Terms of Service", destination: AppConstants.URLs.termsOfService)
+            }
+            .sdtFont(.caption, color: .sdtSecondary)
         }
         .opacity(appeared ? 1 : 0)
         .animation(.easeOut(duration: 0.4).delay(0.55), value: appeared)

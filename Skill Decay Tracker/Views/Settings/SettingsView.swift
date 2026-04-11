@@ -198,11 +198,7 @@ struct SettingsView: View {
                     Spacer()
                     ProBadgeLabel()
                 }
-                Button("Manage Subscription") {
-                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
-                        UIApplication.shared.open(url)
-                    }
-                }
+                Link("Manage Subscription", destination: AppConstants.URLs.manageSubscriptions)
                 .foregroundStyle(Color.sdtSecondary)
             } else {
                 Button {
@@ -227,6 +223,14 @@ struct SettingsView: View {
 
     private var dataSection: some View {
         Section {
+            Link(destination: AppConstants.URLs.privacyPolicy) {
+                Label("Privacy Policy", systemImage: "hand.raised")
+            }
+
+            Link(destination: AppConstants.URLs.termsOfService) {
+                Label("Terms of Service", systemImage: "doc.text")
+            }
+
             Button(role: .destructive) {
                 viewModel.showDeleteConfirm = true
             } label: {
@@ -243,6 +247,10 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section {
+            Link(destination: AppConstants.URLs.support) {
+                Label("Support & FAQ", systemImage: "questionmark.circle")
+            }
+
             HStack {
                 Text("Version")
                 Spacer()

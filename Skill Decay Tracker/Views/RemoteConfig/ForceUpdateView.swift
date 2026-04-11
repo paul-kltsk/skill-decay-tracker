@@ -119,10 +119,7 @@ struct ForceUpdateView: View {
     // MARK: Actions
 
     private func openAppStore() {
-        // Replace with your App Store URL after publishing
-        let appStoreURL = "https://apps.apple.com/app/id0000000000"
-        guard let url = URL(string: appStoreURL) else { return }
-        UIApplication.shared.open(url)
+        UIApplication.shared.open(AppConstants.URLs.appStore)
     }
 
     // MARK: Animation
