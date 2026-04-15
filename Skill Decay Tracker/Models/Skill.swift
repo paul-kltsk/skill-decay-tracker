@@ -137,17 +137,27 @@ final class Skill {
 
     /// Challenges available to show in a practice session.
     ///
-    /// Includes two categories, sorted so review-due challenges appear first:
+    /// Includes two or three categories, sorted so weaknesses are tackled first:
     /// 1. **Review-due** — previously answered incorrectly / with low confidence,
     ///    whose `nextReviewDate` has passed. Shown first as priority repetitions.
     /// 2. **Fresh** — never been shown (`isUsed == false`).
-    ///
-    /// Mastered challenges (`isUsed && nextReviewDate == nil`) are excluded.
+    /// 3. **Mastered (decay-reactivated)** — included only when `healthScore < 0.5`
+    ///    (skill is Fading or worse). Even "mastered" knowledge fades when a skill
+    ///    hasn't been practised for a long time; reintroducing these questions lets
+    ///    the user rebuild retention before health drops further.
     var pendingChallenges: [Challenge] {
         let all = challenges ?? []
         let now = Date.now
         let reviewDue = all.filter { $0.isUsed && ($0.nextReviewDate ?? .distantFuture) <= now }
         let fresh     = all.filter { !$0.isUsed }
-        return reviewDue + fresh   // review-due first → tackled weaknesses before new material
+
+        // When the skill is significantly decayed, surface previously-mastered questions
+        // so the user can re-consolidate forgotten material.
+        if healthScore < 0.5 {
+            let mastered = all.filter { $0.isUsed && $0.nextReviewDate == nil }
+            return reviewDue + fresh + mastered
+        }
+
+        return reviewDue + fresh   // review-due first → tackle weaknesses before new material
     }
 }

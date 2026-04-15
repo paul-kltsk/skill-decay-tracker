@@ -215,10 +215,10 @@ final class PracticeViewModel {
             }
             let target = challengeCount ?? preferredSessionCount
             var pending = skill.pendingChallenges
-            // Only generate if we have fewer than 5 challenges (the pre-fetch minimum).
-            // This ensures pre-fetched challenges from skill creation are used directly
-            // without triggering a second AI round-trip.
-            if pending.count < min(5, target) {
+            // Generate if we have fewer challenges than the session target.
+            // This ensures the user always gets the full requested number of questions,
+            // regardless of how many are already pending.
+            if pending.count < target {
                 let more = await fetchOrGenerate(
                     skill: skill, count: target - pending.count, context: context)
                 if case .rateLimited = phase { return }
@@ -235,8 +235,8 @@ final class PracticeViewModel {
             // Fall back to the global session-length preference.
             let target = challengeCount ?? preferredSessionCount
             var pending = skill.pendingChallenges
-            // Only generate if we have fewer than 5 challenges (the pre-fetch minimum).
-            if pending.count < min(5, target) {
+            // Generate if we have fewer challenges than the session target.
+            if pending.count < target {
                 let more = await fetchOrGenerate(
                     skill: skill, count: target - pending.count, context: context)
                 if case .rateLimited = phase { return }
