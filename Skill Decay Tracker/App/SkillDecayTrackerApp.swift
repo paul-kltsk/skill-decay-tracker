@@ -73,6 +73,7 @@ struct SkillDecayTrackerApp: App {
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active {
                         WidgetDataService.refresh(context: container.mainContext)
+                        Task { await remoteConfig.fetch() }
                     }
                 }
         }
