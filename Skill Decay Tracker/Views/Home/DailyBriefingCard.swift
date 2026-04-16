@@ -62,7 +62,7 @@ struct DailyBriefingCard: View {
                 Label("All caught up!", systemImage: "checkmark.seal.fill")
                     .sdtFont(.captionSemibold, color: .white.opacity(0.9))
             } else {
-                Text("\(overdueCount) skill\(overdueCount == 1 ? "" : "s") need review")
+                Text("\(overdueCount) skills need review")
                     .sdtFont(.captionSemibold, color: .white.opacity(0.9))
                     .multilineTextAlignment(.trailing)
             }

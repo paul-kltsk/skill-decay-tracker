@@ -80,7 +80,7 @@ struct AnalyticsView: View {
                         .sdtFont(.titleSmall)
                     Text(Color.sdtHealthLabel(for: health))
                         .sdtFont(.bodyMedium, color: Color.sdtHealth(for: health))
-                    Text("\(skills.count) skill\(skills.count == 1 ? "" : "s") tracked")
+                    Text("\(skills.count) skills tracked")
                         .sdtFont(.caption, color: .sdtSecondary)
                 }
 

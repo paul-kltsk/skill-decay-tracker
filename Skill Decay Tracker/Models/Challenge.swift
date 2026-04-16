@@ -16,11 +16,11 @@ enum ChallengeType: String, Codable, CaseIterable, Sendable {
 
     var displayName: String {
         switch self {
-        case .multipleChoice: "Multiple Choice"
-        case .trueFalse:      "True / False"
-        case .openEnded:      "Open Ended"
-        case .fillInTheBlank: "Fill in the Blank"
-        case .codeCompletion: "Code Completion"
+        case .multipleChoice: String(localized: "Multiple Choice")
+        case .trueFalse:      String(localized: "True / False")
+        case .openEnded:      String(localized: "Open Ended")
+        case .fillInTheBlank: String(localized: "Fill in the Blank")
+        case .codeCompletion: String(localized: "Code Completion")
         }
     }
 

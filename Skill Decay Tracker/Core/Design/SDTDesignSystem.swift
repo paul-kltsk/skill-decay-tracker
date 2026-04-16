@@ -31,6 +31,17 @@ enum SkillCategory: String, CaseIterable, Codable, Sendable {
         case .custom:      "star"
         }
     }
+
+    /// Localised display name for this category.
+    var displayName: String {
+        switch self {
+        case .programming: String(localized: "Programming")
+        case .language:    String(localized: "Language")
+        case .tool:        String(localized: "Tool")
+        case .concept:     String(localized: "Concept")
+        case .custom:      String(localized: "Custom")
+        }
+    }
 }
 
 // MARK: - Health Color Resolution
@@ -58,11 +69,11 @@ extension Color {
     /// Human-readable label for a given health score.
     static func sdtHealthLabel(for score: Double) -> String {
         switch score {
-        case 0.9...: "Thriving"
-        case 0.7...: "Healthy"
-        case 0.5...: "Fading"
-        case 0.3...: "Wilting"
-        default:     "Critical"
+        case 0.9...: String(localized: "Thriving")
+        case 0.7...: String(localized: "Healthy")
+        case 0.5...: String(localized: "Fading")
+        case 0.3...: String(localized: "Wilting")
+        default:     String(localized: "Critical")
         }
     }
 }

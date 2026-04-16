@@ -210,7 +210,7 @@ final class PracticeViewModel {
 
         case .quickPractice:
             guard let skill = skills.min(by: { $0.healthScore < $1.healthScore }) else {
-                phase = .error("No skills to practice. Add some skills first.")
+                phase = .error(String(localized: "No skills to practice. Add some skills first."))
                 return
             }
             let target = challengeCount ?? preferredSessionCount
@@ -228,7 +228,7 @@ final class PracticeViewModel {
 
         case .deepDive(let skillID):
             guard let skill = skills.first(where: { $0.id == skillID }) else {
-                phase = .error("Skill not found.")
+                phase = .error(String(localized: "Skill not found."))
                 return
             }
             // Prefer the per-skill count passed by the caller (accounts for Pro/free cap).
@@ -254,7 +254,7 @@ final class PracticeViewModel {
         currentIndex = 0
 
         if challenges.isEmpty {
-            phase = .error("No challenges found. Try again or add more skills.")
+            phase = .error(String(localized: "No challenges found. Try again or add more skills."))
         } else {
             AnalyticsService.sessionStarted(mode: mode.analyticsName, challengeCount: challenges.count)
             beginChallenge()
