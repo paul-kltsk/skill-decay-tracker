@@ -2638,6 +2638,972 @@
           }
         }
       }
+    },
+    "%@ · My Key" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Мой ключ"
+          }
+        }
+      }
+    },
+    "%lld skills in group" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld skill in group"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld skills in group"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навык в группе"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навыка в группе"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навыков в группе"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "5-challenge sessions, any skill" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5 заданий за сессию, любой навык"
+          }
+        }
+      }
+    },
+    "10–20 sec" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10–20 сек"
+          }
+        }
+      }
+    },
+    "3–5 sec" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–5 сек"
+          }
+        }
+      }
+    },
+    "5–10 sec" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5–10 сек"
+          }
+        }
+      }
+    },
+    "Add any skill" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте любой навык"
+          }
+        }
+      }
+    },
+    "AI generates challenges" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI создаёт задания"
+          }
+        }
+      }
+    },
+    "All-time history and export" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вся история и экспорт"
+          }
+        }
+      }
+    },
+    "Average" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Средне"
+          }
+        }
+      }
+    },
+    "Balanced" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбалансированный"
+          }
+        }
+      }
+    },
+    "Beginner" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начинающий"
+          }
+        }
+      }
+    },
+    "Best" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лучший"
+          }
+        }
+      }
+    },
+    "Best reasoning & long-context understanding" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лучшее рассуждение и понимание длинного контекста"
+          }
+        }
+      }
+    },
+    "Billed monthly, cancel anytime" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежемесячная оплата, отменить в любое время"
+          }
+        }
+      }
+    },
+    "Billed once per year" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оплата раз в год"
+          }
+        }
+      }
+    },
+    "Broad knowledge, fast responses" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Широкие знания, быстрые ответы"
+          }
+        }
+      }
+    },
+    "Centurion" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центурион"
+          }
+        }
+      }
+    },
+    "Challenging" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Трудно"
+          }
+        }
+      }
+    },
+    "Choose a Plan" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать тариф"
+          }
+        }
+      }
+    },
+    "Collector" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коллекционер"
+          }
+        }
+      }
+    },
+    "Complete 100 challenges" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполните 100 заданий"
+          }
+        }
+      }
+    },
+    "Complete your first challenge" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполните первое задание"
+          }
+        }
+      }
+    },
+    "Constellation" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Созвездие"
+          }
+        }
+      }
+    },
+    "Dark" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тёмная"
+          }
+        }
+      }
+    },
+    "Decay keeps you honest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Угасание держит вас честным"
+          }
+        }
+      }
+    },
+    "Deep Dive (15 challenges)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Глубокое (15 заданий)"
+          }
+        }
+      }
+    },
+    "Deep Dive is a Pro feature.\nFocus on one skill until you master it." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Глубокое погружение — функция Pro.\nСосредоточьтесь на одном навыке до мастерства."
+          }
+        }
+      }
+    },
+    "Deep Dive Mode" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим глубокого погружения"
+          }
+        }
+      }
+    },
+    "Earn 5,000 XP" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заработайте 5 000 XP"
+          }
+        }
+      }
+    },
+    "Every practice session gets fresh micro-challenges tailored to your skill level." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Каждая сессия — новые мини-задания, подобранные к вашему уровню."
+          }
+        }
+      }
+    },
+    "Expert" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эксперт"
+          }
+        }
+      }
+    },
+    "Fast" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрый"
+          }
+        }
+      }
+    },
+    "First Step" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Первый шаг"
+          }
+        }
+      }
+    },
+    "Full Analytics" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полная аналитика"
+          }
+        }
+      }
+    },
+    "Full analytics are a Pro feature.\nSee your complete learning history." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полная аналитика — функция Pro.\nСмотрите всю историю обучения."
+          }
+        }
+      }
+    },
+    "Full focus on one skill at a time" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полный фокус на одном навыке"
+          }
+        }
+      }
+    },
+    "Future Features" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Будущие функции"
+          }
+        }
+      }
+    },
+    "Get Pro for %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Получить Pro за %@"
+          }
+        }
+      }
+    },
+    "Google's multimodal AI — fast & free tier" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мультимодальный AI от Google — быстрый и бесплатный уровень"
+          }
+        }
+      }
+    },
+    "Grid" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сетка"
+          }
+        }
+      }
+    },
+    "Health" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Здоровье"
+          }
+        }
+      }
+    },
+    "in %lldd" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "через %lld дн."
+          }
+        }
+      }
+    },
+    "Invalid key" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неверный ключ"
+          }
+        }
+      }
+    },
+    "Key saved" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ключ сохранён"
+          }
+        }
+      }
+    },
+    "Legend" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Легенда"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Светлая"
+          }
+        }
+      }
+    },
+    "Lightweight model, great for everyday practice" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лёгкая модель, отлично подходит для ежедневной практики"
+          }
+        }
+      }
+    },
+    "Longer sessions are a Pro feature.\nUnlock 7, 10, and 15 questions per session." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Длинные сессии — функция Pro.\nРазблокируйте 7, 10 и 15 вопросов за сессию."
+          }
+        }
+      }
+    },
+    "Maintain a 30-day streak" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поддерживайте серию 30 дней"
+          }
+        }
+      }
+    },
+    "Maintain a 7-day streak" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поддерживайте серию 7 дней"
+          }
+        }
+      }
+    },
+    "Medium (10 challenges)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Средняя (10 заданий)"
+          }
+        }
+      }
+    },
+    "Moderate" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Умеренно"
+          }
+        }
+      }
+    },
+    "Month Warrior" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Воин месяца"
+          }
+        }
+      }
+    },
+    "Most capable model, ideal for complex topics" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Самая мощная модель, идеальна для сложных тем"
+          }
+        }
+      }
+    },
+    "Needs review every ~1 day" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требует повторения каждый ~1 день"
+          }
+        }
+      }
+    },
+    "Needs review every ~14 days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требует повторения каждые ~14 дней"
+          }
+        }
+      }
+    },
+    "Needs review every ~3 days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требует повторения каждые ~3 дня"
+          }
+        }
+      }
+    },
+    "Needs review every ~5 days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требует повторения каждые ~5 дней"
+          }
+        }
+      }
+    },
+    "Needs review every ~7 days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требует повторения каждые ~7 дней"
+          }
+        }
+      }
+    },
+    "No key" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ключа нет"
+          }
+        }
+      }
+    },
+    "One-time purchase, no renewals" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Единоразовая покупка без продления"
+          }
+        }
+      }
+    },
+    "Organise your learning portfolio" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Организуйте учебное портфолио"
+          }
+        }
+      }
+    },
+    "Persistent" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настойчивый"
+          }
+        }
+      }
+    },
+    "Piano, Python, Spanish, chess — anything you want to keep sharp. No limits." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пианино, Python, испанский, шахматы — всё, что хотите поддерживать. Без ограничений."
+          }
+        }
+      }
+    },
+    "Practice on 30 different days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Практикуйтесь 30 разных дней"
+          }
+        }
+      }
+    },
+    "Pro Annual  ⭐ Best Value" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro на год  ⭐ Выгодно"
+          }
+        }
+      }
+    },
+    "Pro Lifetime" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro навсегда"
+          }
+        }
+      }
+    },
+    "Pro Monthly" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro ежемесячно"
+          }
+        }
+      }
+    },
+    "Quick (5 challenges)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстро (5 заданий)"
+          }
+        }
+      }
+    },
+    "Quick Practice is a Pro feature.\nUpgrade to practice any skill, any time." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрая практика — функция Pro.\nОбновитесь, чтобы практиковать любой навык."
+          }
+        }
+      }
+    },
+    "Reach 90%+ accuracy over 20 challenges" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Достигните точности 90%+ за 20 заданий"
+          }
+        }
+      }
+    },
+    "Recent" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недавнее"
+          }
+        }
+      }
+    },
+    "Restore Purchases" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановить покупки"
+          }
+        }
+      }
+    },
+    "Restoring…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановление…"
+          }
+        }
+      }
+    },
+    "Sharp Mind" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Острый ум"
+          }
+        }
+      }
+    },
+    "Skill Groups" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Группы навыков"
+          }
+        }
+      }
+    },
+    "Skill Groups are a Pro feature.\nOrganise your portfolio your way." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Группы навыков — функция Pro.\nОрганизуйте портфолио по-своему."
+          }
+        }
+      }
+    },
+    "Skills fade without practice. The app tracks every skill's health and reminds you before it drops too low." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Навыки угасают без практики. Приложение отслеживает здоровье каждого навыка и напоминает до того, как оно упадёт."
+          }
+        }
+      }
+    },
+    "Start Learning" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать обучение"
+          }
+        }
+      }
+    },
+    "Start Learning, %@!" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать обучение, %@!"
+          }
+        }
+      }
+    },
+    "Start Pro — %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать Pro — %@"
+          }
+        }
+      }
+    },
+    "Strong quality at reasonable cost — recommended" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Высокое качество по разумной цене — рекомендуется"
+          }
+        }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Системная"
+          }
+        }
+      }
+    },
+    "Track as many skills as you need" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отслеживайте столько навыков, сколько нужно"
+          }
+        }
+      }
+    },
+    "Unlimited Skills" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неограниченные навыки"
+          }
+        }
+      }
+    },
+    "Unlock unlimited skills, all practice\nmodes, groups, and full analytics." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Неограниченные навыки, все режимы,\nгруппы и полная аналитика."
+          }
+        }
+      }
+    },
+    "Week Warrior" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Воин недели"
+          }
+        }
+      }
+    },
+    "Widgets, iCloud sync, and more" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виджеты, iCloud синхронизация и многое другое"
+          }
+        }
+      }
+    },
+    "You've reached the %lld-skill free limit.\nUnlock unlimited skills with Pro." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы достигли бесплатного лимита в %lld навыков.\nРазблокируйте неограниченное количество с Pro."
+          }
+        }
+      }
+    },
+    "≈ 5 min — great for busy days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ 5 мин — отлично для занятых дней"
+          }
+        }
+      }
+    },
+    "≈ 10 min — the sweet spot" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ 10 мин — оптимальный вариант"
+          }
+        }
+      }
+    },
+    "≈ 20 min — maximum reinforcement" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ 20 мин — максимальное закрепление"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

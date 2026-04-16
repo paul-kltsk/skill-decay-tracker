@@ -175,7 +175,7 @@ struct SkillDetailView: View {
                     .sdtFont(.bodySemibold, color: Color.sdtHealth(for: skill.healthScore))
 
                 HStack(spacing: SDTSpacing.sm) {
-                    Label(skill.category.rawValue, systemImage: skill.category.systemImage)
+                    Label(skill.category.displayName, systemImage: skill.category.systemImage)
                         .sdtFont(.captionSemibold)
                         .padding(.horizontal, SDTSpacing.md)
                         .padding(.vertical, SDTSpacing.xs)
@@ -271,12 +271,12 @@ struct SkillDetailView: View {
         }
     }
 
-    private func statCard(value: String, label: String, icon: String) -> some View {
+    private func statCard(value: String, label: LocalizedStringKey, icon: String) -> some View {
         VStack(spacing: SDTSpacing.xs) {
             Image(systemName: icon)
                 .font(.system(size: 20))
                 .foregroundStyle(Color.sdtSecondary)
-            Text(value)
+            Text(verbatim: value)
                 .sdtFont(.titleSmall)
             Text(label)
                 .sdtFont(.caption, color: .sdtSecondary)
@@ -362,11 +362,11 @@ struct SkillDetailView: View {
 
     private var nextReviewLabel: String {
         let now = Date.now
-        guard skill.nextReviewDate > now else { return "Now" }
+        guard skill.nextReviewDate > now else { return String(localized: "Now") }
         let days = Int(skill.nextReviewDate.timeIntervalSince(now) / 86_400)
-        if days == 0 { return "Today" }
-        if days == 1 { return "Tomorrow" }
-        return "in \(days)d"
+        if days == 0 { return String(localized: "Today") }
+        if days == 1 { return String(localized: "Tomorrow") }
+        return String(localized: "in \(days)d")
     }
 }
 
@@ -415,7 +415,7 @@ private struct EditSkillSheet: View {
                 Section {
                     Picker("Category", selection: $category) {
                         ForEach(SkillCategory.allCases, id: \.self) { cat in
-                            Label(cat.rawValue.capitalized, systemImage: cat.systemImage)
+                            Label(cat.displayName, systemImage: cat.systemImage)
                                 .tag(cat)
                         }
                     }

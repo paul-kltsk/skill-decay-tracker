@@ -352,14 +352,18 @@ private struct TrueFalseView: View {
 
     var body: some View {
         HStack(spacing: SDTSpacing.md) {
-            ForEach(["True", "False"], id: \.self) { option in
-                OptionButton(
-                    label: option,
-                    prefix: option == "True" ? "✓" : "✗",
-                    isSelected: selected == option,
-                    onTap: { onSelect(option) }
-                )
-            }
+            OptionButton(
+                label: String(localized: "True"),
+                prefix: "✓",
+                isSelected: selected == "True",
+                onTap: { onSelect("True") }
+            )
+            OptionButton(
+                label: String(localized: "False"),
+                prefix: "✗",
+                isSelected: selected == "False",
+                onTap: { onSelect("False") }
+            )
         }
     }
 }

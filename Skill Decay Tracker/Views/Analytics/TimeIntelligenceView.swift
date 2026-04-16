@@ -222,7 +222,7 @@ struct TimeIntelligenceView: View {
 
     // MARK: - Helpers
 
-    private func emptyPlaceholder(height: CGFloat, message: String) -> some View {
+    private func emptyPlaceholder(height: CGFloat, message: LocalizedStringKey) -> some View {
         Text(message)
             .sdtFont(.bodyMedium, color: .sdtSecondary)
             .frame(maxWidth: .infinity, minHeight: height)

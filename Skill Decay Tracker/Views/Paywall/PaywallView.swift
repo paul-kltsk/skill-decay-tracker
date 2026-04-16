@@ -213,11 +213,11 @@ struct PaywallView: View {
     }
 
     private var purchaseButtonTitle: String {
-        guard let p = selectedProduct else { return "Choose a Plan" }
+        guard let p = selectedProduct else { return String(localized: "Choose a Plan") }
         if p.id == SubscriptionService.lifetimeID {
-            return "Get Pro for \(p.displayPrice)"
+            return String(localized: "Get Pro for \(p.displayPrice)")
         }
-        return "Start Pro — \(p.displayPrice)"
+        return String(localized: "Start Pro — \(p.displayPrice)")
     }
 
     // MARK: - Restore & Legal
@@ -227,8 +227,13 @@ struct PaywallView: View {
             Button {
                 Task { await sub.restore() }
             } label: {
-                Text(sub.isPurchasing ? "Restoring…" : "Restore Purchases")
-                    .sdtFont(.caption, color: .sdtSecondary)
+                if sub.isPurchasing {
+                    Text("Restoring…")
+                        .sdtFont(.caption, color: .sdtSecondary)
+                } else {
+                    Text("Restore Purchases")
+                        .sdtFont(.caption, color: .sdtSecondary)
+                }
             }
             .disabled(sub.isPurchasing)
 
@@ -305,18 +310,18 @@ private struct PlanCard: View {
 
     private var planTitle: String {
         switch product.id {
-        case SubscriptionService.monthlyID:  return "Pro Monthly"
-        case SubscriptionService.annualID:   return "Pro Annual  ⭐ Best Value"
-        case SubscriptionService.lifetimeID: return "Pro Lifetime"
+        case SubscriptionService.monthlyID:  return String(localized: "Pro Monthly")
+        case SubscriptionService.annualID:   return String(localized: "Pro Annual  ⭐ Best Value")
+        case SubscriptionService.lifetimeID: return String(localized: "Pro Lifetime")
         default: return product.displayName
         }
     }
 
     private var planSubtitle: String {
         switch product.id {
-        case SubscriptionService.monthlyID:  return "Billed monthly, cancel anytime"
-        case SubscriptionService.annualID:   return "Billed once per year"
-        case SubscriptionService.lifetimeID: return "One-time purchase, no renewals"
+        case SubscriptionService.monthlyID:  return String(localized: "Billed monthly, cancel anytime")
+        case SubscriptionService.annualID:   return String(localized: "Billed once per year")
+        case SubscriptionService.lifetimeID: return String(localized: "One-time purchase, no renewals")
         default: return ""
         }
     }
@@ -366,31 +371,33 @@ enum ProFeature {
     var subtitle: String {
         switch self {
         case .skillLimit:
-            return "You've reached the \(SubscriptionService.freeSkillLimit)-skill free limit.\nUnlock unlimited skills with Pro."
+            return String(localized: "You've reached the \(SubscriptionService.freeSkillLimit)-skill free limit.\nUnlock unlimited skills with Pro.")
         case .quickPractice:
-            return "Quick Practice is a Pro feature.\nUpgrade to practice any skill, any time."
+            return String(localized: "Quick Practice is a Pro feature.\nUpgrade to practice any skill, any time.")
         case .deepDive:
-            return "Deep Dive is a Pro feature.\nFocus on one skill until you master it."
+            return String(localized: "Deep Dive is a Pro feature.\nFocus on one skill until you master it.")
         case .skillGroups:
-            return "Skill Groups are a Pro feature.\nOrganise your portfolio your way."
+            return String(localized: "Skill Groups are a Pro feature.\nOrganise your portfolio your way.")
         case .analytics:
-            return "Full analytics are a Pro feature.\nSee your complete learning history."
+            return String(localized: "Full analytics are a Pro feature.\nSee your complete learning history.")
         case .questionCount:
-            return "Longer sessions are a Pro feature.\nUnlock 7, 10, and 15 questions per session."
+            return String(localized: "Longer sessions are a Pro feature.\nUnlock 7, 10, and 15 questions per session.")
         case .generic:
-            return "Unlock unlimited skills, all practice\nmodes, groups, and full analytics."
+            return String(localized: "Unlock unlimited skills, all practice\nmodes, groups, and full analytics.")
         }
     }
 
     // Shared feature bullets shown on every paywall.
-    static let bullets: [(icon: String, title: String, detail: String)] = [
-        ("infinity",            "Unlimited Skills",          "Track as many skills as you need"),
-        ("bolt.fill",           "Quick Practice",            "5-challenge sessions, any skill"),
-        ("scope",               "Deep Dive Mode",            "Full focus on one skill at a time"),
-        ("folder.fill",         "Skill Groups",              "Organise your learning portfolio"),
-        ("chart.bar.fill",      "Full Analytics",            "All-time history and export"),
-        ("arrow.triangle.2.circlepath", "Future Features",  "Widgets, iCloud sync, and more"),
-    ]
+    static var bullets: [(icon: String, title: String, detail: String)] {
+        [
+            ("infinity",            String(localized: "Unlimited Skills"),  String(localized: "Track as many skills as you need")),
+            ("bolt.fill",           String(localized: "Quick Practice"),    String(localized: "5-challenge sessions, any skill")),
+            ("scope",               String(localized: "Deep Dive Mode"),    String(localized: "Full focus on one skill at a time")),
+            ("folder.fill",         String(localized: "Skill Groups"),      String(localized: "Organise your learning portfolio")),
+            ("chart.bar.fill",      String(localized: "Full Analytics"),    String(localized: "All-time history and export")),
+            ("arrow.triangle.2.circlepath", String(localized: "Future Features"), String(localized: "Widgets, iCloud sync, and more")),
+        ]
+    }
 }
 
 // MARK: - Preview

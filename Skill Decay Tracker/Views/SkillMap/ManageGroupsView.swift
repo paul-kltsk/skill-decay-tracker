@@ -124,7 +124,7 @@ struct ManageGroupsView: View {
 
     private func skillCountLabel(_ group: SkillGroup) -> String {
         let count = (group.skills ?? []).count
-        return count == 1 ? "1 skill" : "\(count) skills"
+        return String(localized: "\(count) skills in group")
     }
 }
 

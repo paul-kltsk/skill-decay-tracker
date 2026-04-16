@@ -270,9 +270,19 @@ private struct ProviderCard: View {
                         if !showKeyField { keyText = "" }
                     }
                 } label: {
-                    Text(showKeyField ? "Cancel" : (state == .saved ? "Update Key" : "Add Key"))
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color.sdtPrimary)
+                    if showKeyField {
+                        Text("Cancel")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Color.sdtPrimary)
+                    } else if state == .saved {
+                        Text("Update Key")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Color.sdtPrimary)
+                    } else {
+                        Text("Add Key")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Color.sdtPrimary)
+                    }
                 }
             }
 
@@ -396,9 +406,9 @@ enum ProviderKeyState: Equatable {
 
     var label: String {
         switch self {
-        case .saved:   "Key saved"
-        case .missing: "No key"
-        case .invalid: "Invalid key"
+        case .saved:   String(localized: "Key saved")
+        case .missing: String(localized: "No key")
+        case .invalid: String(localized: "Invalid key")
         }
     }
 

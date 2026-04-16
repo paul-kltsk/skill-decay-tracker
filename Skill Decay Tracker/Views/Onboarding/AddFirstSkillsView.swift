@@ -107,15 +107,20 @@ struct AddFirstSkillsView: View {
             // Bottom buttons
             VStack(spacing: SDTSpacing.sm) {
                 Button(action: onNext) {
-                    Text(vm.firstSkillName.trimmingCharacters(in: .whitespaces).isEmpty
-                         ? "Skip for now" : "Continue")
-                        .sdtFont(.bodySemibold, color: .white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, SDTSpacing.lg)
-                        .background(
-                            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
-                                .fill(Color.sdtPrimary)
-                        )
+                    Group {
+                        if vm.firstSkillName.trimmingCharacters(in: .whitespaces).isEmpty {
+                            Text("Skip for now")
+                        } else {
+                            Text("Continue")
+                        }
+                    }
+                    .sdtFont(.bodySemibold, color: .white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, SDTSpacing.lg)
+                    .background(
+                        RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
+                            .fill(Color.sdtPrimary)
+                    )
                 }
                 .buttonStyle(.plain)
 
@@ -161,14 +166,4 @@ private struct CategoryChip: View {
     }
 }
 
-private extension SkillCategory {
-    var displayName: String {
-        switch self {
-        case .programming: "Programming"
-        case .language:    "Language"
-        case .tool:        "Tool"
-        case .concept:     "Concept"
-        case .custom:      "Custom"
-        }
-    }
-}
+// Note: SkillCategory.displayName is defined in SDTDesignSystem.swift

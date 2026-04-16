@@ -181,13 +181,13 @@ struct SkillMapView: View {
                         Button {
                             viewModel.sortOrder = order
                         } label: {
-                            Label(order.rawValue, systemImage: order.systemImage)
+                            Label(order.displayName, systemImage: order.systemImage)
                         }
                     }
                 } label: {
                     HStack(spacing: SDTSpacing.xs) {
                         Image(systemName: "arrow.up.arrow.down")
-                        Text(viewModel.sortOrder.rawValue)
+                        Text(viewModel.sortOrder.displayName)
                     }
                     .sdtFont(.captionSemibold)
                     .padding(.horizontal, SDTSpacing.md)
@@ -207,7 +207,7 @@ struct SkillMapView: View {
                             viewModel.selectedCategory = selected ? nil : category
                         }
                     } label: {
-                        Label(category.rawValue, systemImage: category.systemImage)
+                        Label(category.displayName, systemImage: category.systemImage)
                             .sdtFont(.captionSemibold, color: selected ? .white : category.color)
                             .padding(.horizontal, SDTSpacing.md)
                             .padding(.vertical, SDTSpacing.sm)
@@ -234,7 +234,7 @@ struct SkillMapView: View {
                     VStack(spacing: 3) {
                         Image(systemName: mode.systemImage)
                             .font(.system(size: 17, weight: selected ? .semibold : .regular))
-                        Text(mode.rawValue)
+                        Text(mode.displayName)
                             .font(.system(size: 10, weight: .medium))
                     }
                     .foregroundStyle(selected ? Color.sdtPrimary : Color.sdtSecondary)

@@ -155,9 +155,9 @@ struct SettingsView: View {
     private func aiModeLabel(for profile: UserProfile) -> String {
         let provider = profile.preferences.aiProvider
         guard ProviderKeychain.has(for: provider) else {
-            return "Built-in · Claude"
+            return String(localized: "Built-in · Claude")
         }
-        return "\(provider.displayName) · My Key"
+        return String(localized: "\(provider.displayName) · My Key")
     }
 
     // MARK: - Navigation Links

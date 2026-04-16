@@ -13,6 +13,13 @@ enum MapViewMode: String, CaseIterable {
         case .grid:          "square.grid.2x2"
         }
     }
+
+    var displayName: String {
+        switch self {
+        case .constellation: String(localized: "Constellation")
+        case .grid:          String(localized: "Grid")
+        }
+    }
 }
 
 // MARK: - Sort Order
@@ -29,6 +36,15 @@ enum SkillSortOrder: String, CaseIterable {
         case .name:          "textformat.abc"
         case .lastPracticed: "clock"
         case .streak:        "flame"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .health:        String(localized: "Health")
+        case .name:          String(localized: "Name")
+        case .lastPracticed: String(localized: "Recent")
+        case .streak:        String(localized: "Streak")
         }
     }
 }

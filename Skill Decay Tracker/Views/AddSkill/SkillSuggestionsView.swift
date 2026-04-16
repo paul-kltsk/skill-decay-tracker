@@ -62,7 +62,7 @@ struct SkillSuggestionsView: View {
 
                         Spacer()
 
-                        Text(suggestion.category.rawValue)
+                        Text(suggestion.category.displayName)
                             .sdtFont(.caption, color: .sdtSecondary)
                     }
                     .padding(.vertical, SDTSpacing.xs)

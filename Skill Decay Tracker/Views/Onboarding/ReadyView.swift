@@ -72,11 +72,17 @@ struct ReadyView: View {
             // Start button
             Button(action: complete) {
                 HStack(spacing: SDTSpacing.sm) {
-                    Text(vm.userName.trimmingCharacters(in: .whitespaces).isEmpty
-                         ? "Start Learning" : "Start Learning, \(vm.userName.trimmingCharacters(in: .whitespaces))!")
-                        .sdtFont(.bodySemibold, color: .white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                    Group {
+                        let name = vm.userName.trimmingCharacters(in: .whitespaces)
+                        if name.isEmpty {
+                            Text("Start Learning")
+                        } else {
+                            Text("Start Learning, \(name)!")
+                        }
+                    }
+                    .sdtFont(.bodySemibold, color: .white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                     Image(systemName: "arrow.right")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(.white)

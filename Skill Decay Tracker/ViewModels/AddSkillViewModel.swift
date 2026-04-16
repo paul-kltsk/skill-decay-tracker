@@ -217,21 +217,21 @@ final class AddSkillViewModel {
 
     var difficultyLabel: String {
         switch Int(initialDifficulty.rounded()) {
-        case 1: return "Easy"
-        case 2: return "Moderate"
-        case 3: return "Average"
-        case 4: return "Challenging"
-        default: return "Hard"
+        case 1: return String(localized: "Easy")
+        case 2: return String(localized: "Moderate")
+        case 3: return String(localized: "Average")
+        case 4: return String(localized: "Challenging")
+        default: return String(localized: "Hard")
         }
     }
 
     var difficultyDescription: String {
         switch Int(initialDifficulty.rounded()) {
-        case 1: return "Needs review every ~14 days"
-        case 2: return "Needs review every ~7 days"
-        case 3: return "Needs review every ~5 days"
-        case 4: return "Needs review every ~3 days"
-        default: return "Needs review every ~1 day"
+        case 1: return String(localized: "Needs review every ~14 days")
+        case 2: return String(localized: "Needs review every ~7 days")
+        case 3: return String(localized: "Needs review every ~5 days")
+        case 4: return String(localized: "Needs review every ~3 days")
+        default: return String(localized: "Needs review every ~1 day")
         }
     }
 

@@ -58,9 +58,15 @@ struct ChallengeFeedbackView: View {
             }
             .shakeEffect(trigger: shake)
 
-            Text(result.isCorrect ? "Correct!" : "Not quite")
-                .sdtFont(.titleMedium,
-                         color: result.isCorrect ? .sdtHealthThriving : .sdtHealthCritical)
+            Group {
+                if result.isCorrect {
+                    Text("Correct!")
+                } else {
+                    Text("Not quite")
+                }
+            }
+            .sdtFont(.titleMedium,
+                     color: result.isCorrect ? .sdtHealthThriving : .sdtHealthCritical)
                 .scaleEffect(appeared ? 1 : 0.8)
                 .opacity(appeared ? 1 : 0)
                 .animation(SDTAnimation.scoreChange.delay(0.15), value: appeared)

@@ -12,7 +12,10 @@ struct PracticePreferencesView: View {
 
     @State private var showPaywall = false
 
-    private let difficultyLabels = ["", "Beginner", "Easy", "Balanced", "Hard", "Expert"]
+    private var difficultyLabels: [String] {
+        ["", String(localized: "Beginner"), String(localized: "Easy"),
+         String(localized: "Balanced"), String(localized: "Hard"), String(localized: "Expert")]
+    }
 
     var body: some View {
         List {
@@ -127,17 +130,17 @@ enum SessionLength: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .quick:  "Quick (5 challenges)"
-        case .medium: "Medium (10 challenges)"
-        case .deep:   "Deep Dive (15 challenges)"
+        case .quick:  String(localized: "Quick (5 challenges)")
+        case .medium: String(localized: "Medium (10 challenges)")
+        case .deep:   String(localized: "Deep Dive (15 challenges)")
         }
     }
 
     var subtitle: String {
         switch self {
-        case .quick:  "≈ 5 min — great for busy days"
-        case .medium: "≈ 10 min — the sweet spot"
-        case .deep:   "≈ 20 min — maximum reinforcement"
+        case .quick:  String(localized: "≈ 5 min — great for busy days")
+        case .medium: String(localized: "≈ 10 min — the sweet spot")
+        case .deep:   String(localized: "≈ 20 min — maximum reinforcement")
         }
     }
 

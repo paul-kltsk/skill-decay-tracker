@@ -106,9 +106,9 @@ struct SessionLauncherView: View {
         .sdtCard()
     }
 
-    private func statBadge(value: String, label: String) -> some View {
+    private func statBadge(value: String, label: LocalizedStringKey) -> some View {
         VStack(spacing: SDTSpacing.xxs) {
-            Text(value).sdtFont(.numericMedium)
+            Text(verbatim: value).sdtFont(.numericMedium)
             Text(label).sdtFont(.caption, color: .sdtSecondary)
         }
         .frame(maxWidth: .infinity)
@@ -117,7 +117,7 @@ struct SessionLauncherView: View {
     // MARK: - Mode Card
 
     private func modeCard(
-        title: String,
+        title: LocalizedStringKey,
         subtitle: String,
         icon: String,
         tint: Color,
@@ -143,7 +143,7 @@ struct SessionLauncherView: View {
                             ProBadgeLabel()
                         }
                     }
-                    Text(subtitle)
+                    Text(verbatim: subtitle)
                         .sdtFont(.caption, color: .sdtSecondary)
                         .lineLimit(1)
                 }

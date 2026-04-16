@@ -126,7 +126,7 @@ struct SessionCompleteView: View {
         .animation(SDTAnimation.scoreChange.delay(0.3), value: appeared)
     }
 
-    private func statCard(value: String, label: String, icon: String, tint: Color) -> some View {
+    private func statCard(value: String, label: LocalizedStringKey, icon: String, tint: Color) -> some View {
         VStack(spacing: SDTSpacing.sm) {
             Image(systemName: icon)
                 .font(.system(size: 22, weight: .medium))
@@ -203,10 +203,11 @@ struct SessionCompleteView: View {
 
     private var durationText: String {
         let s = summary.durationSeconds
-        if s < 60 { return "\(s) seconds" }
+        if s < 60 { return String(localized: "\(s) seconds") }
         let mins = s / 60
         let secs = s % 60
-        return secs == 0 ? "\(mins) min" : "\(mins) min \(secs) s"
+        if secs == 0 { return String(localized: "\(mins) min") }
+        return String(localized: "\(mins) min \(secs) s")
     }
 
     private var accuracyText: String {
@@ -254,9 +255,11 @@ private struct DifficultyAdjustmentCard: View {
 
             // Action buttons
             HStack(spacing: SDTSpacing.sm) {
-                Button(acceptLabel, action: onAccept)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(.white)
+                Button(action: onAccept) {
+                    Text(verbatim: acceptLabel)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
                     .padding(.horizontal, SDTSpacing.lg)
                     .padding(.vertical, SDTSpacing.sm)
                     .background(adjustment.direction == .increase
@@ -291,18 +294,18 @@ private struct DifficultyAdjustmentCard: View {
 
     private var subtitleText: String {
         adjustment.direction == .increase
-            ? "Nailed it — \(adjustment.challengeCount) questions"
-            : "Struggled — \(adjustment.challengeCount) questions"
+            ? String(localized: "Nailed it — \(adjustment.challengeCount) questions")
+            : String(localized: "Struggled — \(adjustment.challengeCount) questions")
     }
 
     private var bodyText: String {
         adjustment.direction == .increase
-            ? "You answered \(accuracyText) correctly. Ready for harder questions and a tighter review schedule?"
-            : "You answered \(accuracyText) correctly. Easier questions and more frequent short reviews can build confidence."
+            ? String(localized: "You answered \(accuracyText) correctly. Ready for harder questions and a tighter review schedule?")
+            : String(localized: "You answered \(accuracyText) correctly. Easier questions and more frequent short reviews can build confidence.")
     }
 
     private var acceptLabel: String {
-        adjustment.direction == .increase ? "Increase difficulty" : "Decrease difficulty"
+        adjustment.direction == .increase ? String(localized: "Increase difficulty") : String(localized: "Decrease difficulty")
     }
 
     private var accuracyText: String {

@@ -248,32 +248,32 @@ final class AnalyticsViewModel {
         return [
             Achievement(
                 id: "first_step",
-                title: "First Step",
-                description: "Complete your first challenge",
+                title: String(localized: "First Step"),
+                description: String(localized: "Complete your first challenge"),
                 icon: "sparkle",
                 isUnlocked: totalC >= 1,
                 progress: min(1, Double(totalC))
             ),
             Achievement(
                 id: "week_warrior",
-                title: "Week Warrior",
-                description: "Maintain a 7-day streak",
+                title: String(localized: "Week Warrior"),
+                description: String(localized: "Maintain a 7-day streak"),
                 icon: "flame.fill",
                 isUnlocked: streak >= 7,
                 progress: min(1, Double(streak) / 7.0)
             ),
             Achievement(
                 id: "collector",
-                title: "Collector",
-                description: "Track 5 or more skills",
+                title: String(localized: "Collector"),
+                description: String(localized: "Track 5 or more skills"),
                 icon: "books.vertical.fill",
                 isUnlocked: skills.count >= 5,
                 progress: min(1, Double(skills.count) / 5.0)
             ),
             Achievement(
                 id: "sharp_mind",
-                title: "Sharp Mind",
-                description: "Reach 90%+ accuracy over 20 challenges",
+                title: String(localized: "Sharp Mind"),
+                description: String(localized: "Reach 90%+ accuracy over 20 challenges"),
                 icon: "target",
                 isUnlocked: totalC >= 20 && accuracy >= 0.9,
                 progress: totalC < 20
@@ -282,32 +282,32 @@ final class AnalyticsViewModel {
             ),
             Achievement(
                 id: "centurion",
-                title: "Centurion",
-                description: "Complete 100 challenges",
+                title: String(localized: "Centurion"),
+                description: String(localized: "Complete 100 challenges"),
                 icon: "100.circle.fill",
                 isUnlocked: totalC >= 100,
                 progress: min(1, Double(totalC) / 100.0)
             ),
             Achievement(
                 id: "persistent",
-                title: "Persistent",
-                description: "Practice on 30 different days",
+                title: String(localized: "Persistent"),
+                description: String(localized: "Practice on 30 different days"),
                 icon: "calendar.badge.checkmark",
                 isUnlocked: allDays >= 30,
                 progress: min(1, Double(allDays) / 30.0)
             ),
             Achievement(
                 id: "month_warrior",
-                title: "Month Warrior",
-                description: "Maintain a 30-day streak",
+                title: String(localized: "Month Warrior"),
+                description: String(localized: "Maintain a 30-day streak"),
                 icon: "crown.fill",
                 isUnlocked: streak >= 30,
                 progress: min(1, Double(streak) / 30.0)
             ),
             Achievement(
                 id: "legend",
-                title: "Legend",
-                description: "Earn 5,000 XP",
+                title: String(localized: "Legend"),
+                description: String(localized: "Earn 5,000 XP"),
                 icon: "trophy.fill",
                 isUnlocked: xp >= 5_000,
                 progress: min(1, Double(xp) / 5_000.0)

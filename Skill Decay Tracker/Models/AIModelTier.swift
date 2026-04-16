@@ -38,25 +38,25 @@ enum AIModelTier: String, CaseIterable, Codable, Sendable {
 
     var displayName: String {
         switch self {
-        case .fast:     "Fast"
-        case .balanced: "Balanced"
-        case .best:     "Best"
+        case .fast:     String(localized: "Fast")
+        case .balanced: String(localized: "Balanced")
+        case .best:     String(localized: "Best")
         }
     }
 
     var speedHint: String {
         switch self {
-        case .fast:     "3–5 sec"
-        case .balanced: "5–10 sec"
-        case .best:     "10–20 sec"
+        case .fast:     String(localized: "3–5 sec")
+        case .balanced: String(localized: "5–10 sec")
+        case .best:     String(localized: "10–20 sec")
         }
     }
 
     var qualityDescription: String {
         switch self {
-        case .fast:     "Lightweight model, great for everyday practice"
-        case .balanced: "Strong quality at reasonable cost — recommended"
-        case .best:     "Most capable model, ideal for complex topics"
+        case .fast:     String(localized: "Lightweight model, great for everyday practice")
+        case .balanced: String(localized: "Strong quality at reasonable cost — recommended")
+        case .best:     String(localized: "Most capable model, ideal for complex topics")
         }
     }
 

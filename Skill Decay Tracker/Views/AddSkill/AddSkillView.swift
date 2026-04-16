@@ -395,7 +395,7 @@ private struct CategoryStepView: View {
                     .font(.system(size: 28, weight: .medium))
                     .foregroundStyle(isSelected ? .white : category.color)
 
-                Text(category.rawValue)
+                Text(category.displayName)
                     .sdtFont(.bodySemibold, color: isSelected ? .white : .sdtPrimary)
             }
             .frame(maxWidth: .infinity)
@@ -572,10 +572,10 @@ private struct QuestionCountStepView: View {
 
     private func descriptionFor(_ count: Int) -> String {
         switch count {
-        case 5:  return "Quick session · ~5 min"
-        case 7:  return "Balanced session · ~8 min"
-        case 10: return "Standard session · ~12 min"
-        case 15: return "Deep dive · ~18 min"
+        case 5:  return String(localized: "Quick session · ~5 min")
+        case 7:  return String(localized: "Balanced session · ~8 min")
+        case 10: return String(localized: "Standard session · ~12 min")
+        case 15: return String(localized: "Deep dive · ~18 min")
         default: return ""
         }
     }
@@ -612,7 +612,7 @@ private struct ConfirmStepView: View {
                            icon: "pencil")
                 Divider()
                 summaryRow(label: "Category",
-                           value: viewModel.selectedCategory.rawValue,
+                           value: viewModel.selectedCategory.displayName,
                            icon: viewModel.selectedCategory.systemImage,
                            tint: viewModel.selectedCategory.color)
                 Divider()
@@ -664,7 +664,7 @@ private struct ConfirmStepView: View {
         }
     }
 
-    private func summaryRow(label: String, value: String,
+    private func summaryRow(label: LocalizedStringKey, value: String,
                              icon: String, tint: Color = .sdtSecondary) -> some View {
         HStack(spacing: SDTSpacing.md) {
             Image(systemName: icon)
@@ -677,7 +677,7 @@ private struct ConfirmStepView: View {
 
             Spacer()
 
-            Text(value)
+            Text(verbatim: value)
                 .sdtFont(.bodySemibold)
                 .multilineTextAlignment(.trailing)
         }
@@ -686,7 +686,7 @@ private struct ConfirmStepView: View {
 
 // MARK: - Shared Step Header
 
-private func stepHeader(icon: String, title: String, subtitle: String) -> some View {
+private func stepHeader(icon: String, title: LocalizedStringKey, subtitle: LocalizedStringKey) -> some View {
     VStack(alignment: .leading, spacing: SDTSpacing.sm) {
         Image(systemName: icon)
             .font(.system(size: 32, weight: .medium))

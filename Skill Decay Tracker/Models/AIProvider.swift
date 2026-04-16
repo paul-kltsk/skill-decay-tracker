@@ -35,9 +35,9 @@ extension AIProvider {
 
     var tagline: String {
         switch self {
-        case .claude: "Best reasoning & long-context understanding"
-        case .openai: "Broad knowledge, fast responses"
-        case .gemini: "Google's multimodal AI — fast & free tier"
+        case .claude: String(localized: "Best reasoning & long-context understanding")
+        case .openai: String(localized: "Broad knowledge, fast responses")
+        case .gemini: String(localized: "Google's multimodal AI — fast & free tier")
         }
     }
 

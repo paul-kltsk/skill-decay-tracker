@@ -7,7 +7,7 @@ struct HowItWorksView: View {
 
     @State private var appeared = false
 
-    private let features: [(icon: String, color: Color, title: String, detail: String)] = [
+    private let features: [(icon: String, color: Color, title: LocalizedStringKey, detail: LocalizedStringKey)] = [
         (
             icon: "plus.circle.fill",
             color: Color.sdtCategoryProgramming,
@@ -92,8 +92,8 @@ struct HowItWorksView: View {
 private struct FeatureRow: View {
     let icon: String
     let color: Color
-    let title: String
-    let detail: String
+    let title: LocalizedStringKey
+    let detail: LocalizedStringKey
 
     var body: some View {
         HStack(alignment: .top, spacing: SDTSpacing.lg) {
