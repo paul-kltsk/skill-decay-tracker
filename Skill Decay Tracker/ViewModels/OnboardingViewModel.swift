@@ -76,11 +76,9 @@ final class OnboardingViewModel {
 
     /// Persists all onboarding data and marks onboarding as done.
     func complete(context: ModelContext) {
-        // 1. Mirror provider and tier selection to UserDefaults for AIService
         selectedProvider.persist()
         selectedModelTier.persist()
 
-        // 2. Update the existing UserProfile
         let descriptor = FetchDescriptor<UserProfile>()
         if let profile = (try? context.fetch(descriptor))?.first {
             let name = userName.trimmingCharacters(in: .whitespaces)
@@ -88,7 +86,6 @@ final class OnboardingViewModel {
             profile.preferences.aiProvider = selectedProvider
         }
 
-        // 3. Insert first skill if the user filled it in
         let trimmedSkill = firstSkillName.trimmingCharacters(in: .whitespaces)
         if !trimmedSkill.isEmpty {
             let skill = Skill(name: trimmedSkill, category: firstSkillCategory)
@@ -101,7 +98,6 @@ final class OnboardingViewModel {
             #endif
         }
 
-        // 4. Analytics
         let aiMode = apiKeyState == .saved ? "personal_key" : "builtin"
         AnalyticsService.onboardingCompleted(
             aiMode: aiMode,
@@ -109,12 +105,10 @@ final class OnboardingViewModel {
             hasFirstSkill: !firstSkillName.trimmingCharacters(in: .whitespaces).isEmpty
         )
 
-        // 5. Mark onboarding complete so it never shows again
         UserDefaults.standard.set(true, forKey: "onboarding.completed")
 
-        // 5. Request notification authorization and schedule the daily reminder.
-        //    Snapshot primitive values before entering the Task so no @Model objects
-        //    (UserProfile, UserPreferences) are retained past the onboarding context lifetime.
+        // Snapshot primitive values before entering the Task so no @Model objects
+        // are retained past the onboarding context lifetime.
         let prefs   = (try? context.fetch(FetchDescriptor<UserProfile>()))?.first?.preferences
         let enabled = prefs?.notificationsEnabled ?? true
         let hour    = prefs?.preferredPracticeTime?.hour   ?? 9

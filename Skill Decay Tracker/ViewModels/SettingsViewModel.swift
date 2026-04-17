@@ -15,13 +15,7 @@ final class SettingsViewModel {
 
     var showDeleteConfirm = false
 
-    // MARK: - Export
-
-    /// Builds a JSON string from the current skill portfolio.
-    ///
-    /// Only top-level skill metadata is exported; challenge history is omitted
-    /// to keep the file small and personally identifiable data minimal.
-// MARK: - Delete All Data
+    // MARK: - Delete All Data
 
     func deleteAllData(skills: [Skill], context: ModelContext) {
         for skill in skills { context.delete(skill) }

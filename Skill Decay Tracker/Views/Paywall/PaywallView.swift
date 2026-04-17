@@ -78,7 +78,6 @@ struct PaywallView: View {
             Spacer().frame(height: SDTSpacing.sm)
 
             ZStack {
-                // Glow rings
                 Circle()
                     .fill(Color.sdtPrimary.opacity(0.08))
                     .frame(width: 110, height: 110)
@@ -264,7 +263,6 @@ private struct PlanCard: View {
     var body: some View {
         Button(action: onSelect) {
             HStack(spacing: SDTSpacing.md) {
-                // Radio button
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 22))
                     .foregroundStyle(isSelected ? Color.sdtPrimary : Color.sdtSecondary.opacity(0.5))

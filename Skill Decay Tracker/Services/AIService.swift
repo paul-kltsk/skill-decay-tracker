@@ -101,9 +101,6 @@ private struct SkillBreadthDTO: Sendable {
 
 nonisolated extension SkillBreadthDTO: Decodable {}
 
-// Note: Model IDs for the own-key path come from AIModelTier.persisted.
-// Proxy path always uses AIModelTier.fast model IDs (server pays, fast = cost-efficient).
-
 // MARK: - AI Service
 
 /// High-level actor for AI-driven challenge generation and answer evaluation.
@@ -297,7 +294,6 @@ actor AIService {
 
         let raw: String
         if ProviderKeychain.has(for: provider) {
-            // Direct path — build prompt locally, call provider directly
             let prompt = generationPrompt(
                 skillName:       skillName,
                 category:        category,
@@ -313,7 +309,6 @@ actor AIService {
                                        systemPrompt: jsonOnlySystemPrompt,
                                        prompt: prompt)
         } else {
-            // Proxy path — send structured data; server builds prompt + handles cache
             let model = AIModelTier.fast.generationModelID(for: provider)
             raw = try await ProxyAPIClient.shared.generate(
                 provider:        provider,
@@ -377,11 +372,9 @@ actor AIService {
 
         let raw: String
         if ProviderKeychain.has(for: provider) {
-            // Direct path
             let prompt = evaluationPrompt(context: context, userAnswer: userAnswer)
             raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
         } else {
-            // Proxy path — structured evaluation
             let model = AIModelTier.fast.evalModelID(for: provider)
             raw = try await ProxyAPIClient.shared.evaluate(
                 provider:      provider,
@@ -501,11 +494,9 @@ actor AIService {
         let raw: String
         do {
             if ProviderKeychain.has(for: provider) {
-                // Direct path
                 let prompt = breadthPrompt(name: name, context: context, language: language)
                 raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
             } else {
-                // Proxy path
                 let model = AIModelTier.fast.evalModelID(for: provider)
                 raw = try await ProxyAPIClient.shared.analyzeBreadth(
                     provider:  provider,

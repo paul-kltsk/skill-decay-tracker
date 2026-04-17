@@ -86,13 +86,12 @@ struct AIModelsView: View {
                     },
                     onSave: { key in
                         vm.save(key: key, for: provider)
-                        // Automatically switch to this provider when key is saved
                         profile.preferences.aiProvider = provider
                         provider.persist()
                     },
                     onDelete: {
                         vm.delete(for: provider)
-                        // Fall back to built-in if the active provider loses its key
+                        // Fall back to built-in if this provider's key is removed while active.
                         if profile.preferences.aiProvider == provider {
                             profile.preferences.aiProvider = .claude
                             AIProvider.claude.persist()
@@ -223,7 +222,6 @@ private struct ProviderCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SDTSpacing.md) {
-            // Header row: icon + name + active badge
             HStack(spacing: SDTSpacing.md) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
@@ -256,11 +254,9 @@ private struct ProviderCard: View {
                 }
             }
 
-            // Tagline
             Text(provider.tagline)
                 .sdtFont(.bodyMedium, color: .sdtSecondary)
 
-            // Key status row
             HStack(spacing: SDTSpacing.sm) {
                 KeyStatusBadge(state: state)
                 Spacer()
@@ -286,7 +282,6 @@ private struct ProviderCard: View {
                 }
             }
 
-            // Inline key field (expandable)
             if showKeyField {
                 VStack(alignment: .leading, spacing: SDTSpacing.sm) {
                     SecureField("Paste your API key here…", text: $keyText)
@@ -337,7 +332,6 @@ private struct ProviderCard: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
 
-            // "Use this model" button (only when key is saved and not active)
             if state == .saved && !isActive {
                 Button(action: onSelect) {
                     Text("Use \(provider.displayName)")
@@ -464,7 +458,6 @@ private struct TierRow: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: SDTSpacing.md) {
-                // Selection indicator
                 ZStack {
                     Circle()
                         .strokeBorder(isSelected ? accentColor : Color.sdtSecondary.opacity(0.4), lineWidth: 1.5)
@@ -476,7 +469,6 @@ private struct TierRow: View {
                     }
                 }
 
-                // Tier info
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: SDTSpacing.sm) {
                         Text(tier.displayName)
@@ -493,7 +485,6 @@ private struct TierRow: View {
 
                 Spacer()
 
-                // Cost hint
                 Text(tier.costHint(for: provider))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(isSelected ? accentColor : Color.sdtSecondary)

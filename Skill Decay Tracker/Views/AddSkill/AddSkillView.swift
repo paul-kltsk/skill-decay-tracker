@@ -20,11 +20,9 @@ struct AddSkillView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = AddSkillViewModel()
 
-    /// Called with every newly created skill after the user taps "Add Skill".
     var onSkillCreated: (([Skill]) -> Void)? = nil
 
-    /// Optional callback to start a practice session immediately after saving.
-    /// The sheet dismisses first, then the callback fires.
+    /// Fired after save; the sheet dismisses first, then this callback runs.
     /// Parameters: created skills + the question count chosen by the user.
     var onStartPractice: (([Skill], Int) -> Void)? = nil
 
@@ -59,9 +57,6 @@ struct AddSkillView: View {
             .background(Color.sdtBackground)
             .navigationTitle("Add Skill")
             .navigationBarTitleDisplayMode(.inline)
-            // Phase 1: generate 5-question baseline the moment the user lands on step 3.
-            // Phase 2 (top-up to selectedQuestionCount) is triggered inside advance() when
-            // the user leaves step 3, so no .onChange needed here.
             .task(id: viewModel.currentStep) {
                 guard viewModel.currentStep == 3 else { return }
                 viewModel.startBaselinePrefetch()
@@ -125,7 +120,6 @@ struct AddSkillView: View {
             }
 
         } else if viewModel.currentStep == 0 {
-            // Name step — Continue (AI check runs automatically in background)
             Button {
                 UIApplication.shared.sendAction(
                     #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
@@ -137,7 +131,6 @@ struct AddSkillView: View {
             .disabled(!viewModel.isNameValid)
 
         } else {
-            // Steps 1–2 — plain Back / Continue
             HStack(spacing: SDTSpacing.md) {
                 Button("Back") { viewModel.back() }
                     .buttonStyle(BackButtonStyle())

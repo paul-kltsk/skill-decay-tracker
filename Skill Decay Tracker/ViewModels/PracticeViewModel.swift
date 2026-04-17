@@ -216,8 +216,6 @@ final class PracticeViewModel {
             let target = challengeCount ?? preferredSessionCount
             var pending = skill.pendingChallenges
             // Generate if we have fewer challenges than the session target.
-            // This ensures the user always gets the full requested number of questions,
-            // regardless of how many are already pending.
             if pending.count < target {
                 let more = await fetchOrGenerate(
                     skill: skill, count: target - pending.count, context: context)
@@ -232,10 +230,8 @@ final class PracticeViewModel {
                 return
             }
             // Prefer the per-skill count passed by the caller (accounts for Pro/free cap).
-            // Fall back to the global session-length preference.
             let target = challengeCount ?? preferredSessionCount
             var pending = skill.pendingChallenges
-            // Generate if we have fewer challenges than the session target.
             if pending.count < target {
                 let more = await fetchOrGenerate(
                     skill: skill, count: target - pending.count, context: context)
@@ -414,7 +410,6 @@ final class PracticeViewModel {
         }
 
         if let skill = challenge.skill {
-            // Track per-skill session accuracy for difficulty-adjustment suggestions.
             let sid = skill.id
             var stats = sessionSkillStats[sid] ?? (name: skill.name, correct: 0, total: 0)
             stats.total  += 1
@@ -447,10 +442,8 @@ final class PracticeViewModel {
         timerTask?.cancel()
         let correct = sessionResults.filter { $0.isCorrect }.count
 
-        // Build difficulty-adjustment suggestions.
-        // Thresholds: ≥3 challenges per skill in this session to avoid noise.
-        // Increase: accuracy ≥ 90% → questions are too easy.
-        // Decrease: accuracy ≤ 35% → questions are too hard.
+        // Thresholds: ≥3 challenges per skill to avoid noise from small samples.
+        // Increase: accuracy ≥ 90%; Decrease: accuracy ≤ 35%.
         let adjustments: [DifficultyAdjustment] = sessionSkillStats.compactMap { id, stats in
             guard stats.total >= 3 else { return nil }
             let acc = Double(stats.correct) / Double(stats.total)
@@ -536,7 +529,6 @@ final class PracticeViewModel {
 
     // MARK: - Helpers
 
-    /// Generates new challenges for `skill` via AIService and inserts them into the context.
     private func fetchOrGenerate(skill: Skill, count: Int, context: ModelContext) async -> [Challenge] {
         // Extract Sendable scalars on @MainActor before crossing into the AIService actor.
         let skillName       = skill.name
@@ -560,7 +552,6 @@ final class PracticeViewModel {
             case .rateLimited(let retryAfter):
                 phase = .rateLimited(retryAfter: retryAfter)
             case .invalidAPIKey, .insufficientCredits:
-                // Show an actionable message so the user knows what to fix
                 phase = .error(apiError.userFacingMessage)
             default:
                 break  // Other errors fall back to offline challenges silently

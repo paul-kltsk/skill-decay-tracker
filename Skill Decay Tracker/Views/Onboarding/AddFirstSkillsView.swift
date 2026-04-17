@@ -166,4 +166,3 @@ private struct CategoryChip: View {
     }
 }
 
-// Note: SkillCategory.displayName is defined in SDTDesignSystem.swift

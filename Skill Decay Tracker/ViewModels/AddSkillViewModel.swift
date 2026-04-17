@@ -83,11 +83,7 @@ final class AddSkillViewModel {
         return (name, selectedCategory, ctx, tempSkill.effectiveDifficulty)
     }
 
-    /// Phase 1 — starts a background task that generates exactly 5 questions (the minimum).
-    ///
-    /// Called when the user lands on the Question Count step (step 3). Synchronous so the
-    /// SwiftUI `.task` modifier fires it without awaiting — the real work happens inside
-    /// `baselineTask`.
+    /// Starts background generation of exactly 5 questions (the minimum baseline).
     func startBaselinePrefetch() {
         baselineTask?.cancel()
         baselineTask = nil
@@ -113,10 +109,10 @@ final class AddSkillViewModel {
         }
     }
 
-    /// Phase 2 — appends the questions needed to reach `selectedQuestionCount`.
+    /// Appends the questions needed to reach `selectedQuestionCount`.
     ///
-    /// Called from `advance()` when leaving step 3. Cancels the baseline task first so
-    /// its eventual assignment can't overwrite the top-up result.
+    /// Cancels the baseline task first so its eventual assignment can't overwrite
+    /// the top-up result.
     func startTopUpPrefetch() async {
         baselineTask?.cancel()
         baselineTask = nil
@@ -151,9 +147,6 @@ final class AddSkillViewModel {
     // MARK: - Focus Analysis
 
     /// Clears current suggestions and cancels any in-flight analysis.
-    ///
-    /// Called immediately when the skill name field changes so stale chips
-    /// disappear before the new analysis completes.
     func clearFocusSuggestions() {
         nameCheckTask?.cancel()
         nameCheckTask = nil
@@ -163,11 +156,8 @@ final class AddSkillViewModel {
 
     /// Triggers a breadth analysis for the current skill name.
     ///
-    /// Called when the name field loses focus (blur) or on submit — NOT on every
-    /// keystroke. Three guards before hitting the network:
-    /// 1. **Cache** — if this exact name was already checked, returns the cached result instantly.
-    /// 2. **Limit** — at most `focusCheckLimit` real AI calls per ViewModel instance.
-    /// 3. **Empty name** — no-ops silently.
+    /// Fires on blur (not per-keystroke). Results are cached by name; hard-capped at
+    /// `focusCheckLimit` real AI calls per ViewModel instance.
     func analyzeNameIfNeeded() {
         nameCheckTask?.cancel()
         let name = skillName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -244,7 +234,6 @@ final class AddSkillViewModel {
         }
     }
 
-    /// Advances to the next step. Advancing from step 3 kicks off the top-up prefetch.
     func advance() {
         guard canAdvance else { return }
         nameCheckTask?.cancel()     // no need to keep analysing once user proceeds

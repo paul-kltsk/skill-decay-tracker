@@ -15,7 +15,6 @@ struct OnboardingContainerView: View {
         ZStack(alignment: .bottom) {
             Color.sdtBackground.ignoresSafeArea()
 
-            // Page content — driven by vm.currentPage
             Group {
                 switch vm.currentPage {
                 case 0:

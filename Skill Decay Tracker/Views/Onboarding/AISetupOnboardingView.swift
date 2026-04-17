@@ -19,7 +19,6 @@ struct AISetupOnboardingView: View {
         VStack(spacing: 0) {
             Spacer().frame(height: SDTSpacing.xxxl)
 
-            // MARK: Header
             VStack(spacing: SDTSpacing.sm) {
                 Image(systemName: "cpu")
                     .font(.system(size: 40, weight: .semibold))
@@ -37,7 +36,6 @@ struct AISetupOnboardingView: View {
 
             Spacer().frame(height: SDTSpacing.xxl)
 
-            // MARK: Cards
             VStack(spacing: SDTSpacing.md) {
 
                 // Built-in card (default)
@@ -102,7 +100,6 @@ struct AISetupOnboardingView: View {
 
             Spacer()
 
-            // MARK: Bottom buttons
             VStack(spacing: SDTSpacing.sm) {
                 Button(action: onNext) {
                     Text("Continue")
@@ -210,7 +207,6 @@ private struct PersonalKeySection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SDTSpacing.md) {
 
-            // Provider chips
             HStack(spacing: SDTSpacing.sm) {
                 ForEach(AIProvider.allCases, id: \.rawValue) { provider in
                     Button {
@@ -250,7 +246,6 @@ private struct PersonalKeySection: View {
                 .buttonStyle(.plain)
             }
 
-            // Privacy note
             HStack(alignment: .top, spacing: SDTSpacing.xs) {
                 Image(systemName: "shield.fill")
                     .font(.system(size: 11))
@@ -262,7 +257,6 @@ private struct PersonalKeySection: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            // Key state
             if vm.apiKeyState == .saved {
                 VStack(alignment: .leading, spacing: SDTSpacing.md) {
                     HStack(spacing: SDTSpacing.xs) {
@@ -285,7 +279,6 @@ private struct PersonalKeySection: View {
                     .background(Color.green.opacity(0.08))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                    // Model tier picker — only visible when key is saved
                     OnboardingTierPicker(selectedTier: $vm.selectedModelTier,
                                         provider: vm.selectedProvider)
                 }

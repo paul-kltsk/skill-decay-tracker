@@ -156,7 +156,6 @@ struct HomeView: View {
         ForEach(viewModel.sortedByUrgency(skills)) { skill in
             let locked = sub.isSkillLocked(skill, allSkills: skills)
             if locked {
-                // Locked skills: visible but non-interactive
                 SDTSkillCard(skill: skill)
                     .overlay {
                         RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)

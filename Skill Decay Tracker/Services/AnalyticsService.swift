@@ -3,17 +3,8 @@ import FirebaseAnalytics
 // MARK: - AnalyticsService
 //
 // Centralised wrapper around Firebase Analytics.
-// All event names and parameter keys live here so typos are caught at
-// compile time and event taxonomy is easy to audit in one place.
-//
-// Usage:
-//   AnalyticsService.skillAdded(category: "language", isSplit: false, difficulty: 3)
-//
-// Rules:
-//   - Event names   ≤ 40 chars, snake_case
-//   - Param names   ≤ 40 chars, snake_case
-//   - String values ≤ 100 chars
-//   - No PII (names, keys, emails)
+// Firebase constraints: event/param names ≤ 40 chars, snake_case;
+// string values ≤ 100 chars; no PII.
 
 enum AnalyticsService {
 

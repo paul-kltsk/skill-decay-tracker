@@ -1,125 +1,8 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%1$lld XP · %2$lld to next level" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld XP · ещё %2$lld до следующего уровня"
-          }
-        }
-      }
-    },
-    "%1$lld/%2$lld unlocked" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld/%2$lld разблокировано"
-          }
-        }
-      }
-    },
-    "%1$lld min %2$lld s" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$lld мин %2$lld с"
-          }
-        }
-      }
-    },
-    "Level %1$lld · %2$lld XP" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уровень %1$lld · %2$lld XP"
-          }
-        }
-      }
-    },
-    "Level %lld" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уровень %lld"
-          }
-        }
-      }
-    },
-    "Progress to Level %lld" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "До уровня %lld"
-          }
-        }
-      }
-    },
-    "%lld XP to go" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ещё %lld XP"
-          }
-        }
-      }
-    },
-    "5 challenges · %@" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5 заданий · %@"
-          }
-        }
-      }
-    },
-    "All overdue skills · %lld due today" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Все просроченные навыки · %lld сегодня"
-          }
-        }
-      }
-    },
-    "You answered %@ correctly. Ready for harder questions and a tighter review schedule?" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вы ответили верно на %@. Готовы к более сложным вопросам с более жёстким расписанием?"
-          }
-        }
-      }
-    },
-    "You answered %@ correctly. Easier questions and more frequent short reviews can build confidence." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вы ответили верно на %@. Более простые вопросы и частые короткие повторения помогут укрепить уверенность."
-          }
-        }
-      }
-    },
-    "You've used all your free AI requests for today.\nLimit resets in **%@**." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вы использовали все бесплатные запросы AI на сегодня.\nЛимит сбросится через **%@**."
-          }
-        }
-      }
+    "·" : {
+
     },
     "\"%@\" and all its history will be permanently deleted." : {
       "localizations" : {
@@ -131,186 +14,74 @@
         }
       }
     },
-    "%lld days ago" : {
+    "%" : {
+
+    },
+    "%@ · My Key" : {
       "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld day ago"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld days ago"
-                }
-              }
-            }
-          }
-        },
         "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld день назад"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld дня назад"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld дней назад"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Мой ключ"
           }
         }
       }
     },
-    "%lld weeks ago" : {
+    "%@ %@" : {
       "localizations" : {
         "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld week ago"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld weeks ago"
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld неделю назад"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld недели назад"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld недель назад"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
           }
         }
       }
     },
-    "%lld months ago" : {
+    "%@ key saved" : {
+
+    },
+    "%1$lld min %2$lld s" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld month ago"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld months ago"
-                }
-              }
-            }
-          }
-        },
         "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld месяц назад"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld месяца назад"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld месяцев назад"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld мин %2$lld с"
           }
         }
       }
     },
-    "%lld days active in 12 weeks" : {
+    "%1$lld XP · %2$lld to next level" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld XP · ещё %2$lld до следующего уровня"
+          }
+        }
+      }
+    },
+    "%1$lld/%2$lld unlocked" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld/%2$lld разблокировано"
+          }
+        }
+      }
+    },
+    "%lld" : {
+
+    },
+    "%lld / %lld" : {
       "localizations" : {
         "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld day active in 12 weeks"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld days active in 12 weeks"
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld активный день за 12 недель"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld активных дня за 12 недель"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld активных дней за 12 недель"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
           }
         }
       }
@@ -338,12 +109,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld активный день за последние 12 недель"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -354,6 +119,107 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld активных дней за последние 12 недель"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld активный день за последние 12 недель"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld day streak" : {
+
+    },
+    "%lld days active in 12 weeks" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day active in 12 weeks"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days active in 12 weeks"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld активных дня за 12 недель"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld активных дней за 12 недель"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld активный день за 12 недель"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld days ago" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld day ago"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld days ago"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld дня назад"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld дней назад"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld день назад"
                 }
               }
             }
@@ -371,7 +237,18 @@
         }
       }
     },
-    "%lld seconds" : {
+    "%lld min %lld s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld min %2$lld s"
+          }
+        }
+      }
+    },
+    "%lld months ago" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "variations" : {
@@ -379,13 +256,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld second"
+                  "value" : "%lld month ago"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld seconds"
+                  "value" : "%lld months ago"
                 }
               }
             }
@@ -394,22 +271,22 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld секунда"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld секунды"
+                  "value" : "%lld месяца назад"
                 }
               },
               "many" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld секунд"
+                  "value" : "%lld месяцев назад"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld месяц назад"
                 }
               }
             }
@@ -440,12 +317,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld задание"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -456,6 +327,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld заданий"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld задание"
                 }
               }
             }
@@ -486,12 +363,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld вопрос"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -502,6 +373,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld вопросов"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld вопрос"
                 }
               }
             }
@@ -532,12 +409,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld вопрос готов — практика начнётся мгновенно."
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -548,6 +419,107 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld вопросов готовы — практика начнётся мгновенно."
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld вопрос готов — практика начнётся мгновенно."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld seconds" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld second"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld seconds"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld секунды"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld секунд"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld секунда"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld sessions" : {
+
+    },
+    "%lld skills in group" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld skill in group"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld skills in group"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навыка в группе"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навыков в группе"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навык в группе"
                 }
               }
             }
@@ -578,12 +550,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld навык требует повторения"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -594,6 +560,12 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld навыков требуют повторения"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навык требует повторения"
                 }
               }
             }
@@ -624,12 +596,6 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld навык отслеживается"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
@@ -641,13 +607,19 @@
                   "state" : "translated",
                   "value" : "%lld навыков отслеживается"
                 }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld навык отслеживается"
+                }
               }
             }
           }
         }
       }
     },
-    "Nailed it — %lld questions" : {
+    "%lld weeks ago" : {
       "localizations" : {
         "en" : {
           "variations" : {
@@ -655,13 +627,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Nailed it — %lld question"
+                  "value" : "%lld week ago"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Nailed it — %lld questions"
+                  "value" : "%lld weeks ago"
                 }
               }
             }
@@ -670,22 +642,22 @@
         "ru" : {
           "variations" : {
             "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Отлично! — %lld вопрос"
-                }
-              },
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Отлично! — %lld вопроса"
+                  "value" : "%lld недели назад"
                 }
               },
               "many" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Отлично! — %lld вопросов"
+                  "value" : "%lld недель назад"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld неделю назад"
                 }
               }
             }
@@ -693,48 +665,151 @@
         }
       }
     },
-    "Struggled — %lld questions" : {
+    "%lld XP · %lld to next level" : {
       "localizations" : {
         "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Struggled — %lld question"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Struggled — %lld questions"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld XP · %2$lld to next level"
           }
-        },
+        }
+      }
+    },
+    "%lld XP to go" : {
+      "localizations" : {
         "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Трудно — %lld вопрос"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Трудно — %lld вопроса"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Трудно — %lld вопросов"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ещё %lld XP"
+          }
+        }
+      }
+    },
+    "%lld XP to Level %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld XP to Level %2$lld"
+          }
+        }
+      }
+    },
+    "%lld XP total" : {
+
+    },
+    "%lld/%lld unlocked" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld unlocked"
+          }
+        }
+      }
+    },
+    "%lld%%" : {
+
+    },
+    "≈ 5 min — great for busy days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ 5 мин — отлично для занятых дней"
+          }
+        }
+      }
+    },
+    "≈ 10 min — the sweet spot" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ 10 мин — оптимальный вариант"
+          }
+        }
+      }
+    },
+    "≈ 20 min — maximum reinforcement" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ 20 мин — максимальное закрепление"
+          }
+        }
+      }
+    },
+    "🎯" : {
+
+    },
+    "💡" : {
+
+    },
+    "1 week ago" : {
+
+    },
+    "3–5 sec" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–5 сек"
+          }
+        }
+      }
+    },
+    "5 challenges · %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5 заданий · %@"
+          }
+        }
+      }
+    },
+    "5-challenge sessions, any skill" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5 заданий за сессию, любой навык"
+          }
+        }
+      }
+    },
+    "5–10 sec" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5–10 сек"
+          }
+        }
+      }
+    },
+    "10–20 sec" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10–20 сек"
+          }
+        }
+      }
+    },
+    "70%" : {
+
+    },
+    "A new version of Skill Decay Tracker is available with important improvements and fixes." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступна новая версия Skill Decay Tracker с важными улучшениями."
           }
         }
       }
@@ -809,6 +884,9 @@
         }
       }
     },
+    "Add %@ API Key" : {
+
+    },
     "Add a Skill" : {
       "localizations" : {
         "ru" : {
@@ -818,6 +896,19 @@
           }
         }
       }
+    },
+    "Add any skill" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте любой навык"
+          }
+        }
+      }
+    },
+    "Add Key" : {
+
     },
     "Add Skill" : {
       "localizations" : {
@@ -830,6 +921,7 @@
       }
     },
     "Add skills to get started" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -838,6 +930,9 @@
           }
         }
       }
+    },
+    "Add your first skill" : {
+
     },
     "Add your first skill and start tracking your knowledge portfolio." : {
       "localizations" : {
@@ -855,6 +950,19 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Добавьте первый навык для отслеживания."
+          }
+        }
+      }
+    },
+    "AI for your challenges" : {
+
+    },
+    "AI generates challenges" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI создаёт задания"
           }
         }
       }
@@ -939,6 +1047,10 @@
         }
       }
     },
+    "Alert when a skill drops below this health score." : {
+      "comment" : "A description of the decay alert setting.",
+      "isCommentAutoGenerated" : true
+    },
     "All caught up!" : {
       "localizations" : {
         "ru" : {
@@ -949,7 +1061,19 @@
         }
       }
     },
+    "All overdue skills · %lld due today" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все просроченные навыки · %lld сегодня"
+          }
+        }
+      }
+    },
     "All pending challenges for one skill" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -979,6 +1103,16 @@
         }
       }
     },
+    "All-time history and export" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вся история и экспорт"
+          }
+        }
+      }
+    },
     "Analytics" : {
       "localizations" : {
         "ru" : {
@@ -989,15 +1123,12 @@
         }
       }
     },
-    "A new version of Skill Decay Tracker is available with important improvements and fixes." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Доступна новая версия Skill Decay Tracker с важными улучшениями."
-          }
-        }
-      }
+    "API key is invalid or revoked. Update it in Settings → AI Model." : {
+
+    },
+    "API key not set. Add it in Settings → AI Model." : {
+      "comment" : "A description of an error that might occur when interacting with the AI service.",
+      "isCommentAutoGenerated" : true
     },
     "Appearance" : {
       "localizations" : {
@@ -1005,6 +1136,19 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Внешний вид"
+          }
+        }
+      }
+    },
+    "Applies to challenge generation. Evaluation always uses a fast model to keep costs low." : {
+
+    },
+    "Average" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Средне"
           }
         }
       }
@@ -1039,6 +1183,16 @@
         }
       }
     },
+    "Balanced" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сбалансированный"
+          }
+        }
+      }
+    },
     "Balanced session · ~8 min" : {
       "localizations" : {
         "ru" : {
@@ -1049,12 +1203,42 @@
         }
       }
     },
+    "Beginner" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начинающий"
+          }
+        }
+      }
+    },
+    "Best" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лучший"
+          }
+        }
+      }
+    },
     "Best Practice Time" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Лучшее время для практики"
+          }
+        }
+      }
+    },
+    "Best reasoning & long-context understanding" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лучшее рассуждение и понимание длинного контекста"
           }
         }
       }
@@ -1070,11 +1254,42 @@
       }
     },
     "Best Streak" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Лучшая серия"
+          }
+        }
+      }
+    },
+    "Billed monthly, cancel anytime" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежемесячная оплата, отменить в любое время"
+          }
+        }
+      }
+    },
+    "Billed once per year" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оплата раз в год"
+          }
+        }
+      }
+    },
+    "Broad knowledge, fast responses" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Широкие знания, быстрые ответы"
           }
         }
       }
@@ -1088,6 +1303,9 @@
           }
         }
       }
+    },
+    "Built-in AI" : {
+
     },
     "By default, Claude is used via a built-in connection — no API key needed. Add your own key for a direct connection." : {
       "localizations" : {
@@ -1119,6 +1337,19 @@
         }
       }
     },
+    "Centurion" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Центурион"
+          }
+        }
+      }
+    },
+    "Challenge Difficulty" : {
+
+    },
     "Challenges" : {
       "localizations" : {
         "ru" : {
@@ -1129,12 +1360,41 @@
         }
       }
     },
+    "Challenges are processed through a secure server. No API key needed." : {
+
+    },
+    "Challenging" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Трудно"
+          }
+        }
+      }
+    },
+    "Change" : {
+
+    },
+    "Changes apply immediately across the entire app." : {
+
+    },
     "Checking…" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Проверяем…"
+          }
+        }
+      }
+    },
+    "Choose a Plan" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать тариф"
           }
         }
       }
@@ -1159,6 +1419,12 @@
         }
       }
     },
+    "Claude · No API key required" : {
+
+    },
+    "Claude · Up to 3 skills, 5 questions per session" : {
+
+    },
     "Code Completion" : {
       "localizations" : {
         "ru" : {
@@ -1169,7 +1435,31 @@
         }
       }
     },
+    "Collector" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Коллекционер"
+          }
+        }
+      }
+    },
+    "Color Scheme" : {
+
+    },
+    "Complete 100 challenges" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполните 100 заданий"
+          }
+        }
+      }
+    },
     "Complete challenges to see breakdown" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
@@ -1199,12 +1489,32 @@
         }
       }
     },
+    "Complete your first challenge" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выполните первое задание"
+          }
+        }
+      }
+    },
     "Concept" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Концепция"
+          }
+        }
+      }
+    },
+    "Constellation" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Созвездие"
           }
         }
       }
@@ -1239,6 +1549,16 @@
         }
       }
     },
+    "Correct answer" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Правильный ответ"
+          }
+        }
+      }
+    },
     "Correct!" : {
       "localizations" : {
         "ru" : {
@@ -1249,15 +1569,18 @@
         }
       }
     },
-    "Correct answer" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Правильный ответ"
-          }
-        }
-      }
+    "Could not load plans. Check your connection." : {
+
+    },
+    "Could not parse AI response as JSON: %@" : {
+
+    },
+    "Count" : {
+      "comment" : "Label for the count of practice sessions.",
+      "isCommentAutoGenerated" : true
+    },
+    "Create" : {
+
     },
     "Critical" : {
       "localizations" : {
@@ -1269,6 +1592,9 @@
         }
       }
     },
+    "Critical Alert Threshold" : {
+
+    },
     "Custom" : {
       "localizations" : {
         "ru" : {
@@ -1278,6 +1604,10 @@
           }
         }
       }
+    },
+    "d%lld" : {
+      "comment" : "A label indicating the day of the week, e.g. \"d3\" for \"day 3\".",
+      "isCommentAutoGenerated" : true
     },
     "Daily limit reached" : {
       "localizations" : {
@@ -1289,12 +1619,25 @@
         }
       }
     },
+    "Daily Practice Reminder" : {
+
+    },
     "Daily Review" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ежедневный обзор"
+          }
+        }
+      }
+    },
+    "Dark" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тёмная"
           }
         }
       }
@@ -1309,12 +1652,31 @@
         }
       }
     },
+    "Date" : {
+
+    },
+    "Day" : {
+
+    },
+    "Decay Alerts" : {
+
+    },
     "Decay Forecast" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Прогноз угасания"
+          }
+        }
+      }
+    },
+    "Decay keeps you honest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Угасание держит вас честным"
           }
         }
       }
@@ -1349,6 +1711,43 @@
         }
       }
     },
+    "Deep Dive (15 challenges)" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Глубокое (15 заданий)"
+          }
+        }
+      }
+    },
+    "Deep Dive is a Pro feature.\nFocus on one skill until you master it." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Глубокое погружение — функция Pro.\nСосредоточьтесь на одном навыке до мастерства."
+          }
+        }
+      }
+    },
+    "Deep Dive Mode" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Режим глубокого погружения"
+          }
+        }
+      }
+    },
+    "DEFAULT" : {
+
+    },
+    "Default Session Length" : {
+      "comment" : "A label displayed above the user's default session length.",
+      "isCommentAutoGenerated" : true
+    },
     "Delete" : {
       "localizations" : {
         "ru" : {
@@ -1358,6 +1757,9 @@
           }
         }
       }
+    },
+    "Delete \"%@\"?" : {
+
     },
     "Delete All Data" : {
       "localizations" : {
@@ -1449,6 +1851,9 @@
         }
       }
     },
+    "e.g. \"IELTS B2 exam\", \"jazz improvisation\", \"organic chemistry\"" : {
+
+    },
     "e.g. DELF B2 exam, Jazz improvisation, Organic chemistry…" : {
       "localizations" : {
         "ru" : {
@@ -1459,12 +1864,29 @@
         }
       }
     },
+    "e.g. History of Polish rulers" : {
+
+    },
     "e.g. Spanish, Guitar, Chemistry…" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "например: Испанский, Гитара, Химия…"
+          }
+        }
+      }
+    },
+    "e.g. Swift, Design, Languages…" : {
+      "comment" : "A placeholder text for a group name.",
+      "isCommentAutoGenerated" : true
+    },
+    "Earn 5,000 XP" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заработайте 5 000 XP"
           }
         }
       }
@@ -1509,6 +1931,26 @@
         }
       }
     },
+    "Every practice session gets fresh micro-challenges tailored to your skill level." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Каждая сессия — новые мини-задания, подобранные к вашему уровню."
+          }
+        }
+      }
+    },
+    "Expert" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эксперт"
+          }
+        }
+      }
+    },
     "Fading" : {
       "localizations" : {
         "ru" : {
@@ -1529,12 +1971,35 @@
         }
       }
     },
+    "Fast" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрый"
+          }
+        }
+      }
+    },
+    "Feedback" : {
+
+    },
     "Fill in the Blank" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Заполните пропуск"
+          }
+        }
+      }
+    },
+    "First Step" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Первый шаг"
           }
         }
       }
@@ -1569,1448 +2034,15 @@
         }
       }
     },
+    "Free" : {
+
+    },
     "Free: 30 / day  ·  Pro: 300 / day" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Бесплатно: 30 / день  ·  Pro: 300 / день"
-          }
-        }
-      }
-    },
-    "Generating questions…" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Генерация вопросов…"
-          }
-        }
-      }
-    },
-    "Give your skill a clear, specific name." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Дайте навыку чёткое название."
-          }
-        }
-      }
-    },
-    "Got it" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Понял"
-          }
-        }
-      }
-    },
-    "Hard" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сложно"
-          }
-        }
-      }
-    },
-    "Head to the Skills tab to add your first skill, then complete a practice session to see your analytics here." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавьте первый навык на вкладке Навыки, затем завершите сессию практики."
-          }
-        }
-      }
-    },
-    "Health Trend" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тренд здоровья"
-          }
-        }
-      }
-    },
-    "Healthy" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Здоровый"
-          }
-        }
-      }
-    },
-    "Home" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Главная"
-          }
-        }
-      }
-    },
-    "How hard is it for you?" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Насколько это сложно?"
-          }
-        }
-      }
-    },
-    "How many questions?" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сколько вопросов?"
-          }
-        }
-      }
-    },
-    "Increase difficulty" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повысить сложность"
-          }
-        }
-      }
-    },
-    "Keep current" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оставить как есть"
-          }
-        }
-      }
-    },
-    "Language" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Язык"
-          }
-        }
-      }
-    },
-    "Less" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Меньше"
-          }
-        }
-      }
-    },
-    "Level" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уровень"
-          }
-        }
-      }
-    },
-    "Looks good?" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выглядит хорошо?"
-          }
-        }
-      }
-    },
-    "Manage Subscription" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Управление подпиской"
-          }
-        }
-      }
-    },
-    "More" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Больше"
-          }
-        }
-      }
-    },
-    "Move to Group" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Переместить в группу"
-          }
-        }
-      }
-    },
-    "Multiple Choice" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Множественный выбор"
-          }
-        }
-      }
-    },
-    "Name" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Название"
-          }
-        }
-      }
-    },
-    "Next Review" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Следующее повторение"
-          }
-        }
-      }
-    },
-    "No challenges completed yet." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Заданий ещё не выполнено."
-          }
-        }
-      }
-    },
-    "No challenges found. Try again or add more skills." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задания не найдены. Попробуйте ещё раз или добавьте навыки."
-          }
-        }
-      }
-    },
-    "No data yet" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Данных пока нет"
-          }
-        }
-      }
-    },
-    "No Data Yet" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Данных пока нет"
-          }
-        }
-      }
-    },
-    "No focus yet. Add a goal to get more targeted questions — e.g. \"IELTS B2 exam\", \"jazz improvisation\", \"organic chemistry\"." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Цель не задана. Добавьте цель для точных вопросов, например: «IELTS B2», «джазовая импровизация», «органическая химия»."
-          }
-        }
-      }
-    },
-    "No practice data yet" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Данных о практике пока нет"
-          }
-        }
-      }
-    },
-    "No response data yet" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Данных о времени ответа пока нет"
-          }
-        }
-      }
-    },
-    "No skills to practice. Add some skills first." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нет навыков для практики. Сначала добавьте навыки."
-          }
-        }
-      }
-    },
-    "No skills yet" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Навыков пока нет"
-          }
-        }
-      }
-    },
-    "No Skills Yet" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пока нет навыков"
-          }
-        }
-      }
-    },
-    "Not quite" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не совсем"
-          }
-        }
-      }
-    },
-    "Notifications" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уведомления"
-          }
-        }
-      }
-    },
-    "Now" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сейчас"
-          }
-        }
-      }
-    },
-    "Open Ended" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Открытый вопрос"
-          }
-        }
-      }
-    },
-    "Pick a category" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выберите категорию"
-          }
-        }
-      }
-    },
-    "Portfolio Health" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Здоровье портфолио"
-          }
-        }
-      }
-    },
-    "Practice" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Практика"
-          }
-        }
-      }
-    },
-    "Preferences" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Предпочтения"
-          }
-        }
-      }
-    },
-    "Preparing personalised questions…" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подготовка персонализированных вопросов…"
-          }
-        }
-      }
-    },
-    "Preparing your practice session…" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подготовка сессии практики…"
-          }
-        }
-      }
-    },
-    "Privacy Policy" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Политика конфиденциальности"
-          }
-        }
-      }
-    },
-    "Profile" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Профиль"
-          }
-        }
-      }
-    },
-    "Programming" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Программирование"
-          }
-        }
-      }
-    },
-    "Pro Subscriber" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подписчик Pro"
-          }
-        }
-      }
-    },
-    "Pro users get 10× more requests per day" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пользователи Pro получают в 10 раз больше запросов в день"
-          }
-        }
-      }
-    },
-    "Quick Practice" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Быстрая практика"
-          }
-        }
-      }
-    },
-    "Quick session · ~5 min" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Быстрая · ~5 мин"
-          }
-        }
-      }
-    },
-    "Range" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Диапазон"
-          }
-        }
-      }
-    },
-    "Recent Challenges" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Недавние задания"
-          }
-        }
-      }
-    },
-    "Remove from Group" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Убрать из группы"
-          }
-        }
-      }
-    },
-    "Response Times" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Время ответа"
-          }
-        }
-      }
-    },
-    "Revisiting skipped questions" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Повторение пропущенных вопросов"
-          }
-        }
-      }
-    },
-    "Review cadence" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Частота повторений"
-          }
-        }
-      }
-    },
-    "Save" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сохранить"
-          }
-        }
-      }
-    },
-    "Save & Continue" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сохранить и продолжить"
-          }
-        }
-      }
-    },
-    "See All" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Все"
-          }
-        }
-      }
-    },
-    "Session Complete!" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сессия завершена!"
-          }
-        }
-      }
-    },
-    "Set your name" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Введите имя"
-          }
-        }
-      }
-    },
-    "Settings" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Настройки"
-          }
-        }
-      }
-    },
-    "Skill Health" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Здоровье навыков"
-          }
-        }
-      }
-    },
-    "Skill Map" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Карта навыков"
-          }
-        }
-      }
-    },
-    "Skill not found." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Навык не найден."
-          }
-        }
-      }
-    },
-    "Skills" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Навыки"
-          }
-        }
-      }
-    },
-    "Skills Reviewed" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Изученные навыки"
-          }
-        }
-      }
-    },
-    "Skills reviewed" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Навыков изучено"
-          }
-        }
-      }
-    },
-    "Skip" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пропустить"
-          }
-        }
-      }
-    },
-    "Something went wrong" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Что-то пошло не так"
-          }
-        }
-      }
-    },
-    "Standard session · ~12 min" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Стандартная · ~12 мин"
-          }
-        }
-      }
-    },
-    "Start Practice" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Начать практику"
-          }
-        }
-      }
-    },
-    "Start Review" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Начать обзор"
-          }
-        }
-      }
-    },
-    "Streak" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Серия"
-          }
-        }
-      }
-    },
-    "Submit" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отправить"
-          }
-        }
-      }
-    },
-    "Subscription" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Подписка"
-          }
-        }
-      }
-    },
-    "Support & FAQ" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Поддержка и FAQ"
-          }
-        }
-      }
-    },
-    "Tap + to add your first skill." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нажмите +, чтобы добавить первый навык."
-          }
-        }
-      }
-    },
-    "Tap a suggestion to use it as your focus goal, or write your own in the field above." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нажмите на предложение или напишите своё выше."
-          }
-        }
-      }
-    },
-    "Terms of Service" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Условия использования"
-          }
-        }
-      }
-    },
-    "This determines the accent colour and icon for your skill." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Определяет цвет и иконку навыка."
-          }
-        }
-      }
-    },
-    "This sets the initial practice frequency." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Задаёт начальную частоту повторений."
-          }
-        }
-      }
-    },
-    "Thriving" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Расцвет"
-          }
-        }
-      }
-    },
-    "Time Intelligence" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Анализ времени"
-          }
-        }
-      }
-    },
-    "Today" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сегодня"
-          }
-        }
-      }
-    },
-    "Tomorrow" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Завтра"
-          }
-        }
-      }
-    },
-    "Tool" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Инструмент"
-          }
-        }
-      }
-    },
-    "True" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Верно"
-          }
-        }
-      }
-    },
-    "True / False" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Верно / Неверно"
-          }
-        }
-      }
-    },
-    "Try Again" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Попробовать снова"
-          }
-        }
-      }
-    },
-    "Type your answer…" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Напишите ответ…"
-          }
-        }
-      }
-    },
-    "Under Maintenance" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Техническое обслуживание"
-          }
-        }
-      }
-    },
-    "Unlock up to 15 questions per session with Pro" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "До 15 вопросов за сессию с подпиской Pro"
-          }
-        }
-      }
-    },
-    "Update Now" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Обновить сейчас"
-          }
-        }
-      }
-    },
-    "Update Required" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Требуется обновление"
-          }
-        }
-      }
-    },
-    "Upgrade to Pro" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перейти на Pro"
-          }
-        }
-      }
-    },
-    "Version" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Версия"
-          }
-        }
-      }
-    },
-    "We'll be back shortly" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скоро вернёмся"
-          }
-        }
-      }
-    },
-    "We'll suggest a more specific goal if it makes sense" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Предложим точную цель при необходимости"
-          }
-        }
-      }
-    },
-    "What are you learning?" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Что вы изучаете?"
-          }
-        }
-      }
-    },
-    "Wilting" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Увядает"
-          }
-        }
-      }
-    },
-    "XP total" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Всего XP"
-          }
-        }
-      }
-    },
-    "Yesterday" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вчера"
-          }
-        }
-      }
-    },
-    "You can edit these settings later in Skill Detail." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вы можете изменить настройки позже в деталях навыка."
-          }
-        }
-      }
-    },
-    "You practice most at" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Чаще всего практикуетесь в"
-          }
-        }
-      }
-    },
-    "Your answer" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ваш ответ"
-          }
-        }
-      }
-    },
-    "Your constellation is empty" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ваше созвездие пусто"
-          }
-        }
-      }
-    },
-    "%@ · My Key" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ · Мой ключ"
-          }
-        }
-      }
-    },
-    "%lld skills in group" : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld skill in group"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld skills in group"
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld навык в группе"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld навыка в группе"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld навыков в группе"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "5-challenge sessions, any skill" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5 заданий за сессию, любой навык"
-          }
-        }
-      }
-    },
-    "10–20 sec" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "10–20 сек"
-          }
-        }
-      }
-    },
-    "3–5 sec" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "3–5 сек"
-          }
-        }
-      }
-    },
-    "5–10 sec" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5–10 сек"
-          }
-        }
-      }
-    },
-    "Add any skill" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Добавьте любой навык"
-          }
-        }
-      }
-    },
-    "AI generates challenges" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI создаёт задания"
-          }
-        }
-      }
-    },
-    "All-time history and export" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вся история и экспорт"
-          }
-        }
-      }
-    },
-    "Average" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Средне"
-          }
-        }
-      }
-    },
-    "Balanced" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сбалансированный"
-          }
-        }
-      }
-    },
-    "Beginner" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Начинающий"
-          }
-        }
-      }
-    },
-    "Best" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Лучший"
-          }
-        }
-      }
-    },
-    "Best reasoning & long-context understanding" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Лучшее рассуждение и понимание длинного контекста"
-          }
-        }
-      }
-    },
-    "Billed monthly, cancel anytime" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ежемесячная оплата, отменить в любое время"
-          }
-        }
-      }
-    },
-    "Billed once per year" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оплата раз в год"
-          }
-        }
-      }
-    },
-    "Broad knowledge, fast responses" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Широкие знания, быстрые ответы"
-          }
-        }
-      }
-    },
-    "Centurion" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Центурион"
-          }
-        }
-      }
-    },
-    "Challenging" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Трудно"
-          }
-        }
-      }
-    },
-    "Choose a Plan" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выбрать тариф"
-          }
-        }
-      }
-    },
-    "Collector" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Коллекционер"
-          }
-        }
-      }
-    },
-    "Complete 100 challenges" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выполните 100 заданий"
-          }
-        }
-      }
-    },
-    "Complete your first challenge" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Выполните первое задание"
-          }
-        }
-      }
-    },
-    "Constellation" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Созвездие"
-          }
-        }
-      }
-    },
-    "Dark" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тёмная"
-          }
-        }
-      }
-    },
-    "Decay keeps you honest" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Угасание держит вас честным"
-          }
-        }
-      }
-    },
-    "Deep Dive (15 challenges)" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Глубокое (15 заданий)"
-          }
-        }
-      }
-    },
-    "Deep Dive is a Pro feature.\nFocus on one skill until you master it." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Глубокое погружение — функция Pro.\nСосредоточьтесь на одном навыке до мастерства."
-          }
-        }
-      }
-    },
-    "Deep Dive Mode" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Режим глубокого погружения"
-          }
-        }
-      }
-    },
-    "Earn 5,000 XP" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Заработайте 5 000 XP"
-          }
-        }
-      }
-    },
-    "Every practice session gets fresh micro-challenges tailored to your skill level." : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Каждая сессия — новые мини-задания, подобранные к вашему уровню."
-          }
-        }
-      }
-    },
-    "Expert" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Эксперт"
-          }
-        }
-      }
-    },
-    "Fast" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Быстрый"
-          }
-        }
-      }
-    },
-    "First Step" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Первый шаг"
           }
         }
       }
@@ -3055,6 +2087,19 @@
         }
       }
     },
+    "Generating questions…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Генерация вопросов…"
+          }
+        }
+      }
+    },
+    "Get API Key" : {
+
+    },
     "Get Pro for %@" : {
       "localizations" : {
         "ru" : {
@@ -3065,12 +2110,48 @@
         }
       }
     },
+    "Get Started" : {
+
+    },
+    "Give your skill a clear, specific name." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дайте навыку чёткое название."
+          }
+        }
+      }
+    },
+    "Good afternoon" : {
+      "comment" : "Time-appropriate greeting for the current hour.",
+      "isCommentAutoGenerated" : true
+    },
+    "Good evening" : {
+
+    },
+    "Good morning" : {
+
+    },
+    "Good night" : {
+
+    },
     "Google's multimodal AI — fast & free tier" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Мультимодальный AI от Google — быстрый и бесплатный уровень"
+          }
+        }
+      }
+    },
+    "Got it" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Понял"
           }
         }
       }
@@ -3085,6 +2166,35 @@
         }
       }
     },
+    "Group name" : {
+
+    },
+    "Group Name" : {
+
+    },
+    "Haptic Feedback" : {
+
+    },
+    "Hard" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сложно"
+          }
+        }
+      }
+    },
+    "Head to the Skills tab to add your first skill, then complete a practice session to see your analytics here." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавьте первый навык на вкладке Навыки, затем завершите сессию практики."
+          }
+        }
+      }
+    },
     "Health" : {
       "localizations" : {
         "ru" : {
@@ -3095,12 +2205,82 @@
         }
       }
     },
+    "Health Trend" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренд здоровья"
+          }
+        }
+      }
+    },
+    "Healthy" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Здоровый"
+          }
+        }
+      }
+    },
+    "Home" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Главная"
+          }
+        }
+      }
+    },
+    "Hour" : {
+      "comment" : "Label for the x-axis in the hour distribution chart.",
+      "isCommentAutoGenerated" : true
+    },
+    "How hard is it for you?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Насколько это сложно?"
+          }
+        }
+      }
+    },
+    "How it works" : {
+
+    },
+    "How many questions?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько вопросов?"
+          }
+        }
+      }
+    },
+    "Icon" : {
+
+    },
     "in %lldd" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "через %lld дн."
+          }
+        }
+      }
+    },
+    "Increase difficulty" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повысить сложность"
           }
         }
       }
@@ -3115,6 +2295,19 @@
         }
       }
     },
+    "Invalid key — check the prefix (%@…)" : {
+
+    },
+    "Keep current" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставить как есть"
+          }
+        }
+      }
+    },
     "Key saved" : {
       "localizations" : {
         "ru" : {
@@ -3125,12 +2318,74 @@
         }
       }
     },
+    "Language" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Язык"
+          }
+        }
+      }
+    },
     "Legend" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Легенда"
+          }
+        }
+      }
+    },
+    "Less" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Меньше"
+          }
+        }
+      }
+    },
+    "Level" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уровень"
+          }
+        }
+      }
+    },
+    "Level %1$lld · %2$lld XP" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уровень %1$lld · %2$lld XP"
+          }
+        }
+      }
+    },
+    "Level %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уровень %lld"
+          }
+        }
+      }
+    },
+    "Level %lld · %lld XP" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Level %1$lld · %2$lld XP"
           }
         }
       }
@@ -3165,6 +2420,29 @@
         }
       }
     },
+    "Looks good?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выглядит хорошо?"
+          }
+        }
+      }
+    },
+    "LV" : {
+
+    },
+    "Maintain a 7-day streak" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поддерживайте серию 7 дней"
+          }
+        }
+      }
+    },
     "Maintain a 30-day streak" : {
       "localizations" : {
         "ru" : {
@@ -3175,12 +2453,15 @@
         }
       }
     },
-    "Maintain a 7-day streak" : {
+    "Manage Groups" : {
+
+    },
+    "Manage Subscription" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Поддерживайте серию 7 дней"
+            "value" : "Управление подпиской"
           }
         }
       }
@@ -3194,6 +2475,16 @@
           }
         }
       }
+    },
+    "Medium and Deep Dive sessions require Pro." : {
+      "comment" : "A description of the paywall.",
+      "isCommentAutoGenerated" : true
+    },
+    "Model quality" : {
+
+    },
+    "MODEL QUALITY" : {
+
     },
     "Moderate" : {
       "localizations" : {
@@ -3215,6 +2506,16 @@
         }
       }
     },
+    "More" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Больше"
+          }
+        }
+      }
+    },
     "Most capable model, ideal for complex topics" : {
       "localizations" : {
         "ru" : {
@@ -3225,22 +2526,88 @@
         }
       }
     },
+    "Move to Group" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переместить в группу"
+          }
+        }
+      }
+    },
+    "Multiple Choice" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Множественный выбор"
+          }
+        }
+      }
+    },
+    "Nailed it — %lld questions" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Nailed it — %lld question"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Nailed it — %lld questions"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Отлично! — %lld вопроса"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Отлично! — %lld вопросов"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Отлично! — %lld вопрос"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Название"
+          }
+        }
+      }
+    },
     "Needs review every ~1 day" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Требует повторения каждый ~1 день"
-          }
-        }
-      }
-    },
-    "Needs review every ~14 days" : {
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Требует повторения каждые ~14 дней"
           }
         }
       }
@@ -3275,6 +2642,83 @@
         }
       }
     },
+    "Needs review every ~14 days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требует повторения каждые ~14 дней"
+          }
+        }
+      }
+    },
+    "New Group" : {
+
+    },
+    "Next Review" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующее повторение"
+          }
+        }
+      }
+    },
+    "No challenges completed yet." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заданий ещё не выполнено."
+          }
+        }
+      }
+    },
+    "No challenges found. Try again or add more skills." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задания не найдены. Попробуйте ещё раз или добавьте навыки."
+          }
+        }
+      }
+    },
+    "No data yet" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данных пока нет"
+          }
+        }
+      }
+    },
+    "No Data Yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данных пока нет"
+          }
+        }
+      }
+    },
+    "No focus yet. Add a goal to get more targeted questions — e.g. \"IELTS B2 exam\", \"jazz improvisation\", \"organic chemistry\"." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цель не задана. Добавьте цель для точных вопросов, например: «IELTS B2», «джазовая импровизация», «органическая химия»."
+          }
+        }
+      }
+    },
+    "No groups yet" : {
+
+    },
     "No key" : {
       "localizations" : {
         "ru" : {
@@ -3284,6 +2728,147 @@
           }
         }
       }
+    },
+    "No network connection. Using offline challenges." : {
+
+    },
+    "No practice data yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данных о практике пока нет"
+          }
+        }
+      }
+    },
+    "No response data yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данных о времени ответа пока нет"
+          }
+        }
+      }
+    },
+    "No skills match" : {
+
+    },
+    "No skills to practice. Add some skills first." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет навыков для практики. Сначала добавьте навыки."
+          }
+        }
+      }
+    },
+    "No skills yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Навыков пока нет"
+          }
+        }
+      }
+    },
+    "No Skills Yet" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока нет навыков"
+          }
+        }
+      }
+    },
+    "No suggestions match \"%@\"" : {
+
+    },
+    "Not quite" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не совсем"
+          }
+        }
+      }
+    },
+    "notification.daily.body" : {
+      "comment" : "Daily reminder notification body text.",
+      "extractionState" : "extracted_with_value",
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Keep your knowledge fresh — a quick session takes just a few minutes."
+          }
+        }
+      }
+    },
+    "notification.daily.title" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Time to practice!"
+          }
+        }
+      }
+    },
+    "notification.decay.body" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Your %@ knowledge is at a critical level. A 5-minute session will help restore it."
+          }
+        }
+      }
+    },
+    "notification.decay.title" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%@ is fading"
+          }
+        }
+      }
+    },
+    "Notifications" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уведомления"
+          }
+        }
+      }
+    },
+    "Now" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас"
+          }
+        }
+      }
+    },
+    "OK" : {
+
+    },
+    "One last thing — what should we call you?" : {
+
     },
     "One-time purchase, no renewals" : {
       "localizations" : {
@@ -3295,6 +2880,19 @@
         }
       }
     },
+    "Open Ended" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открытый вопрос"
+          }
+        }
+      }
+    },
+    "or" : {
+
+    },
     "Organise your learning portfolio" : {
       "localizations" : {
         "ru" : {
@@ -3304,6 +2902,12 @@
           }
         }
       }
+    },
+    "Other" : {
+
+    },
+    "Paste your API key here…" : {
+
     },
     "Persistent" : {
       "localizations" : {
@@ -3315,12 +2919,51 @@
         }
       }
     },
+    "PERSONAL API KEY" : {
+
+    },
     "Piano, Python, Spanish, chess — anything you want to keep sharp. No limits." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пианино, Python, испанский, шахматы — всё, что хотите поддерживать. Без ограничений."
+          }
+        }
+      }
+    },
+    "Pick a category" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите категорию"
+          }
+        }
+      }
+    },
+    "Popular picks" : {
+
+    },
+    "Portfolio Health" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Здоровье портфолио"
+          }
+        }
+      }
+    },
+    "Powered by AI" : {
+
+    },
+    "Practice" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Практика"
           }
         }
       }
@@ -3334,6 +2977,52 @@
           }
         }
       }
+    },
+    "Preferences" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предпочтения"
+          }
+        }
+      }
+    },
+    "Preparing personalised questions…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подготовка персонализированных вопросов…"
+          }
+        }
+      }
+    },
+    "Preparing your practice session…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подготовка сессии практики…"
+          }
+        }
+      }
+    },
+    "Privacy Policy" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Политика конфиденциальности"
+          }
+        }
+      }
+    },
+    "Pro" : {
+
+    },
+    "PRO" : {
+
     },
     "Pro Annual  ⭐ Best Value" : {
       "localizations" : {
@@ -3365,6 +3054,59 @@
         }
       }
     },
+    "Pro Subscriber" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подписчик Pro"
+          }
+        }
+      }
+    },
+    "Pro users get 10× more requests per day" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пользователи Pro получают в 10 раз больше запросов в день"
+          }
+        }
+      }
+    },
+    "Profile" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профиль"
+          }
+        }
+      }
+    },
+    "Programming" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Программирование"
+          }
+        }
+      }
+    },
+    "Progress to Level %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "До уровня %lld"
+          }
+        }
+      }
+    },
+    "Purchase Error" : {
+
+    },
     "Quick (5 challenges)" : {
       "localizations" : {
         "ru" : {
@@ -3375,12 +3117,42 @@
         }
       }
     },
+    "Quick Practice" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрая практика"
+          }
+        }
+      }
+    },
     "Quick Practice is a Pro feature.\nUpgrade to practice any skill, any time." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Быстрая практика — функция Pro.\nОбновитесь, чтобы практиковать любой навык."
+          }
+        }
+      }
+    },
+    "Quick session · ~5 min" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрая · ~5 мин"
+          }
+        }
+      }
+    },
+    "Range" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Диапазон"
           }
         }
       }
@@ -3405,6 +3177,56 @@
         }
       }
     },
+    "Recent Challenges" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Недавние задания"
+          }
+        }
+      }
+    },
+    "Recommended" : {
+
+    },
+    "Reminder Time" : {
+      "comment" : "A label for the time of day to receive daily practice reminders.",
+      "isCommentAutoGenerated" : true
+    },
+    "Reminders" : {
+      "comment" : "A section title for the daily reminder settings.",
+      "isCommentAutoGenerated" : true
+    },
+    "Remove API Key" : {
+
+    },
+    "Remove from Group" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убрать из группы"
+          }
+        }
+      }
+    },
+    "Remove Key" : {
+
+    },
+    "Rename Group" : {
+
+    },
+    "Response Times" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время ответа"
+          }
+        }
+      }
+    },
     "Restore Purchases" : {
       "localizations" : {
         "ru" : {
@@ -3425,6 +3247,100 @@
         }
       }
     },
+    "Review" : {
+
+    },
+    "Review cadence" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Частота повторений"
+          }
+        }
+      }
+    },
+    "Revisiting skipped questions" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повторение пропущенных вопросов"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить"
+          }
+        }
+      }
+    },
+    "Save & Continue" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохранить и продолжить"
+          }
+        }
+      }
+    },
+    "Save %lld%%" : {
+
+    },
+    "Save Key" : {
+
+    },
+    "See All" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все"
+          }
+        }
+      }
+    },
+    "Server error (HTTP %lld). Please try again." : {
+      "comment" : "A generic error message for any HTTP error. The argument is the HTTP status code.",
+      "isCommentAutoGenerated" : true
+    },
+    "Session Complete!" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сессия завершена!"
+          }
+        }
+      }
+    },
+    "Set your name" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите имя"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
     "Sharp Mind" : {
       "localizations" : {
         "ru" : {
@@ -3434,6 +3350,13 @@
           }
         }
       }
+    },
+    "Skill" : {
+
+    },
+    "Skill Decay Tracker" : {
+      "comment" : "The name of the app.",
+      "isCommentAutoGenerated" : true
     },
     "Skill Groups" : {
       "localizations" : {
@@ -3455,12 +3378,111 @@
         }
       }
     },
+    "Skill Health" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Здоровье навыков"
+          }
+        }
+      }
+    },
+    "Skill Map" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Карта навыков"
+          }
+        }
+      }
+    },
+    "Skill name" : {
+
+    },
+    "Skill not found." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Навык не найден."
+          }
+        }
+      }
+    },
+    "Skills" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Навыки"
+          }
+        }
+      }
+    },
     "Skills fade without practice. The app tracks every skill's health and reminds you before it drops too low." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Навыки угасают без практики. Приложение отслеживает здоровье каждого навыка и напоминает до того, как оно упадёт."
+          }
+        }
+      }
+    },
+    "Skills reviewed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Навыков изучено"
+          }
+        }
+      }
+    },
+    "Skills Reviewed" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изученные навыки"
+          }
+        }
+      }
+    },
+    "Skills you love,\nhabits that last." : {
+
+    },
+    "Skip" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить"
+          }
+        }
+      }
+    },
+    "Skip for now" : {
+
+    },
+    "Something went wrong" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что-то пошло не так"
+          }
+        }
+      }
+    },
+    "Standard session · ~12 min" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стандартная · ~12 мин"
           }
         }
       }
@@ -3485,12 +3507,42 @@
         }
       }
     },
+    "Start Practice" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать практику"
+          }
+        }
+      }
+    },
     "Start Pro — %@" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Начать Pro — %@"
+          }
+        }
+      }
+    },
+    "Start Review" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать обзор"
+          }
+        }
+      }
+    },
+    "Streak" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Серия"
           }
         }
       }
@@ -3505,6 +3557,88 @@
         }
       }
     },
+    "Struggled — %lld questions" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Struggled — %lld question"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Struggled — %lld questions"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Трудно — %lld вопроса"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Трудно — %lld вопросов"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Трудно — %lld вопрос"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Submit" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отправить"
+          }
+        }
+      }
+    },
+    "Subscription" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подписка"
+          }
+        }
+      }
+    },
+    "Subscriptions renew automatically. Cancel anytime in Settings." : {
+
+    },
+    "Subtle vibrations on challenge results and interactions." : {
+
+    },
+    "Support & FAQ" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поддержка и FAQ"
+          }
+        }
+      }
+    },
     "System" : {
       "localizations" : {
         "ru" : {
@@ -3515,6 +3649,129 @@
         }
       }
     },
+    "Tap + to add your first skill." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите +, чтобы добавить первый навык."
+          }
+        }
+      }
+    },
+    "Tap + to create your first group and organise your skills." : {
+      "comment" : "A description of how to create a group.",
+      "isCommentAutoGenerated" : true
+    },
+    "Tap a suggestion to use it as your focus goal, or write your own in the field above." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите на предложение или напишите своё выше."
+          }
+        }
+      }
+    },
+    "Terms of Service" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Условия использования"
+          }
+        }
+      }
+    },
+    "The AI returned an empty response." : {
+
+    },
+    "The AI tailors question complexity to this level. Your performance also influences future difficulty automatically." : {
+      "comment" : "A description of the impact of the user's difficulty preference on the difficulty of questions.",
+      "isCommentAutoGenerated" : true
+    },
+    "This determines the accent colour and icon for your skill." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Определяет цвет и иконку навыка."
+          }
+        }
+      }
+    },
+    "This sets the initial practice frequency." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задаёт начальную частоту повторений."
+          }
+        }
+      }
+    },
+    "This will delete the %@ API key from the device keychain." : {
+
+    },
+    "Three steps to never forgetting what matters." : {
+
+    },
+    "Thriving" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Расцвет"
+          }
+        }
+      }
+    },
+    "Time Intelligence" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Анализ времени"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня"
+          }
+        }
+      }
+    },
+    "Tomorrow" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Завтра"
+          }
+        }
+      }
+    },
+    "Too many requests. Please wait %lld seconds." : {
+
+    },
+    "Tool" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Инструмент"
+          }
+        }
+      }
+    },
+    "Track 5 or more skills" : {
+
+    },
     "Track as many skills as you need" : {
       "localizations" : {
         "ru" : {
@@ -3524,6 +3781,66 @@
           }
         }
       }
+    },
+    "True" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Верно"
+          }
+        }
+      }
+    },
+    "True / False" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Верно / Неверно"
+          }
+        }
+      }
+    },
+    "Try a different filter or add your first skill." : {
+
+    },
+    "Try Again" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Попробовать снова"
+          }
+        }
+      }
+    },
+    "Type" : {
+      "comment" : "Label for the x-axis in the skill health comparison chart.",
+      "isCommentAutoGenerated" : true
+    },
+    "Type your answer…" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Напишите ответ…"
+          }
+        }
+      }
+    },
+    "Under Maintenance" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Техническое обслуживание"
+          }
+        }
+      }
+    },
+    "Unexpected response format from the AI service." : {
+
     },
     "Unlimited Skills" : {
       "localizations" : {
@@ -3545,6 +3862,94 @@
         }
       }
     },
+    "Unlock up to 15 questions per session with Pro" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "До 15 вопросов за сессию с подпиской Pro"
+          }
+        }
+      }
+    },
+    "Update Key" : {
+
+    },
+    "Update Now" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновить сейчас"
+          }
+        }
+      }
+    },
+    "Update Required" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Требуется обновление"
+          }
+        }
+      }
+    },
+    "Upgrade to Pro" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перейти на Pro"
+          }
+        }
+      }
+    },
+    "Use %@" : {
+
+    },
+    "Use Built-in AI" : {
+
+    },
+    "Use the built-in AI to get started, or bring your own API key for unlimited skills and questions — you only pay your AI provider, never us." : {
+
+    },
+    "Use the built-in connection to get started, or add your own API key for unlimited skills and questions — you only pay your AI provider, never us." : {
+
+    },
+    "Use your own API key" : {
+
+    },
+    "Version" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Версия"
+          }
+        }
+      }
+    },
+    "We'll be back shortly" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скоро вернёмся"
+          }
+        }
+      }
+    },
+    "We'll suggest a more specific goal if it makes sense" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предложим точную цель при необходимости"
+          }
+        }
+      }
+    },
     "Week Warrior" : {
       "localizations" : {
         "ru" : {
@@ -3554,6 +3959,19 @@
           }
         }
       }
+    },
+    "What are you learning?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что вы изучаете?"
+          }
+        }
+      }
+    },
+    "What skill do you want to keep sharp?\nYou can add more anytime." : {
+
     },
     "Widgets, iCloud sync, and more" : {
       "localizations" : {
@@ -3565,6 +3983,91 @@
         }
       }
     },
+    "Wilting" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увядает"
+          }
+        }
+      }
+    },
+    "XP total" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всего XP"
+          }
+        }
+      }
+    },
+    "Yesterday" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вчера"
+          }
+        }
+      }
+    },
+    "You answered %@ correctly. Easier questions and more frequent short reviews can build confidence." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы ответили верно на %@. Более простые вопросы и частые короткие повторения помогут укрепить уверенность."
+          }
+        }
+      }
+    },
+    "You answered %@ correctly. Ready for harder questions and a tighter review schedule?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы ответили верно на %@. Готовы к более сложным вопросам с более жёстким расписанием?"
+          }
+        }
+      }
+    },
+    "You can change this later in Settings." : {
+      "comment" : "A description of the user's name.",
+      "isCommentAutoGenerated" : true
+    },
+    "You can edit these settings later in Skill Detail." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы можете изменить настройки позже в деталях навыка."
+          }
+        }
+      }
+    },
+    "You practice most at" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Чаще всего практикуетесь в"
+          }
+        }
+      }
+    },
+    "You practice most at %@" : {
+
+    },
+    "You'll get a gentle nudge if you haven't practiced by your chosen time." : {
+
+    },
+    "You're all set!" : {
+
+    },
     "You've reached the %lld-skill free limit.\nUnlock unlimited skills with Pro." : {
       "localizations" : {
         "ru" : {
@@ -3575,36 +4078,49 @@
         }
       }
     },
-    "≈ 5 min — great for busy days" : {
+    "You've used all your free AI requests for today.\nLimit resets in **%@**." : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ 5 мин — отлично для занятых дней"
+            "value" : "Вы использовали все бесплатные запросы AI на сегодня.\nЛимит сбросится через **%@**."
           }
         }
       }
     },
-    "≈ 10 min — the sweet spot" : {
+    "Your AI account has run out of credits." : {
+
+    },
+    "Your answer" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ 10 мин — оптимальный вариант"
+            "value" : "Ваш ответ"
           }
         }
       }
     },
-    "≈ 20 min — maximum reinforcement" : {
+    "Your constellation is empty" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ 20 мин — максимальное закрепление"
+            "value" : "Ваше созвездие пусто"
           }
         }
       }
+    },
+    "Your first name" : {
+      "comment" : "A label for the user's first name.",
+      "isCommentAutoGenerated" : true
+    },
+    "Your key is stored securely on this device and unlocks unlimited skills and questions." : {
+
+    },
+    "Your name" : {
+
     }
   },
-  "version" : "1.0"
+  "version" : "1.1"
 }

@@ -34,9 +34,6 @@ struct SkillDecayTrackerApp: App {
     init() {
         FirebaseApp.configure()
 
-        // All @Model classes are now CloudKit-compatible (V2 schema):
-        // • Stored properties have default values
-        // • Relationship arrays are [T]?
         // SDTMigrationPlan performs a lightweight V1 → V2 migration on existing stores.
         let schema = Schema([
             Skill.self,

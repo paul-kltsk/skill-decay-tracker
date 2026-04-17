@@ -63,7 +63,6 @@ struct SettingsView: View {
     private func profileSection(_ profile: UserProfile) -> some View {
         Section {
             HStack(spacing: SDTSpacing.md) {
-                // Avatar
                 ZStack {
                     Circle()
                         .fill(Color.sdtCategoryProgramming.opacity(0.15))
@@ -103,7 +102,6 @@ struct SettingsView: View {
             }
             .padding(.vertical, SDTSpacing.xs)
 
-            // XP Progress bar
             VStack(alignment: .leading, spacing: SDTSpacing.xs) {
                 HStack {
                     Text("Progress to Level \(profile.level + 1)")
@@ -137,7 +135,6 @@ struct SettingsView: View {
                 HStack(spacing: SDTSpacing.md) {
                     Label("AI Model", systemImage: "cpu")
                     Spacer()
-                    // Show "Built-in · Claude" when no personal key is saved
                     Text(aiModeLabel(for: profile))
                         .font(.system(size: 14))
                         .foregroundStyle(Color.sdtSecondary)

@@ -80,8 +80,7 @@ final class HomeViewModel {
     func prefetchChallenges(for skill: Skill, context: ModelContext) {
         guard (skill.challenges ?? []).isEmpty else { return }
         Task { [weak self] in
-            // Guard on self so we abort if HomeViewModel is released (e.g. view dismissed
-            // before the AI response arrives) — avoids mutating a stale model context.
+            // Weak capture: abort if HomeViewModel is released before the AI response arrives.
             guard self != nil else { return }
             do {
                 // Extract Sendable scalars on @MainActor before crossing into the AIService actor.

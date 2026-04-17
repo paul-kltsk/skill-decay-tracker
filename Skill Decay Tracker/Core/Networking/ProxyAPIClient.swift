@@ -63,7 +63,6 @@ actor ProxyAPIClient {
             throw APIError.networkUnavailable
         }
 
-        // Build JSON body
         let bodyDict: [String: Any] = [
             "provider":  provider.rawValue,
             "model":     model,
@@ -73,10 +72,8 @@ actor ProxyAPIClient {
         let bodyData   = try JSONSerialization.data(withJSONObject: bodyDict)
         let bodyString = String(data: bodyData, encoding: .utf8) ?? ""
 
-        // Read Pro status on the main actor (SubscriptionService is @MainActor)
         let isProUser = await MainActor.run { SubscriptionService.shared.isPro }
 
-        // Build signed URLRequest
         var request        = URLRequest(url: url, timeoutInterval: 60)
         request.httpMethod = "POST"
         request.httpBody   = bodyData
@@ -85,7 +82,6 @@ actor ProxyAPIClient {
         request.setValue(deviceID,                  forHTTPHeaderField: "X-Device-ID")
         request.setValue(isProUser ? "1" : "0",     forHTTPHeaderField: "X-Is-Pro")
 
-        // Execute request
         let (data, response): (Data, URLResponse)
         do {
             (data, response) = try await URLSession.shared.data(for: request)
@@ -106,11 +102,10 @@ actor ProxyAPIClient {
             return parsed.content
 
         case 401:
-            // Signature mismatch — app secret mismatch, treat as missing key
+            // Signature mismatch — treat as missing key.
             throw APIError.missingAPIKey
 
         case 429:
-            // Server-side rate limit hit
             let retryAfter = TimeInterval(http.value(forHTTPHeaderField: "Retry-After") ?? "3600") ?? 3600
             throw APIError.rateLimited(retryAfter: retryAfter)
 
