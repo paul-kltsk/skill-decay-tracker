@@ -28,6 +28,7 @@ struct TrendPoint: Identifiable {
 struct SkillHealthDatum: Identifiable {
     let id: UUID
     let name: String
+    let context: String
     let health: Double
     let category: SkillCategory
 }
@@ -161,7 +162,7 @@ final class AnalyticsViewModel {
     func skillHealthData(for skills: [Skill]) -> [SkillHealthDatum] {
         skills
             .sorted { $0.healthScore < $1.healthScore }
-            .map { SkillHealthDatum(id: $0.id, name: $0.name, health: $0.healthScore, category: $0.category) }
+            .map { SkillHealthDatum(id: $0.id, name: $0.name, context: $0.context, health: $0.healthScore, category: $0.category) }
     }
 
     // MARK: - Challenge Type Accuracy

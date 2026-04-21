@@ -215,8 +215,10 @@ private struct PersonalKeySection: View {
                         showKeyField = false
                     } label: {
                         HStack(spacing: 5) {
-                            Image(systemName: provider.systemImage)
-                                .font(.system(size: 12, weight: .semibold))
+                            provider.iconImage
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 14, height: 14)
                             Text(provider.displayName)
                                 .font(.system(size: 13, weight: .semibold))
                         }
@@ -355,11 +357,12 @@ private struct PersonalKeySection: View {
                             RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
                                 .fill(vm.apiKeyText.isEmpty ? Color.sdtSecondary : Color.sdtPrimary)
                         )
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .disabled(vm.apiKeyText.isEmpty)
 
-                Link(destination: vm.selectedProvider.apiConsoleURL) {
+                OpenURLButton(url: vm.selectedProvider.apiConsoleURL) {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.up.right.square").font(.system(size: 12))
                         Text("Get API Key").font(.system(size: 13, weight: .medium))
@@ -380,6 +383,21 @@ private struct PersonalKeySection: View {
             }
         }
         .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+}
+
+// MARK: - OpenURLButton
+
+/// Button that opens a URL using the environment's openURL action.
+/// Unlike `Link`, this has a precisely bounded tap area matching the label.
+private struct OpenURLButton<Label: View>: View {
+    @Environment(\.openURL) private var openURL
+    let url: URL
+    @ViewBuilder let label: () -> Label
+
+    var body: some View {
+        Button { openURL(url) } label: { label() }
+            .buttonStyle(.plain)
     }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - AIProvider
 
@@ -67,12 +68,21 @@ extension AIProvider {
         }
     }
 
-    /// SF Symbol representing this provider.
+    /// SF Symbol representing this provider (used as fallback).
     var systemImage: String {
         switch self {
         case .claude: "sparkle"
         case .openai: "bolt.circle"
         case .gemini: "g.circle"
+        }
+    }
+
+    /// Asset-catalog icon for this provider.
+    var iconImage: Image {
+        switch self {
+        case .claude: Image("claude_icon")
+        case .openai: Image("gpt_icon")
+        case .gemini: Image("gemini_icon")
         }
     }
 
@@ -99,7 +109,7 @@ extension AIProvider {
 
     /// Returns `true` if `key` looks syntactically valid for this provider.
     func isValidKey(_ key: String) -> Bool {
-        let t = key.trimmingCharacters(in: .whitespaces)
+        let t = key.trimmingCharacters(in: .whitespacesAndNewlines)
         return t.hasPrefix(keyPrefix) && t.count > keyPrefix.count + 8
     }
 }

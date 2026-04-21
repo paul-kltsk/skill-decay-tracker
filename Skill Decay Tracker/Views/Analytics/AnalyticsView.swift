@@ -220,35 +220,18 @@ struct AnalyticsView: View {
             if data.isEmpty {
                 emptyChartPlaceholder(height: 120, message: "No skills yet")
             } else {
-                Chart(data) { datum in
-                    BarMark(
-                        x: .value("Health", datum.health),
-                        y: .value("Skill", datum.name)
-                    )
-                    .foregroundStyle(Color.sdtHealth(for: datum.health))
-                    .cornerRadius(4)
-                    .annotation(position: .trailing, alignment: .leading, spacing: 4) {
-                        Text("\(Int(datum.health * 100))%")
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
-                            .foregroundStyle(Color.sdtHealth(for: datum.health))
+                VStack(spacing: SDTSpacing.sm) {
+                    ForEach(data) { datum in
+                        SkillHealthRow(datum: datum)
                     }
                 }
-                .chartXScale(domain: 0...1)
-                .chartXAxis(.hidden)
-                .chartYAxis {
-                    AxisMarks { v in
-                        AxisValueLabel()
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.sdtPrimary)
-                    }
-                }
-                .frame(height: max(80, CGFloat(data.count) * 36))
             }
         }
         .sdtCard()
     }
 
     // MARK: - Challenge Type Accuracy
+
 
     private var typeAccuracySection: some View {
         let data = viewModel.typeAccuracy(for: skills)
@@ -405,6 +388,48 @@ struct AnalyticsView: View {
             .frame(maxWidth: .infinity, minHeight: height)
             .background(Color.sdtBackground)
             .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.chip))
+    }
+}
+
+// MARK: - SkillHealthRow
+
+private struct SkillHealthRow: View {
+    let datum: SkillHealthDatum
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(datum.name)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color.sdtPrimary)
+                        .lineLimit(1)
+                    if !datum.context.isEmpty {
+                        Text(datum.context)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.sdtSecondary)
+                            .lineLimit(1)
+                    }
+                }
+                Spacer(minLength: SDTSpacing.sm)
+                Text("\(Int(datum.health * 100))%")
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Color.sdtHealth(for: datum.health))
+                    .fixedSize()
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.sdtSecondary.opacity(0.12))
+                        .frame(height: 6)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.sdtHealth(for: datum.health))
+                        .frame(width: geo.size.width * datum.health, height: 6)
+                }
+            }
+            .frame(height: 6)
+        }
+        .padding(.vertical, SDTSpacing.xxs)
     }
 }
 

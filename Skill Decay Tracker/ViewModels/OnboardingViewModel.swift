@@ -50,7 +50,7 @@ final class OnboardingViewModel {
     // MARK: - API Key Actions
 
     func saveAPIKey() {
-        let trimmed = apiKeyText.trimmingCharacters(in: .whitespaces)
+        let trimmed = apiKeyText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard selectedProvider.isValidKey(trimmed) else {
             apiKeyState = .invalid
             return

@@ -252,9 +252,10 @@ private struct ProviderCard: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(isActive ? Color.sdtPrimary.opacity(0.12) : Color.sdtBackground)
-                    Image(systemName: provider.systemImage)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(isActive ? Color.sdtPrimary : Color.sdtSecondary)
+                    provider.iconImage
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
                 }
                 .frame(width: 36, height: 36)
 
@@ -365,10 +366,12 @@ private struct ProviderCard: View {
                                     RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button)
                                         .fill(keyText.isEmpty ? Color.sdtSecondary : Color.sdtPrimary)
                                 )
+                                .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                         .disabled(keyText.isEmpty)
 
-                        Link(destination: provider.apiConsoleURL) {
+                        SettingsOpenURLButton(url: provider.apiConsoleURL) {
                             HStack(spacing: 4) {
                                 Image(systemName: "arrow.up.right.square")
                                     .font(.system(size: 12))
@@ -617,6 +620,19 @@ final class AIModelsViewModel {
         ProviderKeychain.delete(for: provider)
         keyStates[provider] = .missing
         SubscriptionService.shared.refreshOwnKeyStatus()
+    }
+}
+
+// MARK: - SettingsOpenURLButton
+
+private struct SettingsOpenURLButton<Label: View>: View {
+    @Environment(\.openURL) private var openURL
+    let url: URL
+    @ViewBuilder let label: () -> Label
+
+    var body: some View {
+        Button { openURL(url) } label: { label() }
+            .buttonStyle(.plain)
     }
 }
 

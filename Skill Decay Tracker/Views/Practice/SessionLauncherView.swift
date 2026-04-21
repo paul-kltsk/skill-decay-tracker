@@ -191,8 +191,14 @@ struct SessionLauncherView: View {
 
                         VStack(alignment: .leading, spacing: SDTSpacing.xxs) {
                             Text(skill.name).sdtFont(.bodySemibold)
+                            if !skill.context.isEmpty {
+                                Text(skill.context)
+                                    .sdtFont(.caption, color: .sdtSecondary)
+                                    .lineLimit(1)
+                            }
                             Text("\(skill.pendingChallenges.count) pending")
-                                .sdtFont(.caption, color: .sdtSecondary)
+                                .font(.system(size: 11))
+                                .foregroundStyle(Color.sdtSecondary.opacity(0.7))
                         }
 
                         Spacer()

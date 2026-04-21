@@ -178,6 +178,7 @@ enum DecayEngine {
     }
 
     /// Recalculates `healthScore` using elapsed time since last practice.
+    /// Also resets the streak to 0 if more than one calendar day has passed without practice.
     ///
     /// Call this on app launch / foreground transition to keep health current
     /// without requiring a new challenge attempt.
@@ -188,6 +189,14 @@ enum DecayEngine {
             decayRate: skill.decayRate,
             daysSinceLastPractice: skill.daysSinceLastPractice
         )
+
+        let calendar = Calendar.current
+        let lastDay  = calendar.startOfDay(for: skill.lastPracticed)
+        let today    = calendar.startOfDay(for: .now)
+        let diff     = calendar.dateComponents([.day], from: lastDay, to: today).day ?? 0
+        if diff > 1 {
+            skill.streakDays = 0
+        }
     }
 
     // MARK: - Private Helpers
