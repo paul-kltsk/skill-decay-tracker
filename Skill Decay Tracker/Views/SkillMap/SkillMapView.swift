@@ -23,29 +23,22 @@ struct SkillMapView: View {
     // MARK: - Body
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            mainContent
-            floatingModeToggle
-                .padding(.bottom, SDTSpacing.sm)
-        }
+        mainContent
         .background(Color.sdtBackground)
         .navigationTitle("Skill Map")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: SDTSpacing.sm) {
-                    // Manage Groups — visible only in Grid mode (where groups are shown)
-                    if viewModel.viewMode == .grid {
-                        Button {
-                            if sub.isPro {
-                                showManageGroups = true
-                            } else {
-                                paywallTrigger = .skillGroups
-                                showPaywall = true
-                            }
-                        } label: {
-                            Image(systemName: "folder.badge.gear")
+                    Button {
+                        if sub.isPro {
+                            showManageGroups = true
+                        } else {
+                            paywallTrigger = .skillGroups
+                            showPaywall = true
                         }
+                    } label: {
+                        Image(systemName: "folder.badge.gear")
                     }
                     Button {
                         if sub.canAddSkill(currentCount: skills.count) {
@@ -108,37 +101,8 @@ struct SkillMapView: View {
 
     // MARK: - Main Content
 
-    @ViewBuilder
     private var mainContent: some View {
-        switch viewModel.viewMode {
-        case .constellation:
-            constellationContent
-
-        case .grid:
-            gridContent
-        }
-    }
-
-    // MARK: - Constellation Mode
-
-    private var constellationContent: some View {
-        Group {
-            if skills.isEmpty {
-                SDTEmptyState(
-                    icon: "sparkles",
-                    title: "Your constellation is empty",
-                    message: "Add your first skill to start tracking.",
-                    actionLabel: "Add Skill",
-                    action: { viewModel.showAddSkill = true }
-                )
-            } else {
-                ConstellationView(
-                    skills: viewModel.filtered(skills),
-                    viewModel: viewModel,
-                    allSkills: skills
-                )
-            }
-        }
+        gridContent
     }
 
     // MARK: - Grid Mode
@@ -166,7 +130,6 @@ struct SkillMapView: View {
                 }
             }
             .padding(.top, SDTSpacing.lg)
-            .padding(.bottom, 80) // clear floating toggle
         }
     }
 
@@ -220,40 +183,6 @@ struct SkillMapView: View {
         }
     }
 
-    // MARK: - Floating Mode Toggle
-
-    private var floatingModeToggle: some View {
-        HStack(spacing: 0) {
-            ForEach(MapViewMode.allCases, id: \.rawValue) { mode in
-                let selected = viewModel.viewMode == mode
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        viewModel.viewMode = mode
-                    }
-                } label: {
-                    VStack(spacing: 3) {
-                        Image(systemName: mode.systemImage)
-                            .font(.system(size: 17, weight: selected ? .semibold : .regular))
-                        Text(mode.displayName)
-                            .font(.system(size: 10, weight: .medium))
-                    }
-                    .foregroundStyle(selected ? Color.sdtPrimary : Color.sdtSecondary)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, SDTSpacing.sm)
-                    .background(selected ? Color.sdtBackground : Color.clear)
-                    .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(SDTSpacing.xs)
-        .background(
-            RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card)
-                .fill(Color.sdtSurface.opacity(0.94))
-                .shadow(color: .black.opacity(0.14), radius: 14, x: 0, y: 4)
-        )
-        .padding(.horizontal, SDTSpacing.xxl)
-    }
 }
 
 // MARK: - Preview

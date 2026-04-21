@@ -36,12 +36,6 @@ struct OnboardingContainerView: View {
                             removal:   .move(edge: .leading).combined(with: .opacity)
                         ))
                 case 3:
-                    AddFirstSkillsView(vm: vm, onNext: { vm.nextPage() })
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .trailing).combined(with: .opacity),
-                            removal:   .move(edge: .leading).combined(with: .opacity)
-                        ))
-                case 4:
                     ReadyView(vm: vm, onComplete: onDone)
                         .transition(.asymmetric(
                             insertion: .move(edge: .trailing).combined(with: .opacity),

@@ -2716,6 +2716,16 @@
         }
       }
     },
+    "No focus set" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Фокус не задан"
+          }
+        }
+      }
+    },
     "No groups yet" : {
 
     },

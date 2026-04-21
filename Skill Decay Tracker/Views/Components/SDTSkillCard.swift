@@ -49,6 +49,10 @@ struct SDTSkillCard: View {
                 .sdtFont(.bodySemibold)
                 .lineLimit(1)
 
+            Text(skill.context.isEmpty ? String(localized: "No focus set") : skill.context)
+                .sdtFont(.caption, color: .sdtSecondary)
+                .lineLimit(1)
+
             HStack(spacing: SDTSpacing.xs) {
                 Text(Color.sdtHealthLabel(for: skill.healthScore))
                     .sdtFont(.captionSemibold,

@@ -3,23 +3,12 @@ import SwiftData
 
 // MARK: - Map View Mode
 
-enum MapViewMode: String, CaseIterable {
-    case constellation = "Constellation"
-    case grid          = "Grid"
+enum MapViewMode: String {
+    case grid = "Grid"
 
-    var systemImage: String {
-        switch self {
-        case .constellation: "sparkles"
-        case .grid:          "square.grid.2x2"
-        }
-    }
+    var systemImage: String { "square.grid.2x2" }
 
-    var displayName: String {
-        switch self {
-        case .constellation: String(localized: "Constellation")
-        case .grid:          String(localized: "Grid")
-        }
-    }
+    var displayName: String { String(localized: "Grid") }
 }
 
 // MARK: - Sort Order

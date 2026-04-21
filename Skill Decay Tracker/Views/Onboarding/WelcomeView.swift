@@ -53,7 +53,7 @@ struct WelcomeView: View {
 
             Button(action: onNext) {
                 Text("Get Started")
-                    .sdtFont(.bodySemibold, color: .white)
+                    .sdtFont(.bodySemibold, color: Color.sdtOnPrimary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, SDTSpacing.lg)
                     .background(

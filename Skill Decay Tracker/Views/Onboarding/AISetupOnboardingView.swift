@@ -103,7 +103,7 @@ struct AISetupOnboardingView: View {
             VStack(spacing: SDTSpacing.sm) {
                 Button(action: onNext) {
                     Text("Continue")
-                        .sdtFont(.bodySemibold, color: .white)
+                        .sdtFont(.bodySemibold, color: Color.sdtOnPrimary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, SDTSpacing.lg)
                         .background(

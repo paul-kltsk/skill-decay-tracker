@@ -161,6 +161,12 @@ private struct GridCard: View {
                         .lineLimit(2)
                         .multilineTextAlignment(.center)
 
+                    Text(skill.context.isEmpty ? String(localized: "No focus set") : skill.context)
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.sdtSecondary)
+                        .lineLimit(1)
+                        .multilineTextAlignment(.center)
+
                     Text(Color.sdtHealthLabel(for: skill.healthScore))
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
                         .foregroundStyle(Color.sdtHealth(for: skill.healthScore))

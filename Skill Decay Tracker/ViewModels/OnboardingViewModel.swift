@@ -14,7 +14,7 @@ final class OnboardingViewModel {
     // MARK: - Navigation
 
     var currentPage = 0
-    static let totalPages = 5
+    static let totalPages = 4
 
     // MARK: - Page 3: AI Setup
 
@@ -23,12 +23,7 @@ final class OnboardingViewModel {
     var apiKeyState: ProviderKeyState = .missing
     var selectedModelTier: AIModelTier = .balanced
 
-    // MARK: - Page 4: First Skill
-
-    var firstSkillName: String = ""
-    var firstSkillCategory: SkillCategory = .programming
-
-    // MARK: - Page 5: Profile
+    // MARK: - Page 4: Profile
 
     var userName: String = ""
 
@@ -86,12 +81,6 @@ final class OnboardingViewModel {
             profile.preferences.aiProvider = selectedProvider
         }
 
-        let trimmedSkill = firstSkillName.trimmingCharacters(in: .whitespaces)
-        if !trimmedSkill.isEmpty {
-            let skill = Skill(name: trimmedSkill, category: firstSkillCategory)
-            context.insert(skill)
-        }
-
         do { try context.save() } catch {
             #if DEBUG
             print("[\(Self.self)] context.save() failed: \(error)")
@@ -102,7 +91,7 @@ final class OnboardingViewModel {
         AnalyticsService.onboardingCompleted(
             aiMode: aiMode,
             provider: selectedProvider.rawValue,
-            hasFirstSkill: !firstSkillName.trimmingCharacters(in: .whitespaces).isEmpty
+            hasFirstSkill: false
         )
 
         UserDefaults.standard.set(true, forKey: "onboarding.completed")

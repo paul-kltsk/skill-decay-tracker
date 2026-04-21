@@ -55,6 +55,11 @@ final class SubscriptionService {
     /// Call `refreshOwnKeyStatus()` after any key or provider change.
     private(set) var isUsingOwnKey: Bool = false
 
+    /// `true` once `refreshEntitlements()` has completed at least once.
+    /// Lock checks return `false` until this is set so Pro subscribers never
+    /// see a locked-skill flash on cold launch.
+    private(set) var isEntitlementsLoaded: Bool = false
+
     private var updatesTask: Task<Void, Never>?
 
     // MARK: - Startup
@@ -104,8 +109,9 @@ final class SubscriptionService {
                 foundID = tx.productID
             }
         }
-        isPro          = hasPro
+        isPro           = hasPro
         activeProductID = foundID
+        isEntitlementsLoaded = true
     }
 
     // MARK: - Transaction Listener
@@ -216,6 +222,7 @@ final class SubscriptionService {
     /// Locked skills are shown with a visual overlay and are non-interactive until Pro is restored or a key is added.
     /// Skills are never deleted — they unlock automatically when Pro or own-key access is restored.
     func isSkillLocked(_ skill: Skill, allSkills: [Skill]) -> Bool {
+        guard isEntitlementsLoaded else { return false }
         guard !isPro && !isUsingOwnKey else { return false }
         return !freeSkillIDs(from: allSkills).contains(skill.id)
     }
