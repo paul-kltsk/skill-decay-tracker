@@ -218,11 +218,9 @@ actor AIService {
         let provider = AIProvider.persisted
 
         if ProviderKeychain.has(for: provider) {
-            // Own-key path: use the user-selected model tier.
-            let tier = AIModelTier.persisted
-            let model = isGeneration
-                ? tier.generationModelID(for: provider)
-                : tier.evalModelID(for: provider)
+            // Own-key path: use the user-selected model tiers (generation and eval are independent).
+            let tier = isGeneration ? AIModelTier.persisted : AIModelTier.persistedEval
+            let model = tier.generationModelID(for: provider)
             switch provider {
             case .claude:
                 return try await ClaudeAPIClient.shared.send(model: model,
@@ -244,7 +242,7 @@ actor AIService {
             // Proxy path: always use fast (cost-efficient) models — server bears the cost.
             let model = isGeneration
                 ? AIModelTier.fast.generationModelID(for: provider)
-                : AIModelTier.fast.evalModelID(for: provider)
+                : AIModelTier.fast.generationModelID(for: provider)
             return try await ProxyAPIClient.shared.send(provider: provider,
                                                         model: model,
                                                         maxTokens: maxTokens,
@@ -375,7 +373,7 @@ actor AIService {
             let prompt = evaluationPrompt(context: context, userAnswer: userAnswer)
             raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
         } else {
-            let model = AIModelTier.fast.evalModelID(for: provider)
+            let model = AIModelTier.fast.generationModelID(for: provider)
             raw = try await ProxyAPIClient.shared.evaluate(
                 provider:      provider,
                 model:         model,
@@ -497,7 +495,7 @@ actor AIService {
                 let prompt = breadthPrompt(name: name, context: context, language: language)
                 raw = try await sendPrompt(isGeneration: false, maxTokens: 256, prompt: prompt)
             } else {
-                let model = AIModelTier.fast.evalModelID(for: provider)
+                let model = AIModelTier.fast.generationModelID(for: provider)
                 raw = try await ProxyAPIClient.shared.analyzeBreadth(
                     provider:  provider,
                     model:     model,

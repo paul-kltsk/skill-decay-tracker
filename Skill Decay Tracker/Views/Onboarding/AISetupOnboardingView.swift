@@ -391,7 +391,7 @@ private struct OnboardingTierPicker: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SDTSpacing.sm) {
-            Text("Model quality")
+            Text("Generation model")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(Color.sdtSecondary)
 
@@ -402,9 +402,11 @@ private struct OnboardingTierPicker: View {
                         tier.persist()
                     } label: {
                         VStack(spacing: 3) {
-                            Text(tier.displayName)
-                                .font(.system(size: 13, weight: .semibold))
+                            Text(tier.modelDisplayName(for: provider))
+                                .font(.system(size: 11, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(selectedTier == tier ? tierColor(tier) : Color.sdtSecondary)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
                             Text(tier.costHint(for: provider))
                                 .font(.system(size: 10))
                                 .foregroundStyle(selectedTier == tier ? tierColor(tier).opacity(0.8) : Color.sdtSecondary.opacity(0.7))

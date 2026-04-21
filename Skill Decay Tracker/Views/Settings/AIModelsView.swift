@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - AIModelsView
 
-/// Settings screen for choosing an AI provider and managing its API key.
+/// Settings screen for choosing an AI provider, managing its API key, and selecting models.
 struct AIModelsView: View {
 
     @Bindable var profile: UserProfile
@@ -24,7 +24,8 @@ struct AIModelsView: View {
             builtInSection
             personalKeySection
             if isUsingOwnKey {
-                modelTierSection
+                generationModelSection
+                evaluationModelSection
             }
         }
         .listStyle(.insetGrouped)
@@ -79,6 +80,7 @@ struct AIModelsView: View {
                     provider: provider,
                     isActive: profile.preferences.aiProvider == provider && !isBuiltInActive,
                     state: vm.state(for: provider),
+                    selectedTier: vm.selectedTier,
                     onSelect: {
                         profile.preferences.aiProvider = provider
                         provider.persist()
@@ -91,7 +93,6 @@ struct AIModelsView: View {
                     },
                     onDelete: {
                         vm.delete(for: provider)
-                        // Fall back to built-in if this provider's key is removed while active.
                         if profile.preferences.aiProvider == provider {
                             profile.preferences.aiProvider = .claude
                             AIProvider.claude.persist()
@@ -110,20 +111,43 @@ struct AIModelsView: View {
         }
     }
 
-    // MARK: - Model Tier Section
+    // MARK: - Generation Model Section
 
-    private var modelTierSection: some View {
+    private var generationModelSection: some View {
         Section {
-            ModelTierPicker(selectedTier: $vm.selectedTier, provider: profile.preferences.aiProvider)
+            ModelPicker(selectedTier: $vm.selectedTier,
+                        provider: profile.preferences.aiProvider,
+                        onSelect: { $0.persist() })
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
         } header: {
-            Text("MODEL QUALITY")
+            Text("GENERATION MODEL")
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(Color.sdtSecondary)
         } footer: {
-            Text("Applies to challenge generation. Evaluation always uses a fast model to keep costs low.")
+            Text("Used to create practice challenges. Higher quality = better questions, higher cost.")
+                .font(.system(size: 12))
+                .foregroundStyle(Color.sdtSecondary)
+        }
+    }
+
+    // MARK: - Evaluation Model Section
+
+    private var evaluationModelSection: some View {
+        Section {
+            ModelPicker(selectedTier: $vm.selectedEvalTier,
+                        provider: profile.preferences.aiProvider,
+                        onSelect: { $0.persistEval() })
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+        } header: {
+            Text("EVALUATION MODEL")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(Color.sdtSecondary)
+        } footer: {
+            Text("Used to check your answers. Fast is usually enough — upgrade for nuanced open-ended questions.")
                 .font(.system(size: 12))
                 .foregroundStyle(Color.sdtSecondary)
         }
@@ -212,6 +236,7 @@ private struct ProviderCard: View {
     let provider: AIProvider
     let isActive: Bool
     let state: ProviderKeyState
+    let selectedTier: AIModelTier
     let onSelect: () -> Void
     let onSave: (String) -> Void
     let onDelete: () -> Void
@@ -222,6 +247,7 @@ private struct ProviderCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SDTSpacing.md) {
+            // Header row
             HStack(spacing: SDTSpacing.md) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
@@ -240,9 +266,16 @@ private struct ProviderCard: View {
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(Color.sdtSecondary)
                     }
-                    Text(provider.modelLabel)
-                        .font(.system(size: 11, weight: .regular, design: .monospaced))
-                        .foregroundStyle(Color.sdtSecondary)
+                    // Show selected model name when key is active, generic label otherwise
+                    if isActive {
+                        Text(selectedTier.modelDisplayName(for: provider))
+                            .font(.system(size: 11, weight: .regular, design: .monospaced))
+                            .foregroundStyle(Color.sdtSecondary)
+                    } else {
+                        Text(provider.modelLabel)
+                            .font(.system(size: 11, weight: .regular, design: .monospaced))
+                            .foregroundStyle(Color.sdtSecondary)
+                    }
                 }
 
                 Spacer()
@@ -257,9 +290,26 @@ private struct ProviderCard: View {
             Text(provider.tagline)
                 .sdtFont(.bodyMedium, color: .sdtSecondary)
 
+            // Status + action buttons row
             HStack(spacing: SDTSpacing.sm) {
                 KeyStatusBadge(state: state)
+
                 Spacer()
+
+                // Delete button — always visible when a key is saved
+                if state == .saved && !showKeyField {
+                    Button { showDeleteAlert = true } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "trash")
+                                .font(.system(size: 12))
+                            Text("Remove")
+                                .font(.system(size: 13, weight: .medium))
+                        }
+                        .foregroundStyle(Color.red.opacity(0.75))
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         showKeyField.toggle()
@@ -282,13 +332,23 @@ private struct ProviderCard: View {
                 }
             }
 
+            // Expandable key entry form
             if showKeyField {
                 VStack(alignment: .leading, spacing: SDTSpacing.sm) {
                     SecureField("Paste your API key here…", text: $keyText)
                         .font(.system(size: 14, design: .monospaced))
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
                         .padding(SDTSpacing.sm)
                         .background(Color.sdtBackground)
                         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.button))
+
+                    if case .invalid = state {
+                        Label("Check the prefix (\(provider.keyPrefix)…) and key length",
+                              systemImage: "exclamationmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.sdtHealthCritical)
+                    }
 
                     HStack(spacing: SDTSpacing.sm) {
                         Button {
@@ -317,22 +377,13 @@ private struct ProviderCard: View {
                             }
                             .foregroundStyle(Color.sdtPrimary)
                         }
-
-                        Spacer()
-
-                        if state == .saved {
-                            Button { showDeleteAlert = true } label: {
-                                Image(systemName: "trash")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.red.opacity(0.8))
-                            }
-                        }
                     }
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
 
-            if state == .saved && !isActive {
+            // "Use {provider}" CTA — shown when a key exists but provider isn't active
+            if state == .saved && !isActive && !showKeyField {
                 Button(action: onSelect) {
                     Text("Use \(provider.displayName)")
                         .font(.system(size: 14, weight: .semibold))
@@ -415,33 +466,39 @@ enum ProviderKeyState: Equatable {
     }
 }
 
-// MARK: - ModelTierPicker
+// MARK: - ModelPicker
 
-private struct ModelTierPicker: View {
+/// Compact model picker showing model name prominently, tier label as badge.
+private struct ModelPicker: View {
     @Binding var selectedTier: AIModelTier
     let provider: AIProvider
+    let onSelect: (AIModelTier) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SDTSpacing.md) {
+        VStack(alignment: .leading, spacing: 0) {
             ForEach(AIModelTier.allCases, id: \.rawValue) { tier in
-                TierRow(
+                ModelRow(
                     tier: tier,
                     provider: provider,
                     isSelected: selectedTier == tier,
                     onTap: {
                         selectedTier = tier
-                        tier.persist()
+                        onSelect(tier)
                     }
                 )
+                if tier != AIModelTier.allCases.last {
+                    Divider()
+                        .padding(.leading, 56)
+                }
             }
         }
-        .padding(SDTSpacing.lg)
+        .padding(SDTSpacing.sm)
         .background(Color.sdtSurface)
         .clipShape(RoundedRectangle(cornerRadius: SDTSpacing.CornerRadius.card))
     }
 }
 
-private struct TierRow: View {
+private struct ModelRow: View {
     let tier: AIModelTier
     let provider: AIProvider
     let isSelected: Bool
@@ -458,6 +515,7 @@ private struct TierRow: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: SDTSpacing.md) {
+                // Radio button
                 ZStack {
                     Circle()
                         .strokeBorder(isSelected ? accentColor : Color.sdtSecondary.opacity(0.4), lineWidth: 1.5)
@@ -469,28 +527,52 @@ private struct TierRow: View {
                     }
                 }
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: SDTSpacing.sm) {
-                        Text(tier.displayName)
-                            .font(.system(size: 14, weight: .semibold))
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: SDTSpacing.xs) {
+                        // Model name is the primary label
+                        Text(tier.modelDisplayName(for: provider))
+                            .font(.system(size: 14, weight: .semibold, design: .monospaced))
                             .foregroundStyle(isSelected ? accentColor : Color.sdtPrimary)
+
+                        // Tier badge
+                        Text(tier.displayName)
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(isSelected ? accentColor : Color.sdtSecondary)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background((isSelected ? accentColor : Color.sdtSecondary).opacity(0.1))
+                            .clipShape(Capsule())
+
+                        if tier == .balanced {
+                            Text("Recommended")
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundStyle(Color.sdtPrimary.opacity(0.7))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.sdtPrimary.opacity(0.08))
+                                .clipShape(Capsule())
+                        }
+                    }
+
+                    HStack(spacing: SDTSpacing.sm) {
+                        Text(tier.qualityDescription)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.sdtSecondary)
+                        Spacer()
+                        Text(tier.costHint(for: provider))
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(isSelected ? accentColor : Color.sdtSecondary)
+                        Text("·")
+                            .foregroundStyle(Color.sdtSecondary)
                         Text(tier.speedHint)
                             .font(.system(size: 11))
                             .foregroundStyle(Color.sdtSecondary)
                     }
-                    Text(tier.qualityDescription)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.sdtSecondary)
                 }
-
-                Spacer()
-
-                Text(tier.costHint(for: provider))
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(isSelected ? accentColor : Color.sdtSecondary)
-                    .multilineTextAlignment(.trailing)
             }
-            .padding(.vertical, SDTSpacing.xs)
+            .padding(.vertical, SDTSpacing.sm)
+            .padding(.horizontal, SDTSpacing.xs)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -504,6 +586,7 @@ final class AIModelsViewModel {
 
     private(set) var keyStates: [AIProvider: ProviderKeyState] = [:]
     var selectedTier: AIModelTier = AIModelTier.persisted
+    var selectedEvalTier: AIModelTier = AIModelTier.persistedEval
 
     func state(for provider: AIProvider) -> ProviderKeyState {
         keyStates[provider] ?? .missing
@@ -513,7 +596,8 @@ final class AIModelsViewModel {
         for provider in AIProvider.allCases {
             keyStates[provider] = ProviderKeychain.has(for: provider) ? .saved : .missing
         }
-        selectedTier = AIModelTier.persisted
+        selectedTier     = AIModelTier.persisted
+        selectedEvalTier = AIModelTier.persistedEval
     }
 
     func save(key: String, for provider: AIProvider) {

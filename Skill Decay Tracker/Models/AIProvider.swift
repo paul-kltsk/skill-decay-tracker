@@ -41,31 +41,11 @@ extension AIProvider {
         }
     }
 
-    /// Model used for challenge generation (quality-first).
-    nonisolated var generationModelID: String {
-        switch self {
-        case .claude: "claude-sonnet-4-20250514"
-        case .openai: "gpt-4o-mini"
-        case .gemini: "gemini-2.0-flash"
-        }
-    }
-
-    /// Model used for answer evaluation (speed-first).
-    nonisolated var evalModelID: String {
-        switch self {
-        case .claude: "claude-haiku-4-5-20251001"
-        case .openai: "gpt-4o-mini"
-        case .gemini: "gemini-2.0-flash"
-        }
-    }
-
-    /// Human-readable model label shown in the UI.
+    /// Human-readable label showing the currently selected generation and evaluation models.
     var modelLabel: String {
-        switch self {
-        case .claude: "Sonnet 4 · Haiku 4.5"
-        case .openai: "GPT-4o Mini"
-        case .gemini: "Gemini 2.0 Flash"
-        }
+        let gen  = AIModelTier.persisted.modelDisplayName(for: self)
+        let eval = AIModelTier.persistedEval.modelDisplayName(for: self)
+        return gen == eval ? gen : "\(gen) · \(eval)"
     }
 
     /// Expected prefix of a valid API key for this provider.
