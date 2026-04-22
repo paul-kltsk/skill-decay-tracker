@@ -148,12 +148,21 @@ actor AIService {
 
     /// Computes the exact question-type breakdown for `count` questions.
     /// Mirrors `typeDistribution()` in `sdt-proxy/src/prompts.ts`.
-    private func typeDistribution(count: Int) -> String {
+    private func typeDistribution(count: Int, category: String) -> String {
+        let isTechnical = ["programming", "tool"].contains(category.lowercased())
         switch count {
         case 1:  return "1 multiple_choice"
         case 2:  return "1 multiple_choice, 1 open_ended"
-        case 3:  return "2 multiple_choice, 1 open_ended"
-        default: return "\(count - 2) multiple_choice, 1 true_false, 1 open_ended"
+        case 3:  return "1 multiple_choice, 1 open_ended, 1 fill_in_blank"
+        case 4:  return "1 multiple_choice, 1 true_false, 1 open_ended, 1 fill_in_blank"
+        case 5:
+            return isTechnical
+                ? "1 multiple_choice, 1 true_false, 1 open_ended, 1 fill_in_blank, 1 code_completion"
+                : "2 multiple_choice, 1 true_false, 1 open_ended, 1 fill_in_blank"
+        default:
+            return isTechnical
+                ? "\(count - 4) multiple_choice, 1 true_false, 1 open_ended, 1 fill_in_blank, 1 code_completion"
+                : "\(count - 3) multiple_choice, 1 true_false, 1 open_ended, 1 fill_in_blank"
         }
     }
 
@@ -432,8 +441,10 @@ actor AIService {
         - FORBIDDEN question types: "How would you rate your understanding?", "Can you explain X?" as True/False, any self-assessment. These are strictly prohibited.
         - For multiple_choice: write a concrete factual question with exactly 4 plausible but distinct options; only one is correct.
         - For true_false: state a specific factual claim about the topic that is clearly true or false (e.g. "ARC increments an object's retain count when a strong reference is created"). Options must be ["True", "False"].
-        - For open_ended or fill_in_blank: ask the user to explain a mechanism, predict output, or fill in a missing term/keyword.
-        - Type distribution: generate exactly \(typeDistribution(count: count)).
+        - For open_ended: ask the user to explain a mechanism, describe a concept, or predict an outcome.
+        - For fill_in_blank: present a sentence with a key term/value missing (use ___ as the blank); the correct_answer must be the exact missing word or phrase.
+        - For code_completion: provide a code snippet or structured template with a key part omitted; the correct_answer is the missing part.
+        - Type distribution: generate exactly \(typeDistribution(count: count, category: category)).
         - Each challenge must take 1–3 minutes to answer.
         - The explanation must be educational — explain WHY the answer is correct, not just state it.
         - difficulty must be an integer 1–5.\(avoidSection)
