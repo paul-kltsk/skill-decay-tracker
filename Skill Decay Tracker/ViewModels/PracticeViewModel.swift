@@ -548,16 +548,22 @@ final class PracticeViewModel {
             }
             return new
         } catch let apiError as APIError {
+            #if DEBUG
+            print("[PracticeViewModel] fetchOrGenerate API error: \(apiError)")
+            #endif
             switch apiError {
             case .rateLimited(let retryAfter):
                 phase = .rateLimited(retryAfter: retryAfter)
             case .invalidAPIKey, .insufficientCredits:
                 phase = .error(apiError.userFacingMessage)
             default:
-                break  // Other errors fall back to offline challenges silently
+                break
             }
             return []
         } catch {
+            #if DEBUG
+            print("[PracticeViewModel] fetchOrGenerate unknown error: \(error)")
+            #endif
             return []
         }
     }

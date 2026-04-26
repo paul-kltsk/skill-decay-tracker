@@ -34,7 +34,6 @@ struct SkillDecayTrackerApp: App {
     init() {
         FirebaseApp.configure()
 
-        // SDTMigrationPlan performs a lightweight V1 → V2 migration on existing stores.
         let schema = Schema([
             Skill.self,
             Challenge.self,
@@ -45,7 +44,6 @@ struct SkillDecayTrackerApp: App {
         do {
             container = try ModelContainer(
                 for: schema,
-                migrationPlan: SDTMigrationPlan.self,
                 configurations: ModelConfiguration(
                     schema: schema,
                     cloudKitDatabase: .private("iCloud.pavel.kulitski.Skill-Decay-Tracker")

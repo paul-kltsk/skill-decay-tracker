@@ -93,17 +93,21 @@ final class AddSkillViewModel {
         let p = prefetchPromptParams
         baselineTask = Task {
             guard !Task.isCancelled else { return }
-            if let generated = try? await AIService.shared.generateChallenges(
-                skillName: p.name,
-                category: p.category.rawValue,
-                difficulty: p.difficulty,
-                skillContext: p.ctx,
-                count: 5
-            ) {
+            do {
+                let generated = try await AIService.shared.generateChallenges(
+                    skillName: p.name,
+                    category: p.category.rawValue,
+                    difficulty: p.difficulty,
+                    skillContext: p.ctx,
+                    count: 5
+                )
                 guard !Task.isCancelled else { return }
                 self.prefetchedChallenges = generated
                 self.isPrefetchingChallenges = false
-            } else {
+            } catch {
+                #if DEBUG
+                print("[AddSkillViewModel] Prefetch failed: \(error)")
+                #endif
                 self.isPrefetchingChallenges = false
             }
         }
