@@ -63,23 +63,23 @@ enum APIError: Error, LocalizedError, Sendable {
     var userFacingMessage: String {
         switch self {
         case .invalidAPIKey(.claude):
-            return "Your Anthropic API key is invalid or has been revoked. Update it in Settings → AI Model."
+            return String(localized: "Your Anthropic API key is invalid or has been revoked. Update it in Settings → AI Model.")
         case .invalidAPIKey(.openai):
-            return "Your OpenAI API key is invalid or has been revoked. Update it in Settings → AI Model."
+            return String(localized: "Your OpenAI API key is invalid or has been revoked. Update it in Settings → AI Model.")
         case .invalidAPIKey(.gemini):
-            return "Your Gemini API key is invalid or has been revoked. Update it in Settings → AI Model."
+            return String(localized: "Your Gemini API key is invalid or has been revoked. Update it in Settings → AI Model.")
         case .insufficientCredits(.claude):
-            return "Your Anthropic account has run out of credits. Top up at console.anthropic.com to continue."
+            return String(localized: "Your Anthropic account has run out of credits. Top up at console.anthropic.com to continue.")
         case .insufficientCredits(.openai):
-            return "Your OpenAI account has run out of credits. Top up at platform.openai.com/account/billing to continue."
+            return String(localized: "Your OpenAI account has run out of credits. Top up at platform.openai.com/account/billing to continue.")
         case .insufficientCredits(.gemini):
-            return "Your Google AI account has reached its quota. Check aistudio.google.com to continue."
+            return String(localized: "Your Google AI account has reached its quota. Check aistudio.google.com to continue.")
         case .rateLimited(let after):
-            return "Too many requests. Please wait \(Int(after)) seconds and try again."
+            return String(localized: "Too many requests. Please wait \(Int(after)) seconds and try again.")
         case .networkUnavailable:
-            return "No internet connection. Using offline challenges for now."
+            return String(localized: "No internet connection. Using offline challenges for now.")
         default:
-            return errorDescription ?? "Something went wrong. Please try again."
+            return errorDescription ?? String(localized: "Something went wrong. Please try again.")
         }
     }
 

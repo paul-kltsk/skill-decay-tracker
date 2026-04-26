@@ -146,7 +146,7 @@ struct MaintenanceView: View {
 
     private var displayMessage: String {
         message.isEmpty
-            ? "We're making improvements to give you a better experience. Please check back in a few minutes."
+            ? String(localized: "We're making improvements to give you a better experience. Please check back in a few minutes.")
             : message
     }
 

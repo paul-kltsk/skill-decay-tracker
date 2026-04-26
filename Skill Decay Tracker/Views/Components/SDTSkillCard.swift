@@ -84,7 +84,7 @@ struct SDTSkillCard: View {
         let health = Color.sdtHealthLabel(for: skill.healthScore)
         let pct    = Int((skill.healthScore * 100).rounded())
         var desc   = "\(skill.name), \(health), \(pct)%"
-        if skill.streakDays > 0 { desc += ", \(skill.streakDays) day streak" }
+        if skill.streakDays > 0 { desc += ", " + String(localized: "\(skill.streakDays) day streak") }
         return desc
     }
 }

@@ -54,7 +54,7 @@ struct HourBucket: Identifiable {
 
     var label: String {
         let h = hour % 12 == 0 ? 12 : hour % 12
-        return hour < 12 ? "\(h)am" : "\(h)pm"
+        return hour < 12 ? String(localized: "\(h)am") : String(localized: "\(h)pm")
     }
 }
 
