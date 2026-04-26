@@ -17,9 +17,9 @@ enum ConfidenceRating: Int, Codable, CaseIterable, Sendable {
 
     var displayName: String {
         switch self {
-        case .low:    "Not sure"
-        case .medium: "Pretty sure"
-        case .high:   "Very confident"
+        case .low:    String(localized: "Not sure")
+        case .medium: String(localized: "Pretty sure")
+        case .high:   String(localized: "Very confident")
         }
     }
 

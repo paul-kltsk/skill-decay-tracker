@@ -21,7 +21,7 @@ struct SessionLauncherView: View {
                 VStack(spacing: SDTSpacing.md) {
                     modeCard(
                         title: "Daily Review",
-                        subtitle: "All overdue skills · \(overdueCount) due today",
+                        subtitle: String(localized: "All overdue skills · \(overdueCount) due today"),
                         icon: "calendar.badge.clock",
                         tint: .sdtCategoryProgramming,
                         disabled: overdueCount == 0
@@ -31,7 +31,7 @@ struct SessionLauncherView: View {
 
                     modeCard(
                         title: "Quick Practice",
-                        subtitle: skills.isEmpty ? "Add skills to get started" : "5 challenges · \(skills.first.map { "\($0.name)" } ?? "")",
+                        subtitle: skills.isEmpty ? String(localized: "Add skills to get started") : String(localized: "5 challenges · \(skills.first?.name ?? "")"),
                         icon: "bolt.fill",
                         tint: .sdtCategoryTool,
                         disabled: skills.isEmpty,
@@ -47,7 +47,7 @@ struct SessionLauncherView: View {
 
                     modeCard(
                         title: "Deep Dive",
-                        subtitle: "All pending challenges for one skill",
+                        subtitle: String(localized: "All pending challenges for one skill"),
                         icon: "scope",
                         tint: .sdtCategoryConcept,
                         disabled: skills.isEmpty,

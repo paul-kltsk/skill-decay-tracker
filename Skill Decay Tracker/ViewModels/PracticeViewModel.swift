@@ -315,7 +315,7 @@ final class PracticeViewModel {
             // Evaluation failed — mark wrong, show fallback feedback
             let fallback = EvaluationResult(
                 isCorrect: false,
-                feedback: "Could not evaluate. Correct answer: \(challenge.correctAnswer). \(challenge.explanation)",
+                feedback: String(localized: "Could not evaluate. Correct answer: \(challenge.correctAnswer). \(challenge.explanation)"),
                 inferredConfidence: .low
             )
             await recordResult(eval: fallback, answer: answer,
@@ -367,7 +367,7 @@ final class PracticeViewModel {
         guard phase == .inChallenge, let challenge = currentChallenge else { return }
         let fallback = EvaluationResult(
             isCorrect: false,
-            feedback: "Time's up! Correct answer: \(challenge.correctAnswer). \(challenge.explanation)",
+            feedback: String(localized: "Time's up! Correct answer: \(challenge.correctAnswer). \(challenge.explanation)"),
             inferredConfidence: .low
         )
         evaluationResult = fallback

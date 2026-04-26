@@ -123,10 +123,10 @@ private struct RateLimitedSessionView: View {
         let total   = Int(retryAfter)
         let hours   = total / 3600
         let minutes = (total % 3600) / 60
-        if hours > 0 && minutes > 0 { return "\(hours)h \(minutes)m" }
-        if hours > 0                { return "\(hours)h" }
-        if minutes > 0              { return "\(minutes)m" }
-        return "a moment"
+        if hours > 0 && minutes > 0 { return String(localized: "\(hours)h \(minutes)m") }
+        if hours > 0                { return String(localized: "\(hours)h") }
+        if minutes > 0              { return String(localized: "\(minutes)m") }
+        return String(localized: "a moment")
     }
 
     var body: some View {

@@ -106,7 +106,7 @@ struct AnalyticsView: View {
         .sdtCard()
     }
 
-    private func miniStat(value: String, label: String, icon: String) -> some View {
+    private func miniStat(value: String, label: LocalizedStringKey, icon: String) -> some View {
         VStack(spacing: SDTSpacing.xxs) {
             Image(systemName: icon)
                 .font(.system(size: 14))
@@ -382,7 +382,7 @@ struct AnalyticsView: View {
 
     // MARK: - Helpers
 
-    private func emptyChartPlaceholder(height: CGFloat, message: String) -> some View {
+    private func emptyChartPlaceholder(height: CGFloat, message: LocalizedStringKey) -> some View {
         Text(message)
             .sdtFont(.bodyMedium, color: .sdtSecondary)
             .frame(maxWidth: .infinity, minHeight: height)

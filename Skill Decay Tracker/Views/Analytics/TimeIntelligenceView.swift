@@ -137,7 +137,7 @@ struct TimeIntelligenceView: View {
                         AxisGridLine().foregroundStyle(Color.sdtSecondary.opacity(0.1))
                         AxisValueLabel {
                             if let h = v.as(Int.self) {
-                                let label = h == 0 ? "12am" : h == 12 ? "12pm" : h < 12 ? "\(h)am" : "\(h-12)pm"
+                                let label = h == 0 ? String(localized: "12am") : h == 12 ? String(localized: "12pm") : h < 12 ? String(localized: "\(h)am") : String(localized: "\(h-12)pm")
                                 Text(label)
                                     .font(.system(size: 9, design: .monospaced))
                                     .foregroundStyle(Color.sdtSecondary)
