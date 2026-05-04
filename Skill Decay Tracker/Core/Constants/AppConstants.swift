@@ -20,8 +20,8 @@ enum AppConstants {
         /// Support page (GitHub Pages).
         static let support = URL(string: "https://paul-kltsk.github.io/skill-decay-tracker/support.html")!
 
-        /// App Store product page. Update the ID after first publication.
-        static let appStore = URL(string: "https://apps.apple.com/app/id0000000000")!
+        /// App Store product page.
+        static let appStore = URL(string: "https://apps.apple.com/app/id6761617003")!
 
         /// Apple subscription management deep-link.
         static let manageSubscriptions = URL(string: "https://apps.apple.com/account/subscriptions")!
