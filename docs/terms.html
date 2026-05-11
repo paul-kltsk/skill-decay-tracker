@@ -27,13 +27,21 @@
       font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 16px;
       color: var(--primary); text-decoration: none;
     }
-    .nav-logo-icon {
-      width: 30px; height: 30px; border-radius: 8px;
-      overflow: hidden;
-    }
+    .nav-logo-icon { width: 30px; height: 30px; border-radius: 8px; overflow: hidden; }
     .nav-logo-icon img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
     .nav-back { font-size: 14px; color: var(--secondary); text-decoration: none; transition: color .2s; }
     .nav-back:hover { color: var(--primary); }
+    .lang-switch { display: flex; align-items: center; gap: 4px; }
+    .lang-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
+      color: var(--muted); padding: 4px 8px; border-radius: 6px;
+      transition: all .2s; font-family: 'DM Sans', sans-serif;
+    }
+    .lang-btn.active { color: var(--primary); background: var(--surface2); }
+    .lang-btn:hover:not(.active) { color: var(--secondary); }
+    .lang-sep { font-size: 12px; color: var(--muted); }
     @media (max-width: 640px) { nav { padding: 16px 20px; } }
 
     .container { max-width: 720px; margin: 0 auto; padding: 64px 24px 80px; }
@@ -45,21 +53,22 @@
     ul { margin: 0 0 16px 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
     ul li {
       font-size: 15px; color: var(--secondary);
-      padding: 12px 16px; border-radius: 10px;
+      padding: 12px 16px 12px 40px; border-radius: 10px;
       background: var(--surface); border: 1px solid var(--border);
-      padding-left: 40px; position: relative;
+      position: relative;
     }
     ul li::before { content: "·"; position: absolute; left: 16px; color: var(--green); font-size: 18px; line-height: 1.5; }
     strong { color: var(--primary); font-weight: 500; }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-
     .info-box {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 16px; padding: 24px 28px; margin: 32px 0;
     }
     .info-box h3 { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 8px; }
     .info-box p { margin-bottom: 0; }
+    .footer-links { margin-top: 32px; font-size: 13px; color: var(--muted); }
+    .footer-links a { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -69,85 +78,192 @@
     <div class="nav-logo-icon"><img src="AppIcon-1024.png" alt="" /></div>
     Skill Decay Tracker
   </a>
-  <a href="index.html" class="nav-back">&larr; Back to home</a>
+  <div class="nav-right">
+    <div class="lang-switch">
+      <button id="btn-en" class="lang-btn active" onclick="setLang('en')">EN</button>
+      <span class="lang-sep">·</span>
+      <button id="btn-ru" class="lang-btn" onclick="setLang('ru')">RU</button>
+    </div>
+    <a href="index.html" class="nav-back lang-en">← Back to home</a>
+    <a href="index.html" class="nav-back lang-ru" style="display:none">← На главную</a>
+  </div>
 </nav>
 
 <div class="container">
-  <div class="page-label">Legal</div>
-  <h1>Terms of Service</h1>
-  <p class="updated">Last updated: April 11, 2026</p>
 
-  <p>These Terms of Service ("Terms") govern your use of the Skill Decay Tracker application ("App") developed by Pavel Kulitski ("we", "our", "us"). By downloading, installing, or using the App, you agree to be bound by these Terms.</p>
+  <!-- ENGLISH -->
+  <div class="lang-en">
+    <div class="page-label">Legal</div>
+    <h1>Terms of Service</h1>
+    <p class="updated">Last updated: April 11, 2026</p>
 
-  <h2>1. Description of Service</h2>
-  <p>Skill Decay Tracker is an AI-powered learning retention app that helps you track skill health using spaced repetition and the Ebbinghaus forgetting curve. The App generates personalised micro-challenges, visualises skill decay, and schedules review sessions to help maintain your knowledge portfolio.</p>
+    <p>These Terms of Service ("Terms") govern your use of the Skill Decay Tracker application ("App") developed by Pavel Kulitski ("we", "our", "us"). By downloading, installing, or using the App, you agree to be bound by these Terms.</p>
 
-  <h2>2. Account and Data</h2>
-  <p>The App does not require account creation. All skill data, practice history, and settings are stored locally on your device. No user accounts are created or maintained on our servers. Your display name and preferences are stored on-device only.</p>
+    <h2>1. Description of Service</h2>
+    <p>Skill Decay Tracker is an AI-powered learning retention app that helps you track skill health using spaced repetition and the Ebbinghaus forgetting curve. The App generates personalised micro-challenges, visualises skill decay, and schedules review sessions to help maintain your knowledge portfolio.</p>
 
-  <h2>3. Subscriptions and Payments</h2>
-  <ul>
-    <li><strong>Free Tier</strong> — Track up to 5 skills with 5 AI challenges per day and Daily Review mode at no cost.</li>
-    <li><strong>Pro Subscription</strong> — Unlocks unlimited skills, all practice modes (Quick Practice, Deep Dive), skill groups, full analytics, and widgets. Available as a monthly or annual auto-renewable subscription.</li>
-    <li><strong>Pro Lifetime</strong> — A one-time, non-consumable purchase that unlocks all Pro features permanently.</li>
-    <li><strong>Auto-Renewal</strong> — Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current billing period. Your Apple ID account will be charged for renewal within 24 hours prior to the end of the current period.</li>
-    <li><strong>Managing Subscriptions</strong> — You can manage or cancel your subscription at any time through your Apple ID settings (Settings &rarr; Apple ID &rarr; Subscriptions).</li>
-    <li><strong>Free Trial</strong> — If offered, a free trial period converts to a paid subscription unless cancelled before the trial ends. Unused portions of a free trial are forfeited upon purchasing a subscription.</li>
-  </ul>
+    <h2>2. Account and Data</h2>
+    <p>The App does not require account creation. All skill data, practice history, and settings are stored locally on your device. No user accounts are created or maintained on our servers. Your display name and preferences are stored on-device only.</p>
 
-  <h2>4. Refunds</h2>
-  <p>All purchases are processed by Apple through the App Store. Refund requests must be submitted directly to Apple in accordance with their <a href="https://support.apple.com/en-us/118223" target="_blank">refund policy</a>. We do not process refunds independently.</p>
+    <h2>3. Subscriptions and Payments</h2>
+    <ul>
+      <li><strong>Free Tier</strong> — Track up to 5 skills with 5 AI challenges per day and Daily Review mode at no cost.</li>
+      <li><strong>Pro Subscription</strong> — Unlocks unlimited skills, all practice modes (Quick Practice, Deep Dive), skill groups, full analytics, and widgets. Available as a monthly or annual auto-renewable subscription.</li>
+      <li><strong>Pro Lifetime</strong> — A one-time, non-consumable purchase that unlocks all Pro features permanently.</li>
+      <li><strong>Auto-Renewal</strong> — Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current billing period. Your Apple ID account will be charged for renewal within 24 hours prior to the end of the current period.</li>
+      <li><strong>Managing Subscriptions</strong> — You can manage or cancel your subscription at any time through your Apple ID settings (Settings &rarr; Apple ID &rarr; Subscriptions).</li>
+      <li><strong>Free Trial</strong> — If offered, a free trial period converts to a paid subscription unless cancelled before the trial ends. Unused portions of a free trial are forfeited upon purchasing a subscription.</li>
+    </ul>
 
-  <h2>5. AI-Generated Content</h2>
-  <p>The App uses artificial intelligence (Claude, GPT-4o, Gemini) to generate practice challenges and evaluate answers. Please note:</p>
-  <ul>
-    <li>AI-generated challenges and explanations are for <strong>educational purposes only</strong> and may contain inaccuracies.</li>
-    <li>We do not guarantee the accuracy, completeness, or reliability of AI-generated content.</li>
-    <li>You should not rely solely on this App for critical professional, medical, legal, or financial knowledge.</li>
-    <li>Challenge content is generated dynamically and may vary between sessions.</li>
-  </ul>
+    <h2>4. Refunds</h2>
+    <p>All purchases are processed by Apple through the App Store. Refund requests must be submitted directly to Apple in accordance with their <a href="https://support.apple.com/en-us/118223" target="_blank">refund policy</a>. We do not process refunds independently.</p>
 
-  <h2>6. API Keys</h2>
-  <p>If you choose to use your own AI provider API key (Claude, OpenAI, or Gemini), you are responsible for:</p>
-  <ul>
-    <li>Maintaining the security of your API key</li>
-    <li>Any costs incurred through your API provider account</li>
-    <li>Complying with the terms of service of the respective AI provider</li>
-  </ul>
-  <p>Your API keys are stored securely in your device's Keychain and are never transmitted to our servers.</p>
+    <h2>5. AI-Generated Content</h2>
+    <p>The App uses artificial intelligence (Claude, GPT-4o, Gemini) to generate practice challenges and evaluate answers. Please note:</p>
+    <ul>
+      <li>AI-generated challenges and explanations are for <strong>educational purposes only</strong> and may contain inaccuracies.</li>
+      <li>We do not guarantee the accuracy, completeness, or reliability of AI-generated content.</li>
+      <li>You should not rely solely on this App for critical professional, medical, legal, or financial knowledge.</li>
+      <li>Challenge content is generated dynamically and may vary between sessions.</li>
+    </ul>
 
-  <h2>7. Acceptable Use</h2>
-  <p>You agree not to:</p>
-  <ul>
-    <li>Reverse-engineer, decompile, or disassemble the App</li>
-    <li>Attempt to bypass rate limits or security measures on our proxy server</li>
-    <li>Use the App for any unlawful purpose</li>
-    <li>Redistribute or resell the App or any content generated by it</li>
-  </ul>
+    <h2>6. API Keys</h2>
+    <p>If you choose to use your own AI provider API key (Claude, OpenAI, or Gemini), you are responsible for:</p>
+    <ul>
+      <li>Maintaining the security of your API key</li>
+      <li>Any costs incurred through your API provider account</li>
+      <li>Complying with the terms of service of the respective AI provider</li>
+    </ul>
+    <p>Your API keys are stored securely in your device's Keychain and are never transmitted to our servers.</p>
 
-  <h2>8. Intellectual Property</h2>
-  <p>The App, including its design, code, algorithms, and brand assets, is owned by Pavel Kulitski and protected by applicable intellectual property laws. Your subscription grants you a personal, non-transferable licence to use the App. AI-generated challenge content is provided for your personal educational use.</p>
+    <h2>7. Acceptable Use</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Reverse-engineer, decompile, or disassemble the App</li>
+      <li>Attempt to bypass rate limits or security measures on our proxy server</li>
+      <li>Use the App for any unlawful purpose</li>
+      <li>Redistribute or resell the App or any content generated by it</li>
+    </ul>
 
-  <h2>9. Limitation of Liability</h2>
-  <p>To the maximum extent permitted by applicable law, we shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to your use of the App. This includes, but is not limited to, damages from reliance on AI-generated content, data loss due to device failure, or interruptions to AI service availability.</p>
+    <h2>8. Intellectual Property</h2>
+    <p>The App, including its design, code, algorithms, and brand assets, is owned by Pavel Kulitski and protected by applicable intellectual property laws. Your subscription grants you a personal, non-transferable licence to use the App. AI-generated challenge content is provided for your personal educational use.</p>
 
-  <h2>10. Disclaimer of Warranties</h2>
-  <p>The App is provided "as is" and "as available" without warranties of any kind, either express or implied. We do not warrant that the App will be uninterrupted, error-free, or that AI-generated content will be accurate or suitable for any specific purpose.</p>
+    <h2>9. Limitation of Liability</h2>
+    <p>To the maximum extent permitted by applicable law, we shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to your use of the App. This includes, but is not limited to, damages from reliance on AI-generated content, data loss due to device failure, or interruptions to AI service availability.</p>
 
-  <h2>11. Changes to These Terms</h2>
-  <p>We reserve the right to update these Terms at any time. Changes will be posted on this page with an updated revision date. Continued use of the App after changes constitutes acceptance of the updated Terms. Material changes will be communicated through the App where practicable.</p>
+    <h2>10. Disclaimer of Warranties</h2>
+    <p>The App is provided "as is" and "as available" without warranties of any kind, either express or implied. We do not warrant that the App will be uninterrupted, error-free, or that AI-generated content will be accurate or suitable for any specific purpose.</p>
 
-  <h2>12. Governing Law</h2>
-  <p>These Terms shall be governed by and construed in accordance with the laws applicable to your jurisdiction, without regard to conflict of law principles.</p>
+    <h2>11. Changes to These Terms</h2>
+    <p>We reserve the right to update these Terms at any time. Changes will be posted on this page with an updated revision date. Continued use of the App after changes constitutes acceptance of the updated Terms. Material changes will be communicated through the App where practicable.</p>
 
-  <h2>13. Contact</h2>
-  <div class="info-box">
-    <h3>Questions about these terms?</h3>
-    <p>Reach out at <a href="mailto:pavel.kulitski@icloud.com">pavel.kulitski@icloud.com</a> &mdash; we aim to respond within 24 hours.</p>
+    <h2>12. Governing Law</h2>
+    <p>These Terms shall be governed by and construed in accordance with the laws applicable to your jurisdiction, without regard to conflict of law principles.</p>
+
+    <h2>13. Contact</h2>
+    <div class="info-box">
+      <h3>Questions about these terms?</h3>
+      <p>Reach out at <a href="mailto:pavel.kulitski@icloud.com">pavel.kulitski@icloud.com</a> &mdash; we aim to respond within 24 hours.</p>
+    </div>
+
+    <p class="footer-links">See also: <a href="privacy.html">Privacy Policy</a> &middot; <a href="support.html">Support</a></p>
   </div>
 
-  <p style="margin-top: 32px; font-size: 13px; color: var(--muted);">See also: <a href="privacy.html">Privacy Policy</a> &middot; <a href="support.html">Support</a></p>
+  <!-- RUSSIAN -->
+  <div class="lang-ru" style="display:none">
+    <div class="page-label">Юридическое</div>
+    <h1>Условия использования</h1>
+    <p class="updated">Последнее обновление: 11 апреля 2026 г.</p>
+
+    <p>Настоящие Условия использования («Условия») регулируют использование вами приложения Skill Decay Tracker («Приложение»), разработанного Pavel Kulitski («мы», «наш», «нас»). Скачивая, устанавливая или используя Приложение, вы соглашаетесь с настоящими Условиями.</p>
+
+    <h2>1. Описание сервиса</h2>
+    <p>Skill Decay Tracker — приложение для запоминания навыков на основе ИИ, которое помогает отслеживать их состояние с использованием интервального повторения и кривой забывания Эббингауза. Приложение генерирует персонализированные микро-задания, визуализирует деградацию навыков и планирует повторения для поддержания вашего знания.</p>
+
+    <h2>2. Аккаунт и данные</h2>
+    <p>Приложение не требует создания аккаунта. Все данные о навыках, история практики и настройки хранятся локально на вашем устройстве. Пользовательские аккаунты не создаются и не хранятся на наших серверах. Ваше отображаемое имя и настройки хранятся только на устройстве.</p>
+
+    <h2>3. Подписки и оплата</h2>
+    <ul>
+      <li><strong>Бесплатный уровень</strong> — Отслеживание до 5 навыков, 5 заданий ИИ в день и режим Ежедневного повторения без оплаты.</li>
+      <li><strong>Подписка Pro</strong> — Открывает неограниченное количество навыков, все режимы практики (Быстрая практика, Глубокое погружение), группы навыков, полную аналитику и виджеты. Доступна в виде ежемесячной или годовой автоматически обновляемой подписки.</li>
+      <li><strong>Pro Lifetime</strong> — Единоразовая покупка (без расхода), открывающая все функции Pro навсегда.</li>
+      <li><strong>Автообновление</strong> — Подписки автоматически обновляются, если не отменить их минимум за 24 часа до конца текущего расчётного периода. Оплата за обновление списывается с вашего Apple ID в течение 24 часов до окончания текущего периода.</li>
+      <li><strong>Управление подписками</strong> — Вы можете управлять подпиской или отменить её в любое время через настройки Apple ID (Настройки &rarr; Apple ID &rarr; Подписки).</li>
+      <li><strong>Бесплатный пробный период</strong> — При наличии пробного периода он конвертируется в платную подписку, если не отменить до его окончания. Неиспользованная часть пробного периода аннулируется при покупке подписки.</li>
+    </ul>
+
+    <h2>4. Возврат средств</h2>
+    <p>Все покупки обрабатываются Apple через App Store. Запросы на возврат средств необходимо направлять напрямую в Apple в соответствии с их <a href="https://support.apple.com/ru-ru/118223" target="_blank">политикой возврата</a>. Мы не обрабатываем возвраты самостоятельно.</p>
+
+    <h2>5. Контент, сгенерированный ИИ</h2>
+    <p>Приложение использует искусственный интеллект (Claude, GPT-4o, Gemini) для генерации практических заданий и оценки ответов. Обратите внимание:</p>
+    <ul>
+      <li>Задания и объяснения, сгенерированные ИИ, предназначены исключительно для <strong>образовательных целей</strong> и могут содержать неточности.</li>
+      <li>Мы не гарантируем точность, полноту или достоверность контента, сгенерированного ИИ.</li>
+      <li>Не следует полагаться исключительно на это приложение для получения критически важных профессиональных, медицинских, юридических или финансовых знаний.</li>
+      <li>Содержание заданий генерируется динамически и может отличаться в разных сессиях.</li>
+    </ul>
+
+    <h2>6. API-ключи</h2>
+    <p>Если вы используете собственный API-ключ AI-провайдера (Claude, OpenAI или Gemini), вы несёте ответственность за:</p>
+    <ul>
+      <li>Сохранность вашего API-ключа</li>
+      <li>Все расходы, понесённые через ваш аккаунт AI-провайдера</li>
+      <li>Соблюдение условий использования соответствующего AI-провайдера</li>
+    </ul>
+    <p>Ваши API-ключи хранятся в защищённом Keychain вашего устройства и никогда не передаются на наши серверы.</p>
+
+    <h2>7. Допустимое использование</h2>
+    <p>Вы соглашаетесь не:</p>
+    <ul>
+      <li>Декомпилировать, разбирать или пытаться извлечь исходный код Приложения</li>
+      <li>Пытаться обойти ограничения частоты запросов или меры безопасности на нашем прокси-сервере</li>
+      <li>Использовать Приложение в незаконных целях</li>
+      <li>Перераспределять или перепродавать Приложение или любой сгенерированный им контент</li>
+    </ul>
+
+    <h2>8. Интеллектуальная собственность</h2>
+    <p>Приложение, включая дизайн, код, алгоритмы и фирменные материалы, принадлежит Pavel Kulitski и защищено применимыми законами об интеллектуальной собственности. Ваша подписка предоставляет личную, непередаваемую лицензию на использование Приложения. Задания, сгенерированные ИИ, предоставляются для личного образовательного использования.</p>
+
+    <h2>9. Ограничение ответственности</h2>
+    <p>В максимальной степени, допустимой применимым законодательством, мы не несём ответственности за косвенный, случайный, специальный, последующий или штрафной ущерб, возникающий в связи с использованием Приложения. Это включает ущерб от использования контента ИИ, потерю данных из-за неисправности устройства или перебоев в работе AI-сервисов.</p>
+
+    <h2>10. Отказ от гарантий</h2>
+    <p>Приложение предоставляется «как есть» и «по мере доступности» без каких-либо явных или подразумеваемых гарантий. Мы не гарантируем бесперебойную или безошибочную работу Приложения, а также точность или пригодность контента ИИ для какой-либо конкретной цели.</p>
+
+    <h2>11. Изменения условий</h2>
+    <p>Мы оставляем за собой право в любое время обновлять настоящие Условия. Изменения публикуются на этой странице с обновлённой датой пересмотра. Продолжение использования Приложения после изменений означает принятие обновлённых Условий. Существенные изменения будут сообщаться через Приложение там, где это практически возможно.</p>
+
+    <h2>12. Применимое право</h2>
+    <p>Настоящие Условия регулируются и толкуются в соответствии с законодательством, применимым к вашей юрисдикции, без учёта принципов коллизионного права.</p>
+
+    <h2>13. Контакт</h2>
+    <div class="info-box">
+      <h3>Вопросы об условиях?</h3>
+      <p>Напишите нам на <a href="mailto:pavel.kulitski@icloud.com">pavel.kulitski@icloud.com</a> &mdash; мы стараемся отвечать в течение 24 часов.</p>
+    </div>
+
+    <p class="footer-links">Смотрите также: <a href="privacy.html">Политика конфиденциальности</a> &middot; <a href="support.html">Поддержка</a></p>
+  </div>
+
 </div>
 
+<script>
+  function setLang(lang) {
+    document.querySelectorAll('.lang-en, .lang-ru').forEach(function(el) {
+      el.style.display = el.classList.contains('lang-' + lang) ? '' : 'none';
+    });
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+    document.documentElement.lang = lang;
+    try { localStorage.setItem('sdt-lang', lang); } catch(e) {}
+  }
+  (function() {
+    var saved = 'en';
+    try { saved = localStorage.getItem('sdt-lang') || 'en'; } catch(e) {}
+    if (saved === 'ru') setLang('ru');
+  })();
+</script>
 </body>
 </html>
