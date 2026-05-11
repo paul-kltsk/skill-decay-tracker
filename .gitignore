@@ -11,6 +11,22 @@ Packages/
 # OS
 .DS_Store
 
-# Claude Code local cache (не коммить API ключи!)
-# .claude/ — можно коммитить settings.json, но не credentials
-.claude/worktrees/
+# Claude Code — never commit to public repos
+.claude/
+.agents/
+CLAUDE.md
+skill-lock/
+skills-lock.json
+APP_STORE_SUBSCRIPTIONS.md
+
+# Firebase — contains API key, do not commit to public repos
+# Copy GoogleService-Info.plist.template → GoogleService-Info.plist and fill in your values
+GoogleService-Info.plist
+
+# Scratch / temp files
+scratch/
+
+# Secrets / local config (never commit real keys)
+Secrets.swift
+*.secret
+*.env
